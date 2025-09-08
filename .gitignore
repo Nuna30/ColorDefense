@@ -1,0 +1,39 @@
+# Unreal Engine typical ignores
+*.sln
+*.suo
+*.user
+*.userprefs
+*.opensdf
+*.sdf
+*.VC.db
+.vscode/
+
+# Build folders
+Binaries/
+Build/
+DerivedDataCache/
+Intermediate/
+Saved/
+Content/MedievalDungeon/
+Content/Abandoned_Building/
+Content/ConferenceRoom/
+Content/IndustryPropsPack6/
+Content/MeleeWeaponAura_VFX/
+Content/FirstPerson
+Content/LevelPrototyping
+Content/LP_FPSLite_JC
+Content/LP_LiteWeapons_JC
+Content/Portals
+Content/PortalSystem
+Content/ThirdPerson
+
+# Config local override
+*.local
+
+# Ignore temporary files
+*.log
+*.tmp
+
+# Optional
+.DS_Store
+Thumbs.db
