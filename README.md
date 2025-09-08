@@ -69,3 +69,24 @@
     <li>https://dev.epicgames.com/documentation/en-us/unreal-engine/basic-navigation-in-unreal-engine</li>
     <li>https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-engine-actor-lifecycle</li>
 </details>
+
+## 1인칭
+<details>
+  <summary>Creep 클릭 시 삭제</summary>
+  <p>
+    <br>
+    <img src="./images/CreepDestroy.gif">
+  </p>
+</details>
+
+## 에셋 제작
+<details>
+  <summary>나의 첫 나무</summary>
+  <p>
+    <br>
+    <img src="./images/MyFirstBlenderTree.png" width="45%" style="display:inline-block; margin-right:5%;">
+    <img src="./images/MyFirstTree.png" width="52%" style="display:inline-block;">
+    <ul>
+      <li>Ref : https://www.youtube.com/watch?v=W337AL7n3dc</li>
+  </p>
+</details>
