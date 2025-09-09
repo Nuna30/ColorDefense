@@ -21,7 +21,8 @@
         <li>R, G, B 세 종류</li>
         <li>각각 해당 색깔에 맞는 파장만 흡수</li>
         <li>ex) Yellow Creep을 흡수하려면 R, G Color Gun을 사용해야 함</li>
-        <li>+) 건설, 스포이드, ...</li>
+        <li>EyeDropper Gun : 주변 사물 색깔을 복사, 발사 횟수 제한 
+        <li>+) 건설, ...</li>
       </ul>
     </details></li>
     <li><details>
