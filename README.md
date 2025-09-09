@@ -1,12 +1,44 @@
 # [ Color Defense ]
 <details>
-  <summary>아이디어</summary>
+  <summary>아이디어 & 컨셉</summary>
   <ul>
-    <li>1~7 빨주노초파남보 890 툴</li>
-    <li>크기 = 음계, 색깔 = 음</li>
-    <li>시작 메뉴판 : 설정을 다 지워야 시작 / 게임 컨셉 자연스럽게 학습</li>
-    <li>대쉬, 점프</li>
-    <li>크립 잡으면 박스에 색깔이 들어감(3차원 navmesh)</li>
+    <li><details>
+      <summary>색의 혼합 & 흡수</summary>
+        <p>
+          <img src="./images/VisibleSpectrum.png" width="45%" style="display:inline-block; margin-right:5%;">
+          <img src="./images/PrimaryColorOfLight.jpeg" width="30%" style="display:inline-block;">
+        </p>
+      <ul>
+        <li>태양같은 백광색은 모든 파장의 빛이 혼합된 것 (additive mixing) </li>
+        <li>노랑색으로 보이는 방법 = 빨간 파장 + 초록 파장 or 단일 파장 570~590 nm</li>
+        <li>ColorGun이 특정 파장의 빛을 흡수하는 컨셉</li>
+        <li>additive mixing 개념을 주로 사용할 예정</li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary>Color Gun</summary>
+      <ul>
+        <li>R, G, B 세 종류</li>
+        <li>각각 해당 색깔에 맞는 파장만 흡수</li>
+        <li>ex) Yellow Creep을 흡수하려면 R, G Color Gun을 사용해야 함</li>
+        <li>+) 건설, 스포이드, ...</li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary>Color Creep</summary>
+      <ul>
+        <li>특정 빛의 파장을 내뿜는 Creep</li>
+        <li>Red Creep => Red Color Gun으로 흡수</li>
+      </ul>
+    </details></li>
+    <li><details>
+      <summary>기타</summary>
+      <ul>
+        <li>시작 메뉴판 : 설정을 다 지워야 시작 / 게임 컨셉 자연스럽게 학습</li>
+        <li>대쉬, 점프</li>
+      </ul>
+    </details></li>
+  </ul>
 </details>
 
 ## 크립 이동
