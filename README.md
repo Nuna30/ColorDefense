@@ -132,3 +132,14 @@
   <summary>나무 울타리</summary>
   <img src="./images/WoodenFence0.png" width="50%">
 </details>
+<details>
+  <summary>Landscape 찍먹</summary>
+  <img src="./images/MyFirstLandscape.png" width="50%">
+</details>
+<details>
+  <summary>큐브 스타일 지형 에셋 제작</summary>
+  <p>
+    <br>
+    <img src="./images/CubeAsset.png" width="50%">
+  </p>
+</details>
