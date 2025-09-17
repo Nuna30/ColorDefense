@@ -143,3 +143,14 @@
     <img src="./images/CubeAsset.png" width="50%">
   </p>
 </details>
+<details>
+  <summary>잡초 구현</summary>
+  <p>
+    <br>
+    <img src="./images/GrassLowFps.png" width="50%">
+  </p>
+  <ul>
+    <li>어렵게 잡초 만들었는데 막상 깔아보니 너무 렉이 걸림...</li>
+    <li>최적화를 하거나 마인크래프트 같은 로우 폴리곤 잡초를 만들어야 할 듯</li>
+  </ul>
+</details>
