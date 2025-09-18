@@ -147,10 +147,11 @@
   <summary>잡초 구현</summary>
   <p>
     <br>
-    <img src="./images/GrassLowFps.png" width="50%">
+    <img src="./images/GrassLowFps.png" width="45%" style="inline-block">
+    <img src="./images/MCGrass.png" width="45%">
   </p>
   <ul>
-    <li>어렵게 잡초 만들었는데 막상 깔아보니 너무 렉이 걸림...</li>
-    <li>최적화를 하거나 마인크래프트 같은 로우 폴리곤 잡초를 만들어야 할 듯</li>
+    <li>현실적인 잡초를 만들어보니 너무 렉이 걸림...</li>
+    <li>맵 컨셉 스타일에 더 어울리고 성능도 좋은 마인크래프트 식 잡초 제작</li>
   </ul>
 </details>
