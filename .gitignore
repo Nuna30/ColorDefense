@@ -15,18 +15,7 @@ DerivedDataCache/
 Intermediate/
 Saved/
 Blender/
-Content/MedievalDungeon/
-Content/Abandoned_Building/
-Content/ConferenceRoom/
-Content/IndustryPropsPack6/
-Content/MeleeWeaponAura_VFX/
-Content/FirstPerson
-Content/LevelPrototyping
-Content/LP_FPSLite_JC
-Content/LP_LiteWeapons_JC
-Content/Portals
-Content/PortalSystem
-Content/ThirdPerson
+Content/
 
 # Config local override
 *.local
