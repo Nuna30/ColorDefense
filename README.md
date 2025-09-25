@@ -159,3 +159,14 @@
     <li>plane의 법선 벡터 반대 방향에서 잡초를 보면 잡초가 보이지 않아서 plane을 복사한 뒤 눈에 보이지 않을 만큼 좁게 띄움</li>
   </ul>
 </details>
+<details>
+  <summary>자동차</summary>
+  <p>
+    <br>
+    <img src="./images/MyFirstCar.png" width="45%">
+  </p>
+  <ul>
+    <li>1965년식 머스탱</li>
+    <li>refernce : https://www.youtube.com/watch?v=cot14VwZFHU</li>
+  </ul>
+</details>
