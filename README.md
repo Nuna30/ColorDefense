@@ -147,10 +147,15 @@
   <summary>잡초 구현</summary>
   <p>
     <br>
-    <img src="./images/GrassLowFps.png" width="50%">
+    <img src="./images/GrassLowFps.png" width="45%" style="inline-block">
+    <img src="./images/MCGrass.png" width="45%">
   </p>
   <ul>
-    <li>어렵게 잡초 만들었는데 막상 깔아보니 너무 렉이 걸림...</li>
-    <li>최적화를 하거나 마인크래프트 같은 로우 폴리곤 잡초를 만들어야 할 듯</li>
+    <li>현실적인 잡초를 만들어보니 너무 렉이 걸림...</li>
+    <li>맵 컨셉 스타일에 더 어울리고 성능도 좋은 마인크래프트 식 잡초 제작</li>
+    <li>얇은 큐브를 픽셀로 생각하고 잡초를 제작하면 각 큐브마다 그림자가 져서 이상하게 보임</li>
+    <li>그렇다고 grid 형태의 edge들에서 제작을 시작하지 않으면 잡초를 구현하기 힘듦</li>
+    <li>plane은 gird edge들이 있어도 그림자가 생기지 않는 점을 이용함</li>
+    <li>plane의 법선 벡터 반대 방향에서 잡초를 보면 잡초가 보이지 않아서 plane을 복사한 뒤 눈에 보이지 않을 만큼 좁게 띄움</li>
   </ul>
 </details>
