@@ -3,6 +3,14 @@
   <summary>아이디어 & 컨셉</summary>
   <ul>
     <li><details>
+      <summary>구현 예정</summary>
+      <ul>
+        <li>초목에 몸이 닿으면 움직임</li>
+        <li>건타워터렛</li>
+        <li>양방향 포탈건(f키)</li>
+      </ul>
+    </details></li>
+    <li><details>
       <summary>색의 혼합 & 흡수</summary>
         <p>
           <img src="./images/VisibleSpectrum.png" width="45%" style="display:inline-block; margin-right:5%;">
