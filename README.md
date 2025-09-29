@@ -172,9 +172,19 @@
   <p>
     <br>
     <img src="./images/MyFirstCar.png" width="45%">
+    <img src="./images/CarAssets.png" width="45%">
   </p>
   <ul>
-    <li>1965년식 머스탱</li>
     <li>refernce : https://www.youtube.com/watch?v=cot14VwZFHU</li>
+  </ul>
+</details>
+<details>
+  <summary>VFX</summary>
+  <p>
+    <br>
+    <img src="./images/MyFirstVFX.gif" width="45%">
+  </p>
+  <ul>
+    <li>reference : 언리얼 엔진 5로 제작하는 실시간 VFX : 나이아가라를 활용한 VFX 단계별 실습</li>
   </ul>
 </details>
