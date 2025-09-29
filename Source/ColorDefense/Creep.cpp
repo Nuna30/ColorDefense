@@ -32,9 +32,6 @@ void ACreep::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, FString::Printf(TEXT("%s Spawned"), *GetActorLabel()));
-	// UE_LOG(LogTemp, Warning, TEXT("%s Spawned"), *GetActorLabel());
-
 	// 위에서 BP_Creep 보기
 	if (ViewInGame) 
 	{
@@ -100,10 +97,6 @@ void ACreep::MoveAlong()
 // 모든 waypoint들 얻어서 Waypoints 배열에 저장
 void ACreep::GetAllWaypoints()
 {
-
-	// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("GetAllWaypoints")));
-	// UE_LOG(LogTemp, Warning, TEXT("GetAllWaypoints"));
-
 	TArray<AActor*> FoundActors;
     UGameplayStatics::GetAllActorsOfClass(GetWorld(), AWayPoint::StaticClass(), FoundActors);
 	for (AActor* Actor : FoundActors)
@@ -111,7 +104,6 @@ void ACreep::GetAllWaypoints()
 		AWayPoint* Waypoint = Cast<AWayPoint>(Actor);
 		if (Waypoint)
 		{
-			// GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Added.")));
 			Waypoints.Add(Waypoint);
 		}
 		else 

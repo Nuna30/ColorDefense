@@ -50,6 +50,10 @@ void UColorGun::Shoot()
 
 	FHitResult Hit;
 	bool bSuccess = GetWorld()->LineTraceSingleByChannel(Hit, Location, End, ECollisionChannel::ECC_GameTraceChannel1);
+
+	// FString ResultString = bSuccess ? TEXT("true") : TEXT("false");
+	// GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Blue, FString::Printf(TEXT("LineTrace Success: %s"), *ResultString));
+
 	if (bSuccess)
 	{
 		DrawDebugPoint(GetWorld(), Hit.Location, 20, FColor::Red, true);

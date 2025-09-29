@@ -49,7 +49,12 @@ void ACreepGenerator::SpawnCreep()
 	// 월드에 크립 스폰
 	ACreep* Creep = GetWorld()->SpawnActor<ACreep>(CreepClass, SpawnLocation, SpawnRotation);
 
-	// GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Green, FString::Printf(TEXT("Creep Spawned.")));
+	// 디버깅용
+	// FString DebugMessage = FString::Printf(TEXT("SpawnLocation: X=%.2f, Y=%.2f, Z=%.2f"),SpawnLocation.X, SpawnLocation.Y, SpawnLocation.Z);
+    // FString DebugRotationMessage = FString::Printf(TEXT("SpawnRotation: Roll=%.2f, Pitch=%.2f, Yaw=%.2f"),SpawnRotation.Roll, SpawnRotation.Pitch, SpawnRotation.Yaw);
+    // GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, DebugMessage);
+    // GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, DebugRotationMessage);
+	// GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Green, FString::Printf(TEXT("Creep Spawned.")));	
 
-	// if (Creep == nullptr) GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Creep is null")));
+
 }
