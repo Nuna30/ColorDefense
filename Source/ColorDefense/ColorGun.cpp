@@ -2,6 +2,7 @@
 
 
 #include "ColorGun.h"
+#include "Creep.h"
 
 // Sets default values for this component's properties
 UColorGun::UColorGun()
@@ -18,9 +19,6 @@ UColorGun::UColorGun()
 void UColorGun::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// ...
-	
 }
 
 
@@ -44,20 +42,15 @@ void UColorGun::Shoot()
 	FRotator Rotation;
 	OwnerController->GetPlayerViewPoint(Location, Rotation);
 
-	// DrawDebugCamera(GetWorld(), Location, Rotation, 90, 2, FColor::Red, true);
-
 	FVector End = Location + Rotation.Vector() * MaxRange;
 
 	FHitResult Hit;
 	bool bSuccess = GetWorld()->LineTraceSingleByChannel(Hit, Location, End, ECollisionChannel::ECC_GameTraceChannel1);
 
-	// FString ResultString = bSuccess ? TEXT("true") : TEXT("false");
-	// GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Blue, FString::Printf(TEXT("LineTrace Success: %s"), *ResultString));
-
 	if (bSuccess)
 	{
-		DrawDebugPoint(GetWorld(), Hit.Location, 20, FColor::Red, true);
-		Hit.GetActor()->Destroy();
+		// DrawDebugPoint(GetWorld(), Hit.Location, 20, FColor::Red, true);
+		Cast<ACreep>(Hit.GetActor())->HandleDestruction();
 		// GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, FString::Printf(TEXT("%s"), *(Hit.GetActor()->GetName())));
 	}
 

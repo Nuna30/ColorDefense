@@ -22,8 +22,8 @@ protected:
 
 private:
 	// ColorGun 최대 사거리
-	UPROPERTY(EditAnywhere)
-	float MaxRange = 1000;
+	UPROPERTY(EditAnywhere, Category = "Setting")
+	float MaxRange = FLT_MAX;
 	
 public:	
 	// Called every frame

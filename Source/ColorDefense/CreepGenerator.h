@@ -33,7 +33,6 @@ private:
 	UPROPERTY(EditAnywhere, Category="Setting")
 	TSubclassOf<class ACreep> CreepClass;
 	
-
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

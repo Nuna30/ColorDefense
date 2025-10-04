@@ -3,6 +3,7 @@
 
 #include "CreepGenerator.h"
 #include "Creep.h"
+#include "CreepPoolSubsystem.h"
 
 // Sets default values
 ACreepGenerator::ACreepGenerator()
@@ -17,6 +18,7 @@ void ACreepGenerator::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// 1초마다 크립 생성
 	GenerateCreep(1);
 	
 }
@@ -48,7 +50,7 @@ void ACreepGenerator::SpawnCreep()
 
 	// 월드에 크립 스폰
 	ACreep* Creep = GetWorld()->SpawnActor<ACreep>(CreepClass, SpawnLocation, SpawnRotation);
-
+	
 	// 디버깅용
 	// FString DebugMessage = FString::Printf(TEXT("SpawnLocation: X=%.2f, Y=%.2f, Z=%.2f"),SpawnLocation.X, SpawnLocation.Y, SpawnLocation.Z);
     // FString DebugRotationMessage = FString::Printf(TEXT("SpawnRotation: Roll=%.2f, Pitch=%.2f, Yaw=%.2f"),SpawnRotation.Roll, SpawnRotation.Pitch, SpawnRotation.Yaw);
