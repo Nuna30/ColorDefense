@@ -69,4 +69,5 @@ void APlayerCharacter::Jump()
 void APlayerCharacter::Shoot()
 {
 	ColorGun->Shoot();
+	OnShoot();
 }

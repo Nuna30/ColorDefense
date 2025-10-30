@@ -4,6 +4,7 @@
 #include "CreepGenerator.h"
 #include "Creep.h"
 #include "CreepPoolSubsystem.h"
+#include "GameEnums.h"
 
 // Sets default values
 ACreepGenerator::ACreepGenerator()
@@ -51,12 +52,21 @@ void ACreepGenerator::SpawnCreep()
 	// 월드에 크립 스폰
 	ACreep* Creep = GetWorld()->SpawnActor<ACreep>(CreepClass, SpawnLocation, SpawnRotation);
 	
+	int RandomColor = FMath::RandRange(1, 7);
+	switch (RandomColor) {
+		case 1 : Creep->ChangeColor(M_CreepColor::Red); break;
+		case 2 : Creep->ChangeColor(M_CreepColor::Orange); break;
+		case 3 : Creep->ChangeColor(M_CreepColor::Yellow); break;
+		case 4 : Creep->ChangeColor(M_CreepColor::Green); break;
+		case 5 : Creep->ChangeColor(M_CreepColor::Blue); break;
+		case 6 : Creep->ChangeColor(M_CreepColor::Purple); break;
+		case 7 : Creep->ChangeColor(M_CreepColor::Indigo); break;
+	}
+
 	// 디버깅용
 	// FString DebugMessage = FString::Printf(TEXT("SpawnLocation: X=%.2f, Y=%.2f, Z=%.2f"),SpawnLocation.X, SpawnLocation.Y, SpawnLocation.Z);
     // FString DebugRotationMessage = FString::Printf(TEXT("SpawnRotation: Roll=%.2f, Pitch=%.2f, Yaw=%.2f"),SpawnRotation.Roll, SpawnRotation.Pitch, SpawnRotation.Yaw);
     // GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, DebugMessage);
     // GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, DebugRotationMessage);
 	// GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Green, FString::Printf(TEXT("Creep Spawned.")));	
-
-
 }

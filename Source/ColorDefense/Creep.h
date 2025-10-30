@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 #include "Navigation/PathFollowingComponent.h"
+#include "GameEnums.h"
 #include "Creep.generated.h"
 
 UCLASS()
@@ -24,9 +25,13 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Setting")
     TObjectPtr<class UNiagaraSystem> VFX;
 
-	// 사운드
-    UPROPERTY(EditDefaultsOnly, Category = "Setting")
-    TObjectPtr<class USoundBase> SFX; 
+	// // 사운드
+    // UPROPERTY(EditDefaultsOnly, Category = "Setting")
+    // TObjectPtr<class USoundBase> SFX; 
+
+	// Mesh 컴포넌트
+    UPROPERTY(EditAnywhere, Category = "Setting")
+    UStaticMeshComponent* CreepMesh;
 
 private:
 	// AI Controller
@@ -45,7 +50,6 @@ private:
 	// 크립들을 모아두는 풀
 	class UCreepPoolSubsystem* CreepPool;
 
-
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -53,5 +57,10 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	void ChangeColor(M_CreepColor Color);
+
 	void HandleDestruction();
+
+	// 크립 색깔
+	M_CreepColor CreepColor = M_CreepColor::Red;
 };
