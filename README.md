@@ -188,3 +188,13 @@
     <li>reference : 언리얼 엔진 5로 제작하는 실시간 VFX : 나이아가라를 활용한 VFX 단계별 실습</li>
   </ul>
 </details>
+<details>
+  <summary>총</summary>
+  <p>
+    <br>
+    <img src="./images/MyFirstColorGun.png" width="45%">
+  </p>
+  <ul>
+    <li>AI로 만든 레이저 총 이미지를 블렌더에서 직접 구현</li>
+  </ul>
+</details>
