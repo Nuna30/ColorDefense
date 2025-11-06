@@ -29,13 +29,13 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	// void GenerateHeightMap(int32 MaxHeight);
-	// void GenerateTerrain();
-	// void GenerateEnvironment();
-	// void PlaceEnvironment(const TArray<FString>& ObjPathList, int32 Percent, int32 OffsetZ, const FVector& BlockSize, const FRotator& Rotation, const FVector& Scale);
-	// void SpawnStaticMeshByPath(const FSoftObjectPath& MeshPath, const FVector& Location, const FRotator& Rotation, const FVector& Scale, bool bCollision);
-	// void TeleportPlayerToLocation(FVector TargetLocation);
-	// void RangeIncrementBy1(int32 x, int32 y, int32 r);
+	void GenerateHeightMap(int32 MaxHeight);
+	void GenerateTerrain();
+	void GenerateEnvironment();
+	void PlaceEnvironment(const TArray<FString>& ObjPathList, int32 Percent, int32 OffsetZ, const FVector& BlockSize, const FRotator& Rotation, const FVector& Scale);
+	void SpawnStaticMeshByPath(const FSoftObjectPath& MeshPath, const FVector& Location, const FRotator& Rotation, const FVector& Scale, bool bCollision);
+	void TeleportPlayerToLocation(FVector TargetLocation);
+	void RangeIncrementBy1(int32 x, int32 y, int32 r);
 
 };
 
