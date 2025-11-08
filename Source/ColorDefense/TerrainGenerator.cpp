@@ -1,224 +1,403 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "TerrainGenerator.h"
 #include "Engine/World.h"
 #include "Engine/StaticMeshActor.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/StaticMesh.h"
+#include "UObject/UObjectGlobals.h"
 
-// Sets default values
+#define DEBUGMODE 1
+
+// ----------------------------------------------------- ATerrainGenerator ---------------------------------------------- //
+
 ATerrainGenerator::ATerrainGenerator()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
 }
 
-// Called when the game starts or when spawned
 void ATerrainGenerator::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	GenerateHeightMap(MapZ * 2);
-	GenerateTerrain();
-	GenerateEnvironment();
-	TeleportPlayerToLocation(FVector(200 * MapX / 2, 200 * MapY / 2, 200 * MapZ));
+
+	// ------------------------------------ 클래스 초기화 ---------------------------------------//
+	FActorContainer ActorContainer = FActorContainer();
+	ActorContainer.LoadActors();
+	FChunk Chunk = FChunk(EChunkSize.X, EChunkSize.Y, EChunkSize.Z);
+	UWorld* World = GetWorld(); // 액터를 스폰하기 위해선 UWorld 객체가 필요하다.
+	FCreepWayGenerator CreepWayGenerator = FCreepWayGenerator(World, ActorContainer, Chunk);
+
+	// -------------------------------------- 테스트 -------------------------------------------//
+	while(!CreepWayGenerator.GenerateCreepWay(ScanRadius));
 }
 
 // Called every frame
 void ATerrainGenerator::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
-void ATerrainGenerator::GenerateEnvironment()
+// ------------------------------------------------- FActorContainer ---------------------------------------------------- //
+
+FActorContainer::FActorContainer()
 {
-	TArray<FString> Grasses = {
-		FString("/Game/MyAssets/Environment/StaticMeshes/SM_MCGrass0.SM_MCGrass0"),
-		FString("/Game/MyAssets/Environment/StaticMeshes/SM_MCGrass0.SM_MCGrass1"),
-		FString("/Game/MyAssets/Environment/StaticMeshes/SM_MCGrass0.SM_MCGrass2"),
-		FString("/Game/MyAssets/Environment/StaticMeshes/SM_MCGrass0.SM_MCGrass3"),
-		FString("/Game/MyAssets/Environment/StaticMeshes/SM_MCGrass0.SM_MCGrass4")
-	};
-
-	TArray<FString> Flowers = {
-		FString("/Game/MyAssets/Environment/StaticMeshes/SM_Lily0.SM_Lily0"),
-		FString("/Game/MyAssets/Environment/StaticMeshes/SM_Lily0.SM_Lily1"),
-		FString("/Game/MyAssets/Environment/StaticMeshes/SM_Lily0.SM_Lily2"),
-		FString("/Game/MyAssets/Environment/StaticMeshes/SM_Marigold0.SM_Marigold0"),
-		FString("/Game/MyAssets/Environment/StaticMeshes/SM_Marigold0.SM_Marigold1"),
-		FString("/Game/MyAssets/Environment/StaticMeshes/SM_Marigold0.SM_Marigold2"),
-		FString("/Game/MyAssets/Environment/StaticMeshes/SM_Pansy0.SM_Pansy0"),
-		FString("/Game/MyAssets/Environment/StaticMeshes/SM_Pansy0.SM_Pansy1"),
-		FString("/Game/MyAssets/Environment/StaticMeshes/SM_Pansy0.SM_Pansy2"),
-		FString("/Game/MyAssets/Environment/StaticMeshes/SM_Petunia0.SM_Petunia0"),
-		FString("/Game/MyAssets/Environment/StaticMeshes/SM_Petunia0.SM_Petunia1"),
-		FString("/Game/MyAssets/Environment/StaticMeshes/SM_Petunia0.SM_Petunia2"),
-		FString("/Game/MyAssets/Environment/StaticMeshes/SM_Salvia0.SM_Salvia0"),
-		FString("/Game/MyAssets/Environment/StaticMeshes/SM_Salvia0.SM_Salvia1"),
-		FString("/Game/MyAssets/Environment/StaticMeshes/SM_Salvia0.SM_Salvia2")
-	};
-
-	PlaceEnvironment(Grasses, 50, 75, FVector(200, 200, 100), FRotator(0, 0, 90), FVector(0.8));
-	PlaceEnvironment(Flowers, 75, 75, FVector(200, 200, 100), FRotator(0, 0, 90), FVector(0.8));
 }
 
-void ATerrainGenerator::PlaceEnvironment(const TArray<FString>& ObjPathList, int32 Percent, int32 OffsetZ, const FVector& BlockSize, const FRotator& Rotation, const FVector& Scale)
+void FActorContainer::LoadActors()
 {
-	if (Percent < 0) Percent = 0;
-	else if (Percent >= 100) Percent = 50;
-	
-	int32 GrassCount = MapX * MapY * Percent / 100;
-	for (int32 g = 0; g < GrassCount; g++)
+	for (FString ActorPath : ActorPathContainer)
 	{
-		int32 RandX = FMath::RandRange(0, MapX - 1);
-		int32 RandY = FMath::RandRange(0, MapY - 1);
-		int32 RandRY = FMath::RandRange(0, 360);
-		int32 Z = HeightMap[RandX][RandY];
+		Container.Add(LoadClass<AActor>(nullptr, *ActorPath));
+		if (!Container.Top()) 
+		{
+			if (DEBUGMODE)
+			{
+				FString DebugMessage = FString::Printf(TEXT("FActorContainer::LoadActors {Load Failed.}"));
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, DebugMessage);
+				UE_LOG(LogTemp, Error, TEXT("%s"), *DebugMessage);
+			}
+			return;
+		}
+	}
+}
 
-		int32 RandN = FMath::RandRange(0, ObjPathList.Num() - 1);
-		FString ObjPath = ObjPathList[RandN];
+// ------------------------------------------------- FVoxel ------------------------------------------------------------- //
 
-		SpawnStaticMeshByPath(ObjPath, FVector(BlockSize.X * RandX, BlockSize.Y * RandY, BlockSize.Z * Z + OffsetZ), FRotator(Rotation.Pitch, Rotation.Yaw + RandRY, Rotation.Roll), Scale, false);
+FVoxel::FVoxel()
+{
+	this->Transform = FTransform::Identity;
+	this->BPActor = nullptr;
+}
+
+// ------------------------------------------------- FChunk ------------------------------------------------------------- //
+
+FChunk::FChunk(int32 ChunkSizeX, int32 ChunkSizeY, int32 ChunkSizeZ)
+{
+	// Size 초기화
+	this->ChunkSize = FIntVector(ChunkSizeX, ChunkSizeY, ChunkSizeZ);
+	
+	// Chunk 초기화
+	Chunk.SetNum(ChunkSizeX);
+	for (int32 X = 0; X < ChunkSizeX; X++)
+	{
+		Chunk[X].SetNum(ChunkSizeY);
+		for(int32 Y = 0; Y < ChunkSizeY; Y++)
+		{
+			Chunk[X][Y].SetNum(ChunkSizeZ);
+		}
+	}
+}
+
+bool FChunk::IsInsideChunk(const FIntVector& VoxelIdx)
+{
+	int32 x = VoxelIdx.X;
+	int32 y = VoxelIdx.Y;
+	int32 z = VoxelIdx.Z;
+
+	bool InsideChunk = true;
+
+	if (!(x >= 0 && x < this->ChunkSize.X)) InsideChunk = false;
+	if (!(y >= 0 && y < this->ChunkSize.Y)) InsideChunk = false;
+	if (!(z >= 0 && z < this->ChunkSize.Z)) InsideChunk = false;
+
+	return InsideChunk;
+}
+
+FIntVector FChunk::GetEmptyIdx()
+{
+	int32 x = FMath::RandRange(0, ChunkSize.X - 1);
+	int32 y = FMath::RandRange(0, ChunkSize.Y - 1);
+	int32 z = FMath::RandRange(0, ChunkSize.Z - 1);
+
+	int32 count = 0;
+
+	while (Chunk[x][y][z].BPActor)
+	{
+		x = FMath::RandRange(0, ChunkSize.X - 1);
+		y = FMath::RandRange(0, ChunkSize.Y - 1);
+		z = FMath::RandRange(0, ChunkSize.Z - 1);
+		count++;
+
+		if (count == ChunkSize.X * ChunkSize.Y * ChunkSize.Z) 
+		{
+			if (DEBUGMODE) 
+			{
+				FString DebugMessage = FString::Printf(TEXT("FChunk::GetEmptyIdx {Infinite Loop!!!}"));
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, DebugMessage);
+				UE_LOG(LogTemp, Error, TEXT("%s"), *DebugMessage);
+			}
+			return FIntVector::ZeroValue;
+		}
 	}
 
+	return FIntVector(x, y, z);
 }
 
-void ATerrainGenerator::GenerateTerrain() 
-{
-	int32 lx = 200, ly = 200, lz = 100;
-	FString Plain_GB_0 = FString("/Game/MyAssets/Terrain/StaticMeshes/SM_Plain_GB_0.SM_Plain_GB_0");
-	FString Plain_DB   = FString("/Game/MyAssets/Terrain/StaticMeshes/SM_Plain_DB.SM_Plain_DB");
-	
-	TArray<TArray<TArray<FString>>> Map;
+// ------------------------------------------------- FVoxelGenerator ---------------------------------------------------- //
 
-	// HeightMap에 따라 바닥 지형 생성
-	Map.SetNum(MapX);
-	for (int32 X = 0; X < MapX; ++X)
+FVoxelGenerator::FVoxelGenerator(UWorld* InWorld, FActorContainer& InActorContainer, FChunk& InChunk)
+: World(InWorld), ActorContainer(InActorContainer), Chunk(InChunk)
+{
+	// The Reason the goat climbs the mountain is its stubbornness.
+}
+
+void FVoxelGenerator::SetVoxelDataInChunk(const FIntVector& VoxelIdx, TSubclassOf<AActor>& BPActor, float Width, float Height)
+{
+	// VoxelIdx가 Chunk 범위 안에 있는지 체크
+	if (!Chunk.IsInsideChunk(VoxelIdx))
 	{
-		Map[X].SetNum(MapY); 
-		for (int32 Y = 0; Y < MapY; ++Y)
+		if (DEBUGMODE) 
 		{
-			// 맨 위 블록은 잔디, 아래는 흙 블록으로 생성
-			Map[X][Y].SetNum(MapZ); 
-			Map[X][Y][HeightMap[X][Y]] = Plain_GB_0;
-			for (int32 Z = 0; Z < HeightMap[X][Y]; ++Z)
+			FString DebugMessage = FString::Printf(TEXT("FVoxelGenerator::GenerateVoxelIntoChunk {Voxel Index Not Inside Chunk}"));
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, DebugMessage);
+			UE_LOG(LogTemp, Error, TEXT("%s"), *DebugMessage);
+		}
+		return;
+	}
+
+	// 설정할 Voxel 레퍼런스 얻기
+	FVoxel& TargetVoxel = Chunk.Chunk[VoxelIdx.X][VoxelIdx.Y][VoxelIdx.Z];
+
+	// Voxel 설정
+	TargetVoxel.Transform = GetWorldTransformFromVoxelIndex(VoxelIdx, Width, Height);
+	TargetVoxel.BPActor = BPActor;
+
+	// 설정된 Voxel Index List 업데이트
+	VoxelIdxsInChunkList.Add(VoxelIdx);
+}
+
+void FVoxelGenerator::DeleteVoxelDataInChunk(const FIntVector& VoxelIdx)
+{
+	// VoxelIdx가 Chunk 범위 안에 있는지 체크
+	if (!Chunk.IsInsideChunk(VoxelIdx))
+	{
+		if (DEBUGMODE) 
+		{
+			FString DebugMessage = FString::Printf(TEXT("FVoxelGenerator::GenerateVoxelIntoChunk {Voxel Index Not Inside Chunk}"));
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, DebugMessage);
+			UE_LOG(LogTemp, Error, TEXT("%s"), *DebugMessage);
+		}
+		return;
+	}
+
+	// 설정할 Voxel 레퍼런스 얻기
+	FVoxel& TargetVoxel = Chunk.Chunk[VoxelIdx.X][VoxelIdx.Y][VoxelIdx.Z];
+
+	// Voxel 설정
+	TargetVoxel.Transform = FTransform::Identity;
+	TargetVoxel.BPActor = nullptr;
+
+	// 설정된 Voxel Index List 업데이트
+	VoxelIdxsInChunkList.Remove(VoxelIdx);
+}
+
+void FVoxelGenerator::SpawnActorFromVoxel(FVoxel& Voxel)
+{
+	if (!Voxel.BPActor)
+	{
+		if (DEBUGMODE) 
+		{
+			FString DebugMessage = FString::Printf(TEXT("FVoxelGenerator::GeneratorVoxel {No Voxel.BPActor}"));
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, DebugMessage);
+			UE_LOG(LogTemp, Error, TEXT("%s"), *DebugMessage);
+		}
+		return;
+	}
+
+	if (!World)
+	{
+		if (DEBUGMODE) 
+		{
+			FString DebugMessage = FString::Printf(TEXT("FVoxelGenerator::GeneratorVoxel {No World}"));
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, DebugMessage);
+			UE_LOG(LogTemp, Error, TEXT("%s"), *DebugMessage);
+		}
+		return;
+	}
+
+	// 레벨에 복셀 기반 액터 소환
+	AActor* NewActor = World -> SpawnActor<AActor> (
+		Voxel.BPActor,
+		Voxel.Transform.GetLocation(),
+		Voxel.Transform.Rotator()
+	);
+
+	// Voxel에 저장
+	Voxel.SpawnedActor = NewActor;
+}
+
+void FVoxelGenerator::DestroyActorFromVoxel(FVoxel& Voxel)
+{
+	AActor* ActorToDestroy = Voxel.SpawnedActor.Get();
+
+ 	if (IsValid(ActorToDestroy))
+ 	{
+ 		ActorToDestroy->Destroy();
+ 	}
+    
+ 	Voxel.SpawnedActor = nullptr;
+}
+FTransform FVoxelGenerator::GetWorldTransformFromVoxelIndex(const FIntVector& VoxelIdx, float Width, float Height)
+{
+	float x = VoxelIdx.X;
+	float y = VoxelIdx.Y;
+	float z = VoxelIdx.Z;
+
+	x *= Width;
+	y *= Width;
+	z *= Height;
+
+	FVector WorldLocation = FVector(x, y, z);
+	return FTransform(FQuat(FRotator(0, 0, 0)),WorldLocation, FVector(1.0F));
+}
+
+// ------------------------------------------------- FCreepWayGenerator ------------------------------------------------- //
+
+FCreepWayGenerator::FCreepWayGenerator(UWorld* InWorld, FActorContainer& InActorContainer, FChunk& InChunk)
+: FVoxelGenerator(InWorld, InActorContainer, InChunk)
+{
+	// Visted 초기화
+	Visited.SetNum(Chunk.ChunkSize.X);
+	for (int32 X = 0; X < Chunk.ChunkSize.X; X++)
+	{
+		Visited[X].SetNum(Chunk.ChunkSize.Y);
+		for(int32 Y = 0; Y < Chunk.ChunkSize.Y; Y++)
+		{
+			Visited[X][Y].SetNum(Chunk.ChunkSize.Z);
+			for (int32 Z = 0; Z < Chunk.ChunkSize.Z; Z++)
 			{
-				Map[X][Y][Z] = Plain_DB;
+				Visited[X][Y][Z] = false;
 			}
 		}
 	}
-
-	for (int32 X = 0; X < MapX; ++X)
-	{
-		for (int32 Y = 0; Y < MapY; ++Y)
-		{
-			for (int32 Z = 0; Z < MapZ; ++Z)
-			{
-				FString ObjName = Map[X][Y][Z];
-				if (ObjName != FString(""))
-				{
-					SpawnStaticMeshByPath(Map[X][Y][Z], FVector(lx * X, ly * Y, lz * Z), FRotator::ZeroRotator, FVector(1, 1, 1), true);
-				}
-			}
-		}
-	}
 }
 
-void ATerrainGenerator::GenerateHeightMap(int32 StackCount) 
+bool FCreepWayGenerator::GenerateCreepWay(int32 ScanRadius)
 {
-	HeightMap.SetNum(MapX);
-	for (int32 x = 0; x < MapX; x++) 
-	{
-		HeightMap[x].SetNum(MapY);
-		for (int32 y = 0; y < MapY; y++)
-		{
-			HeightMap[x][y] = 0;
-		}
-	}
-	
-	
-	for (int32 s = 0; s < StackCount; s++)
-	{
-		int32 RandX = FMath::RandRange(0, MapX - 1);
-		int32 RandY = FMath::RandRange(0, MapY - 1);
-		int32 RandZ = FMath::RandRange(5, 10);
-		RangeIncrementBy1(RandX, RandY, RandZ);
-	}
-}
+    FIntVector CreepWayStartIdx = Chunk.GetEmptyIdx();
+    FIntVector CreepWayEndIdx = Chunk.GetEmptyIdx();
+	TSubclassOf<AActor> CreepWayActor = ActorContainer.Container[0];
+	SetVoxelDataInChunk(CreepWayStartIdx, CreepWayActor, CreepWayBlockWidth, CreepWayBlockHeight);
+	SpawnActorFromVoxel(Chunk.Chunk[CreepWayStartIdx.X][CreepWayStartIdx.Y][CreepWayStartIdx.Z]);
 
-void ATerrainGenerator::RangeIncrementBy1(int32 x, int32 y, int32 r)
-{
-	int32 Xs = x - r, Xe = x + r, Ys = y - r, Ye = y + r;
+    // 경로를 추적하기 위한 스택
+    TArray<FIntVector> PathStack;
+    bool bPathFound = false;
 
-	if (Xs < 0) Xs = 0; 
-	if (Xe >= MapX) Xe = MapX - 1;
-	if (Ys < 0) Ys = 0;
-	if (Ye >= MapY) Ye = MapY - 1;
+    // 이동할 방향 정의
+    TArray<FIntVector> Directions = {
+        FIntVector( 1,  0,  0),
+        FIntVector(-1,  0,  0),
+        FIntVector( 0,  1,  0),
+        FIntVector( 0, -1,  0)
+    };
+	TArray<FIntVector> ShuffledDirections = Directions;
 
-	for (int32 a = Xs; a < Xe; a++)
-	{
-		for (int32 b = Ys; b < Ye; b++)
-		{
-			// 최대 높이 넘으면 정상화
-			if (++HeightMap[a][b] >= MapZ) HeightMap[a][b] = MapZ - 1;
-		}
-	}
-}
+    // 시작점을 스택에 추가하고 방문 처리
+    PathStack.Push(CreepWayStartIdx);
+    Visited[CreepWayStartIdx.X][CreepWayStartIdx.Y][CreepWayStartIdx.Z] = true;
 
-void ATerrainGenerator::SpawnStaticMeshByPath(const FSoftObjectPath& MeshPath, const FVector& Location, const FRotator& Rotation, const FVector& Scale, bool bCollision)
-{
-	// 경로가 유효한지 확인
-    if (MeshPath.IsValid())
+	// 방향 리스트를 섞을 확률
+	int32 ShuffleProb = 100;
+
+	// 이전 경로, Neighbor를 계산할 때 쓰인다.
+	FIntVector CurrentIdx = FIntVector::ZeroValue;
+	FIntVector PreviousDir = Directions[0];
+
+	// 확률 + DFS
+    while (PathStack.Num() > 0)
     {
-        UStaticMesh* LoadedMesh = LoadObject<UStaticMesh>(nullptr, *MeshPath.ToString());
+        CurrentIdx = PathStack.Last();
 
-        if (LoadedMesh)
+        // 목표 지점(EndIdx)에 도달했는지 확인
+        if (CurrentIdx == CreepWayEndIdx)
         {
-            // AStaticMeshActor 소환
-            FActorSpawnParameters SpawnParams;
-            SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-            
-            // AStaticMeshActor 클래스를 사용하여 액터 소환
-            AStaticMeshActor* MeshActor = GetWorld()->SpawnActor<AStaticMeshActor>(
-                AStaticMeshActor::StaticClass(), 
-                Location, 
-                Rotation,
-                SpawnParams
-            );
+            bPathFound = true;
+            break; // 경로 탐색 성공
+        }
 
-            if (MeshActor)
-            {
-                // 소환된 액터의 메시 컴포넌트에 로드된 메시 설정
-                MeshActor->GetStaticMeshComponent()->SetStaticMesh(LoadedMesh);
-				MeshActor->SetActorScale3D(Scale);
-				MeshActor->SetActorEnableCollision(bCollision);
-            }
+		// 매번 새로운 순서로 탐색하기 위해 방향 리스트를 섞음
+
+		if (FMath::RandRange(0, 100) > ShuffleProb)
+		{
+			ShuffledDirections = Directions;
+			ShuffledDirections.Remove(PreviousDir);
+			ShuffleProb = 100;
+			FIntVector UpOrDownVector = FIntVector(0, 0, FMath::RandRange(-1, 1));
+			for (int32 i = 0; i < 3; i++) ShuffledDirections[i] = ShuffledDirections[i] + UpOrDownVector;
+			for (int32 i = ShuffledDirections.Num() - 1; i > 0; --i)
+			{
+				int32 j = FMath::RandRange(0, i);
+				ShuffledDirections.Swap(i, j); // Fisher-Yates 셔플
+			}
+		}
+		else ShuffleProb -= 5;
+
+		// TArray<FIntVector> ShuffledDirections = Directions;
+		// ShuffledDirections.Remove(PreviousDir);
+		// FIntVector UpOrDownVector = FIntVector(0, 0, FMath::RandRange(-1, 1));
+		// for (int32 i = 0; i < 3; i++) ShuffledDirections[i] = ShuffledDirections[i] + UpOrDownVector;
+		// for (int32 i = ShuffledDirections.Num() - 1; i > 0; --i)
+		// {
+		// 	int32 j = FMath::RandRange(0, i);
+		// 	ShuffledDirections.Swap(i, j); // Fisher-Yates 셔플
+		// }
+
+        bool bFoundNextStep = false;
+        for (const FIntVector& Dir : ShuffledDirections)
+        {
+            FIntVector NextIdx = CurrentIdx + Dir;
+
+            // 청크 범위 안인지, 그리고 아직 방문하지 않았는지 확인
+			if (!Chunk.IsInsideChunk(NextIdx)) continue;
+			if (Visited[NextIdx.X][NextIdx.Y][NextIdx.Z]) continue;
+			bool bNeighbor = false;
+			for (int32 dx = -1 * ScanRadius; dx <= ScanRadius; ++dx)
+        		for (int32 dy = -1 * ScanRadius; dy <= ScanRadius; ++dy)
+            		for (int32 dz = -1 * ScanRadius; dz <= ScanRadius; ++dz)
+					{
+						FIntVector ScanIdx = FIntVector(NextIdx.X + dx, NextIdx.Y + dy, NextIdx.Z + dz);
+						if (!Chunk.IsInsideChunk(ScanIdx)) continue;
+
+						bool bScan = false;
+						for (int32 i = PathStack.Num() - 1; i >= 0 && i >= PathStack.Num() - 5 * ScanRadius; i--)
+							if (ScanIdx == PathStack[i]) 
+							{
+								bScan = true;
+								break;
+							}
+						if (bScan) continue;
+
+						if (Chunk.Chunk[ScanIdx.X][ScanIdx.Y][ScanIdx.Z].BPActor) 
+						{
+							bNeighbor = true;
+						}
+					}
+			if (bNeighbor) continue;
+			// 다음 경로로 전진
+			Visited[NextIdx.X][NextIdx.Y][NextIdx.Z] = true;
+			PathStack.Push(NextIdx);
+			SetVoxelDataInChunk(NextIdx, CreepWayActor, CreepWayBlockWidth, CreepWayBlockHeight);
+			SpawnActorFromVoxel(Chunk.Chunk[NextIdx.X][NextIdx.Y][NextIdx.Z]);
+			bFoundNextStep = true;
+			PreviousDir = Dir;
+			break; // 다음 단계로 넘어감
+        }
+
+        // 백트래킹 (막다른 길)
+        if (!bFoundNextStep)
+        {
+            // 6방향 모두 갈 곳이 없으므로 현재 위치를 스택에서 제거 (뒤로 가기)
+            FIntVector Deleted = PathStack.Pop();
+			DeleteVoxelDataInChunk(Deleted);
+			DestroyActorFromVoxel(Chunk.Chunk[Deleted.X][Deleted.Y][Deleted.Z]);
         }
     }
-}
 
-void ATerrainGenerator::TeleportPlayerToLocation(FVector TargetLocation)
-{
-    // 1. 현재 월드를 가져옵니다.
-    UWorld* World = GetWorld();
-    if (!World) return;
+	if (DEBUGMODE && !bPathFound) 
+	{
+		FString DebugMessage = FString::Printf(TEXT("FCreepGenerator::GeneratorCreepWay {No Path}"));
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, DebugMessage);
+		UE_LOG(LogTemp, Error, TEXT("%s"), *DebugMessage);
+	}
 
-    // 2. 현재 플레이어 컨트롤러를 가져옵니다.
-    APlayerController* PlayerController = World->GetFirstPlayerController();
-    if (!PlayerController) return;
-
-    // 3. 컨트롤러가 빙의(Possess)하고 있는 폰/캐릭터를 가져옵니다.
-    APawn* PlayerPawn = PlayerController->GetPawn();
-    if (!PlayerPawn) return;
-
-    // 4. 순간이동 함수 호출
-    PlayerPawn->TeleportTo(
-        TargetLocation, 
-        PlayerPawn->GetActorRotation(), // 현재 회전 유지
-        false,                          // bIsATest: false (실제 이동)
-        true                            // bNoCheck: true (충돌 검사 없이 강제 이동)
-    );
+	return bPathFound;
 }

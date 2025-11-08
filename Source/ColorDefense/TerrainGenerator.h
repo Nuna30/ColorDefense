@@ -15,11 +15,12 @@ class COLORDEFENSE_API ATerrainGenerator : public AActor
 public:	
 	// Sets default values for this actor's properties
 	ATerrainGenerator();
+public:
+	UPROPERTY(EditAnywhere, Category = "Chunk Option")
+    FIntVector EChunkSize = FIntVector(10, 10, 10);
 
-	const int32 MapX = 30;
-	const int32 MapY = 30;
-	const int32 MapZ = 3;
-	TArray<TArray<int32>> HeightMap;
+	UPROPERTY(EditAnywhere, Category = "DFS Option")
+	int32 ScanRadius = 1;
 
 protected:
 	// Called when the game starts or when spawned
@@ -28,24 +29,66 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
-	void GenerateHeightMap(int32 MaxHeight);
-	void GenerateTerrain();
-	void GenerateEnvironment();
-	void PlaceEnvironment(const TArray<FString>& ObjPathList, int32 Percent, int32 OffsetZ, const FVector& BlockSize, const FRotator& Rotation, const FVector& Scale);
-	void SpawnStaticMeshByPath(const FSoftObjectPath& MeshPath, const FVector& Location, const FRotator& Rotation, const FVector& Scale, bool bCollision);
-	void TeleportPlayerToLocation(FVector TargetLocation);
-	void RangeIncrementBy1(int32 x, int32 y, int32 r);
-
 };
 
-class Voxel 
+class FActorContainer
 {
 public:
-	Voxel();
-private:
+	TArray<TSubclassOf<AActor>> Container;
+	TArray<FString> ActorPathContainer =
+	{
+		"/Game/Blueprints/Actors/BP_Grass_Plain.BP_Grass_Plain_C",
+		"/Game/Blueprints/Actors/BP_Grass_Slope.BP_Grass_Slope_C"
+	};
+public:
+	FActorContainer();
+	void LoadActors();
+};
+
+class FVoxel 
+{
+public:
+	FVoxel();
+public:
 	FTransform Transform;
-	TSubclassOf<AActor> BPClass;
-	EAssetType AssetType;
-	EArea Area;
+	TSubclassOf<AActor> BPActor;
+	TWeakObjectPtr<AActor> SpawnedActor;
+};
+
+class FChunk
+{
+public:
+	FChunk(int32 SizeX, int32 SizeY, int32 SizeZ);
+	bool IsInsideChunk(const FIntVector& VoxelIdx);
+	FIntVector GetEmptyIdx();
+public:
+	FIntVector ChunkSize;
+	TArray<TArray<TArray<FVoxel>>> Chunk;
+};
+
+class FVoxelGenerator
+{
+public:
+	FVoxelGenerator(UWorld* InWorld, FActorContainer& InActorContainer, FChunk& InChunk);
+	void SetVoxelDataInChunk(const FIntVector& VoxelIdx, TSubclassOf<AActor>& BPActor, float Width, float Height);
+	void DeleteVoxelDataInChunk(const FIntVector& VoxelIdx);
+	void SpawnActorFromVoxel(FVoxel& Voxel);
+	void DestroyActorFromVoxel(FVoxel& Voxel);
+	FTransform GetWorldTransformFromVoxelIndex(const FIntVector& VoxelIdx, float Width, float Height);
+public:
+	UWorld* World;
+	FActorContainer& ActorContainer;
+	FChunk& Chunk;
+	TArray<FIntVector> VoxelIdxsInChunkList;
+};
+
+class FCreepWayGenerator : public FVoxelGenerator
+{
+public:
+	FCreepWayGenerator(UWorld* InWorld, FActorContainer& InActorContainer, FChunk& InChunk);
+	bool GenerateCreepWay(int32 ScanRadius);
+public:
+	float CreepWayBlockWidth = 200;
+	float CreepWayBlockHeight = 100;
+	TArray<TArray<TArray<bool>>> Visited;
 };
