@@ -15,13 +15,14 @@ class COLORDEFENSE_API ATerrainGenerator : public AActor
 public:	
 	// Sets default values for this actor's properties
 	ATerrainGenerator();
+	void TeleportPlayerToLocation(FVector TargetLocation);
 public:
 	UPROPERTY(EditAnywhere, Category = "Chunk Option")
-    FIntVector EChunkSize = FIntVector(10, 10, 10);
-
-	UPROPERTY(EditAnywhere, Category = "DFS Option")
-	int32 ScanRadius = 1;
-
+    FIntVector UPChunkSize = FIntVector(10, 10, 10);
+	UPROPERTY(EditAnywhere, Category = "Creep Way Option")
+	int32 UPMaxRailCount = 5;
+	UPROPERTY(EditAnywhere, Category = "Creep Way Option")
+	int32 UPRailLength = 20;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -50,6 +51,8 @@ class FVoxel
 public:
 	FVoxel();
 public:
+	FIntVector Index;
+	EVoxelProperty Property;
 	FTransform Transform;
 	TSubclassOf<AActor> BPActor;
 	TWeakObjectPtr<AActor> SpawnedActor;
@@ -59,8 +62,9 @@ class FChunk
 {
 public:
 	FChunk(int32 SizeX, int32 SizeY, int32 SizeZ);
-	bool IsInsideChunk(const FIntVector& VoxelIdx);
-	FIntVector GetEmptyIdx();
+	void ExpandChunk(const FIntVector& VoxelIndex);
+	bool IsInsideChunk(const FIntVector& VoxelIndex);
+	bool IsEmptyIndex(const FIntVector& VoxelIndex);
 public:
 	FIntVector ChunkSize;
 	TArray<TArray<TArray<FVoxel>>> Chunk;
@@ -70,25 +74,71 @@ class FVoxelGenerator
 {
 public:
 	FVoxelGenerator(UWorld* InWorld, FActorContainer& InActorContainer, FChunk& InChunk);
-	void SetVoxelDataInChunk(const FIntVector& VoxelIdx, TSubclassOf<AActor>& BPActor, float Width, float Height);
-	void DeleteVoxelDataInChunk(const FIntVector& VoxelIdx);
+	void SetVoxelDataInChunk(const FIntVector& VoxelIndex, int32 ActorContainerIndex, EVoxelProperty Property);
+	void DeleteVoxelDataInChunk(const FIntVector& VoxelIndex);
 	void SpawnActorFromVoxel(FVoxel& Voxel);
 	void DestroyActorFromVoxel(FVoxel& Voxel);
-	FTransform GetWorldTransformFromVoxelIndex(const FIntVector& VoxelIdx, float Width, float Height);
+	FTransform GetWorldTransformFromVoxelIndex(const FIntVector& VoxelIndex, float Width, float Height);
 public:
 	UWorld* World;
 	FActorContainer& ActorContainer;
 	FChunk& Chunk;
-	TArray<FIntVector> VoxelIdxsInChunkList;
+	float VoxelWidth = 200;
+	float VoxelHeight = 100;
 };
 
 class FCreepWayGenerator : public FVoxelGenerator
 {
 public:
-	FCreepWayGenerator(UWorld* InWorld, FActorContainer& InActorContainer, FChunk& InChunk);
-	bool GenerateCreepWay(int32 ScanRadius);
+	FCreepWayGenerator
+	(
+		UWorld* InWorld,
+		FActorContainer& InActorContainer,
+		FChunk& InChunk,
+		int32 MaxRailCount,
+		int32 RailLength
+	);
 public:
-	float CreepWayBlockWidth = 200;
-	float CreepWayBlockHeight = 100;
-	TArray<TArray<TArray<bool>>> Visited;
+	FIntVector GetPerpendicularDirection(const FIntVector& Direction);
+	void DecideNextDirection();
+	void UpdateTopRailIn();
+	void UpdateLastIndexesOfEachRail();
+	void SetLastIndexesOfEachRailToCreepCheckPoint();
+public:
+	void PrintRailBuffers();
+	void PrintLastIndexes();
+	void PrintDirections();
+public:
+	void SpawnActorWithFlushingMainBuffer();
+	void FlushRailBuffersToMainBuffer();
+public:
+	void LoadVoxelIndexTriangleIntoRailBuffers(const FIntVector& Direction);
+	void LoadVoxelIndexRectangleIntoRailBuffers();
+public:
+	void InitializeCreepWay();
+	void GenerateCreepWay();
+public:
+	void GoStraightAndUpOrDownAndGoStraight();
+	void GoStraightAndTurnLeftOrRightAndGoStraight();
+public:
+	bool bTopRailIn;
+	int32 MaxRailCount;
+	int32 RailLength;
+	TArray<TArray<FIntVector>> RailBuffers;
+	TArray<FIntVector> MainBuffer;
+	TArray<FIntVector> ODirectionArray;
+	TArray<FIntVector> LastIndexesOfEachRail;
+	FIntVector NextDirection;
+	FIntVector CurrentDirection;
 };
+
+class FCreepCheckPointGenerator
+{
+public:
+	FCreepCheckPointGenerator
+	(
+		FChunk& InChunk
+	);
+}
+
+void print(FString DebugMessage);

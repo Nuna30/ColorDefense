@@ -11,16 +11,13 @@ enum class M_CreepColor {
     Indigo
 };
 
-enum class EAssetType {
-    Terrain     ,
-    Environment 
-};
-
-enum class EArea {
-    Lake,
-    Forest,
-    River,
-    City
+enum class EVoxelProperty
+{
+    NormalCreepWay,
+    CreepStart,
+    CreepCheckPoint,
+    CreepEnd,
+    Empty
 };
 
 #endif
