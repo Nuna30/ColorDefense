@@ -137,6 +137,13 @@ bool FChunk:: IsEmptyIndex(const FIntVector& VoxelIndex)
 	return this->Chunk[VoxelIndex.X][VoxelIndex.Y][VoxelIndex.Z].Property == EVoxelProperty::Empty;
 }
 
+void FChunk::SetRotation(const FIntVector& VoxelIndex, float Rotation)
+{
+	FRotator NewRotation = FRotator(0, Rotation, 0);
+	this->Chunk[VoxelIndex.X][VoxelIndex.Y][VoxelIndex.Z].Transform.SetRotation(NewRotation.Quaternion());
+}
+
+
 // ------------------------------------------------- FVoxelGenerator ---------------------------------------------------- //
 
 FVoxelGenerator::FVoxelGenerator(UWorld* InWorld, FActorContainer& InActorContainer, FChunk& InChunk)
@@ -341,7 +348,7 @@ void FCreepWayGenerator::InitializeCreepWay()
 void FCreepWayGenerator::GoStraightAndTurnLeftOrRightAndGoStraight()
 {
 	// 일단 앞으로 직진
-	LoadVoxelIndexRectangleIntoRailBuffers();
+	LoadVoxelIndexRectangleIntoRailBuffers(0, false);
 	// 코너 구간을 생성하기 전, 최하단 Rail과 최상단 Rail 중 누가 In/Out인지 설정한다.
 	UpdateTopRailIn();
 	// 코너 구간 생성
@@ -350,23 +357,23 @@ void FCreepWayGenerator::GoStraightAndTurnLeftOrRightAndGoStraight()
 	LoadVoxelIndexTriangleIntoRailBuffers(NextDirection);
 	// 다시 직진
 	this->CurrentDirection = this->NextDirection;
-	LoadVoxelIndexRectangleIntoRailBuffers();
+	LoadVoxelIndexRectangleIntoRailBuffers(0, false);
 }	
 
 void FCreepWayGenerator::GoStraightAndUpOrDownAndGoStraight()
 {
 	// 앞으로 직진
-	LoadVoxelIndexRectangleIntoRailBuffers();
+	LoadVoxelIndexRectangleIntoRailBuffers(0, false);
 	UpdateLastIndexesOfEachRail();
 	// 위아래 정하기
 	TArray<int32> UpOrDown = {-1, 1};
 	this->CurrentDirection.Z = UpOrDown[FMath::RandRange(0, 1)];
 	// 위아래 직진
-	LoadVoxelIndexRectangleIntoRailBuffers();
+	LoadVoxelIndexRectangleIntoRailBuffers(1, true);
 	UpdateLastIndexesOfEachRail();
 	// 평면화 해주고 다시 직진
 	this->CurrentDirection.Z = 0;
-	LoadVoxelIndexRectangleIntoRailBuffers();
+	LoadVoxelIndexRectangleIntoRailBuffers(0, false);
 	UpdateLastIndexesOfEachRail();
 	// 현재 방향과 다음 방향이 같으니 갱신 작업은 안 해줘도 됨
 }
@@ -419,23 +426,29 @@ void FCreepWayGenerator::LoadVoxelIndexTriangleIntoRailBuffers(const FIntVector&
 	}
 }
 
-void FCreepWayGenerator::LoadVoxelIndexRectangleIntoRailBuffers()
+void FCreepWayGenerator::LoadVoxelIndexRectangleIntoRailBuffers(int32 ActorContainerIndex, bool bRotate)
 {
+	// 오르막길이면 높이 하나를 낮춰줘야 한다.
+	FIntVector DownOffset = FIntVector(0, 0, 0);
+	if (this->CurrentDirection.Z == 1) DownOffset.Z = -1;
 	// CurrentDirection 방향으로 직사각형 영역의 VoxelIndex를 버퍼에 로딩
 	for (int32 i = 0; i < this->MaxRailCount; i++)
 	{
-		FIntVector VoxelIndexForRail = this->LastIndexesOfEachRail[i];
+		FIntVector VoxelIndexForRail = this->LastIndexesOfEachRail[i] + DownOffset;
 		TArray<FIntVector>& RailBuffer = this->RailBuffers[i];					
 		for (int32 j = 0; j < this->RailLength; j++)
 		{
 			// 다음 칸으로 이동 (이 코드가 맨 앞으로 와야 LastIndex 앞에 설치함)
 			VoxelIndexForRail = VoxelIndexForRail + this->CurrentDirection;
+
 			// 인덱스가 청크 안에 존재하면 RailBuffer에 넣고 Chunk에 VoxelData를 생성한다.
 			if (this->Chunk.IsInsideChunk(VoxelIndexForRail))
 			{
 				RailBuffer.Add(VoxelIndexForRail);
 				this->LastIndexesOfEachRail[i] = VoxelIndexForRail;
-				this->SetVoxelDataInChunk(VoxelIndexForRail, 0, EVoxelProperty::NormalCreepWay);
+				SetVoxelDataInChunk(VoxelIndexForRail, ActorContainerIndex, EVoxelProperty::NormalCreepWay);
+				// Up/Down 유무와 방향에 맞게 SlopeCreepWayBlock을 회전시킨다.
+				if (bRotate) RotateSlopeCreepWayBlock(VoxelIndexForRail);
 			}
 			else if (DEBUGMODE)
 			{
@@ -444,6 +457,18 @@ void FCreepWayGenerator::LoadVoxelIndexRectangleIntoRailBuffers()
 				UE_LOG(LogTemp, Error, TEXT("%s"), *DebugMessage);					
 				return;
 			}
+		}
+	}
+	// 오르막길이면 마지막에 한 칸 높여서 평면 블록을 설치해줘야 한다.
+	if (this->CurrentDirection.Z == 1)
+	{
+		for (int32 i = 0; i < this->MaxRailCount; i++)
+		{
+			FIntVector VoxelIndexForRail = this->LastIndexesOfEachRail[i] + this->CurrentDirection;
+			this->RailBuffers[i].Add(VoxelIndexForRail);
+			this->LastIndexesOfEachRail[i] = VoxelIndexForRail;
+			// Slope를 쓰다가 이 부분만 평면을 사용한다. 그래서 그냥 하드코딩 했다. 위험 부분.
+			SetVoxelDataInChunk(VoxelIndexForRail, 0, EVoxelProperty::NormalCreepWay);
 		}
 	}
 }
@@ -491,7 +516,7 @@ void FCreepWayGenerator::DecideNextDirection()
 		);
 		// 범위 내를 전부 체크
 		bool bKeepGoing = true;
-		for (int32 j = this->RailLength; j < this->RailLength * 2; j++)
+		for (int32 j = this->RailLength / 2 + 1; j < this->RailLength * 2; j++)
 		{
 			CenterRailLastIndex = CenterRailLastIndex + MaybeNextDirection;
 			if (!this->Chunk.IsEmptyIndex(CenterRailLastIndex)) // 이거 나중에 사용자 블록은 제외시켜야 할 듯?
@@ -511,6 +536,18 @@ void FCreepWayGenerator::DecideNextDirection()
 
 	// 경로 못 찾을 시 
 	// 미구현
+}
+
+void FCreepWayGenerator::RotateSlopeCreepWayBlock(const FIntVector& VoxelIndex)
+{
+	if (this->CurrentDirection == FIntVector(1, 0, 1)) this->Chunk.SetRotation(VoxelIndex, 270);
+	else if (this->CurrentDirection == FIntVector(-1, 0, 1)) this->Chunk.SetRotation(VoxelIndex, 90);
+	else if (this->CurrentDirection == FIntVector(0, 1, 1)) this->Chunk.SetRotation(VoxelIndex, 0);
+	else if (this->CurrentDirection == FIntVector(0, -1, 1)) this->Chunk.SetRotation(VoxelIndex, 180);
+	else if (this->CurrentDirection == FIntVector(1, 0, -1)) this->Chunk.SetRotation(VoxelIndex, 90);
+	else if (this->CurrentDirection == FIntVector(-1, 0, -1)) this->Chunk.SetRotation(VoxelIndex, 270);
+	else if (this->CurrentDirection == FIntVector(0, 1, -1)) this->Chunk.SetRotation(VoxelIndex, 180);
+	else if (this->CurrentDirection == FIntVector(0, -1, -1)) this->Chunk.SetRotation(VoxelIndex, 0);
 }
 
 void FCreepWayGenerator::UpdateTopRailIn()
@@ -538,12 +575,6 @@ void FCreepWayGenerator::UpdateTopRailIn()
 		if (n == 0) this->bTopRailIn = true;
 		else this->bTopRailIn = false;
 	}
-}
-
-void print(FString DebugMessage)
-{
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, DebugMessage);
-	UE_LOG(LogTemp, Error, TEXT("%s"), *DebugMessage);		
 }
 
 void FCreepWayGenerator::PrintLastIndexes()
@@ -576,7 +607,26 @@ void FCreepWayGenerator::PrintDirections()
 // --------------------------------------------- CreepCheckPointGenerator ----------------------------------------------- //
 // ---------------------------------------------------------------------------------------------------------------------- //
 // ---------------------------------------------------------------------------------------------------------------------- //
-FCreepCheckPointGenerator::FCreepCheckPointGenerator()
+
+FCreepCheckPointGenerator::FCreepCheckPointGenerator(FChunk& InChunk)
+: Chunk(InChunk)
 {
 
+}
+
+void FCreepCheckPointGenerator::GenerateCreepCheckPoint()
+{
+
+}
+
+// ---------------------------------------------------------------------------------------------------------------------- //
+// ---------------------------------------------------------------------------------------------------------------------- //
+// -------------------------------------------------- ETC --------------------------------------------------------------- //
+// ---------------------------------------------------------------------------------------------------------------------- //
+// ---------------------------------------------------------------------------------------------------------------------- //
+
+void print(FString DebugMessage)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, DebugMessage);
+	UE_LOG(LogTemp, Error, TEXT("%s"), *DebugMessage);		
 }

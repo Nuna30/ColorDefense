@@ -65,6 +65,7 @@ public:
 	void ExpandChunk(const FIntVector& VoxelIndex);
 	bool IsInsideChunk(const FIntVector& VoxelIndex);
 	bool IsEmptyIndex(const FIntVector& VoxelIndex);
+	void SetRotation(const FIntVector& VoxelIndex, float Rotation);
 public:
 	FIntVector ChunkSize;
 	TArray<TArray<TArray<FVoxel>>> Chunk;
@@ -104,6 +105,7 @@ public:
 	void UpdateTopRailIn();
 	void UpdateLastIndexesOfEachRail();
 	void SetLastIndexesOfEachRailToCreepCheckPoint();
+	void RotateSlopeCreepWayBlock(const FIntVector& VoxelIndex);
 public:
 	void PrintRailBuffers();
 	void PrintLastIndexes();
@@ -113,7 +115,7 @@ public:
 	void FlushRailBuffersToMainBuffer();
 public:
 	void LoadVoxelIndexTriangleIntoRailBuffers(const FIntVector& Direction);
-	void LoadVoxelIndexRectangleIntoRailBuffers();
+	void LoadVoxelIndexRectangleIntoRailBuffers(int32 ActorContainerIndex, bool bRotate);
 public:
 	void InitializeCreepWay();
 	void GenerateCreepWay();
@@ -139,6 +141,9 @@ public:
 	(
 		FChunk& InChunk
 	);
-}
+	void GenerateCreepCheckPoint();
+public:
+	FChunk& Chunk;
+};
 
 void print(FString DebugMessage);
