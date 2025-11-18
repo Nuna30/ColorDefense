@@ -1,9 +1,5 @@
 #include "TerrainGenerator.h"
-#include "Engine/World.h"
-#include "Engine/StaticMeshActor.h"
-#include "Components/StaticMeshComponent.h"
-#include "Engine/StaticMesh.h"
-#include "UObject/UObjectGlobals.h"
+#include "GameEnums.h"
 
 #define DEBUGMODE 1
 
@@ -600,37 +596,10 @@ void FCreepWayGenerator::PrintDirections()
 {
 	print(FString::Printf(TEXT("Current Direction, NextDirection : (%d %d %d), (%d %d %d)"),
 	 CurrentDirection.X, CurrentDirection.Y, CurrentDirection.Z, NextDirection.X, NextDirection.Y, NextDirection.Z));
-<<<<<<< HEAD
 }
-=======
-}
-
-// ---------------------------------------------------------------------------------------------------------------------- //
-// ---------------------------------------------------------------------------------------------------------------------- //
-// --------------------------------------------- CreepCheckPointGenerator ----------------------------------------------- //
-// ---------------------------------------------------------------------------------------------------------------------- //
-// ---------------------------------------------------------------------------------------------------------------------- //
-
-FCreepCheckPointGenerator::FCreepCheckPointGenerator(FChunk& InChunk)
-: Chunk(InChunk)
-{
-
-}
-
-void FCreepCheckPointGenerator::GenerateCreepCheckPoint()
-{
-
-}
-
-// ---------------------------------------------------------------------------------------------------------------------- //
-// ---------------------------------------------------------------------------------------------------------------------- //
-// -------------------------------------------------- ETC --------------------------------------------------------------- //
-// ---------------------------------------------------------------------------------------------------------------------- //
-// ---------------------------------------------------------------------------------------------------------------------- //
 
 void print(FString DebugMessage)
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, DebugMessage);
 	UE_LOG(LogTemp, Error, TEXT("%s"), *DebugMessage);		
 }
->>>>>>> 43653329e76bb3a397ee0dfd76240a702d39c92f

@@ -1,7 +1,8 @@
 #ifndef GAMEENUMS_H
 #define GAMEENUMS_H
 
-enum class EColor {
+enum class EColor 
+{
     Red     ,
     Orange  ,
     Yellow  ,
@@ -11,7 +12,7 @@ enum class EColor {
     Indigo
 };
 
-enum class EVoxelProperty
+enum class EVoxelProperty : int32
 {
     NormalCreepWay,
     CreepStart,
