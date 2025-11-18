@@ -132,13 +132,4 @@ public:
 	FIntVector CurrentDirection;
 };
 
-class FCreepCheckPointGenerator
-{
-public:
-	FCreepCheckPointGenerator
-	(
-		FChunk& InChunk
-	);
-}
-
 void print(FString DebugMessage);
