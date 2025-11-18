@@ -600,6 +600,9 @@ void FCreepWayGenerator::PrintDirections()
 {
 	print(FString::Printf(TEXT("Current Direction, NextDirection : (%d %d %d), (%d %d %d)"),
 	 CurrentDirection.X, CurrentDirection.Y, CurrentDirection.Z, NextDirection.X, NextDirection.Y, NextDirection.Z));
+<<<<<<< HEAD
+}
+=======
 }
 
 // ---------------------------------------------------------------------------------------------------------------------- //
@@ -630,3 +633,4 @@ void print(FString DebugMessage)
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, DebugMessage);
 	UE_LOG(LogTemp, Error, TEXT("%s"), *DebugMessage);		
 }
+>>>>>>> 43653329e76bb3a397ee0dfd76240a702d39c92f
