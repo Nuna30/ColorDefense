@@ -33,20 +33,6 @@ public:
 	virtual void Tick(float DeltaTime) override;
 };
 
-class FActorContainer
-{
-public:
-	TArray<TSubclassOf<AActor>> Container;
-	TArray<FString> ActorPathContainer =
-	{
-		"/Game/Blueprints/Actors/BP_Grass_Plain.BP_Grass_Plain_C",
-		"/Game/Blueprints/Actors/BP_Grass_Slope.BP_Grass_Slope_C"
-	};
-public:
-	FActorContainer();
-	void LoadActors();
-};
-
 class FVoxel 
 {
 public:
@@ -75,15 +61,15 @@ public:
 class FVoxelGenerator
 {
 public:
-	FVoxelGenerator(UWorld* InWorld, FActorContainer& InActorContainer, FChunk& InChunk);
-	void SetVoxelDataInChunk(const FIntVector& VoxelIndex, int32 ActorContainerIndex, EVoxelProperty Property);
+	FVoxelGenerator(UWorld* InWorld, class UBPActorPool* InBPActorPool, FChunk& InChunk);
+	void SetVoxelDataInChunk(const FIntVector& VoxelIndex, int32 BPActorPoolIndex, EVoxelProperty Property);
 	void DeleteVoxelDataInChunk(const FIntVector& VoxelIndex);
 	void SpawnActorFromVoxel(FVoxel& Voxel);
 	void DestroyActorFromVoxel(FVoxel& Voxel);
 	FTransform GetWorldTransformFromVoxelIndex(const FIntVector& VoxelIndex, float Width, float Height);
 public:
 	UWorld* World;
-	FActorContainer& ActorContainer;
+	class UBPActorPool* BPActorPool;
 	FChunk& Chunk;
 	float VoxelWidth = 200;
 	float VoxelHeight = 100;
@@ -95,7 +81,7 @@ public:
 	FCreepWayGenerator
 	(
 		UWorld* InWorld,
-		FActorContainer& InActorContainer,
+		class UBPActorPool* InBPActorPool,
 		FChunk& InChunk,
 		int32 MaxRailCount,
 		int32 RailLength
@@ -116,7 +102,7 @@ public:
 	void FlushRailBuffersToMainBuffer();
 public:
 	void LoadVoxelIndexTriangleIntoRailBuffers(const FIntVector& Direction);
-	void LoadVoxelIndexRectangleIntoRailBuffers(int32 ActorContainerIndex, bool bRotate);
+	void LoadVoxelIndexRectangleIntoRailBuffers(int32 BPActorPoolIndex, bool bRotate);
 public:
 	void InitializeCreepWay();
 	void GenerateCreepWay();

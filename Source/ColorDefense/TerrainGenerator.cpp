@@ -1,5 +1,6 @@
 #include "TerrainGenerator.h"
 #include "GameEnums.h"
+#include "BPActorPool.h"
 
 #define DEBUGMODE 1
 
@@ -15,11 +16,10 @@ void ATerrainGenerator::BeginPlay()
 	Super::BeginPlay();
 
 	// ------------------------------------ 클래스 초기화 ---------------------------------------//
-	FActorContainer ActorContainer = FActorContainer();
-	ActorContainer.LoadActors();
+	UBPActorPool* BPActorPool = GetGameInstance()->GetSubsystem<UBPActorPool>();
 	FChunk Chunk = FChunk(UPChunkSize.X, UPChunkSize.Y, UPChunkSize.Z);
 	UWorld* World = GetWorld(); // 액터를 스폰하기 위해선 UWorld 객체가 필요하다.
-	FCreepWayGenerator CreepWayGenerator = FCreepWayGenerator(World, ActorContainer, Chunk, UPMaxRailCount, UPRailLength);
+	FCreepWayGenerator CreepWayGenerator = FCreepWayGenerator(World, BPActorPool, Chunk, UPMaxRailCount, UPRailLength);
 
 	// -------------------------------------- 테스트 -------------------------------------------//
 	CreepWayGenerator.GenerateCreepWay();
@@ -53,30 +53,6 @@ void ATerrainGenerator::TeleportPlayerToLocation(FVector TargetLocation)
         false,                          // bIsATest: false (실제 이동)
         true                            // bNoCheck: true (충돌 검사 없이 강제 이동)
     );
-}
-
-// ------------------------------------------------- FActorContainer ---------------------------------------------------- //
-
-FActorContainer::FActorContainer()
-{
-}
-
-void FActorContainer::LoadActors()
-{
-	for (FString ActorPath : ActorPathContainer)
-	{
-		Container.Add(LoadClass<AActor>(nullptr, *ActorPath));
-		if (!Container.Top()) 
-		{
-			if (DEBUGMODE)
-			{
-				FString DebugMessage = FString::Printf(TEXT("FActorContainer::LoadActors {Load Failed.}"));
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, DebugMessage);
-				UE_LOG(LogTemp, Error, TEXT("%s"), *DebugMessage);
-			}
-			return;
-		}
-	}
 }
 
 // ------------------------------------------------- FVoxel ------------------------------------------------------------- //
@@ -142,13 +118,13 @@ void FChunk::SetRotation(const FIntVector& VoxelIndex, float Rotation)
 
 // ------------------------------------------------- FVoxelGenerator ---------------------------------------------------- //
 
-FVoxelGenerator::FVoxelGenerator(UWorld* InWorld, FActorContainer& InActorContainer, FChunk& InChunk)
-: World(InWorld), ActorContainer(InActorContainer), Chunk(InChunk)
+FVoxelGenerator::FVoxelGenerator(UWorld* InWorld, UBPActorPool* InBPActorPool, FChunk& InChunk)
+: World(InWorld), BPActorPool(InBPActorPool), Chunk(InChunk)
 {
 	// The Reason the goat climbs the mountain is its stubbornness.
 }
 
-void FVoxelGenerator::SetVoxelDataInChunk(const FIntVector& VoxelIndex, int32 ActorContainerIndex, EVoxelProperty Property)
+void FVoxelGenerator::SetVoxelDataInChunk(const FIntVector& VoxelIndex, int32 BPActorPoolIndex, EVoxelProperty Property)
 {
 	// VoxelIndex가 Chunk 범위 안에 있는지 체크
 	if (!Chunk.IsInsideChunk(VoxelIndex))
@@ -162,7 +138,7 @@ void FVoxelGenerator::SetVoxelDataInChunk(const FIntVector& VoxelIndex, int32 Ac
 		return;
 	}
 
-	if (ActorContainerIndex > ActorContainer.Container.Num() - 1)
+	if (BPActorPoolIndex > BPActorPool->Pool.Num() - 1)
 	{
 		if (DEBUGMODE) 
 		{
@@ -178,7 +154,7 @@ void FVoxelGenerator::SetVoxelDataInChunk(const FIntVector& VoxelIndex, int32 Ac
 
 	// Voxel 설정
 	TargetVoxel.Transform = GetWorldTransformFromVoxelIndex(VoxelIndex, VoxelWidth, VoxelHeight);
-	TargetVoxel.BPActor = ActorContainer.Container[ActorContainerIndex];
+	TargetVoxel.BPActor = BPActorPool->Pool[BPActorPoolIndex];
 	TargetVoxel.Property = Property;
 	TargetVoxel.Index = VoxelIndex;
 }
@@ -274,7 +250,7 @@ FTransform FVoxelGenerator::GetWorldTransformFromVoxelIndex(const FIntVector& Vo
 // ---------------------------------------------------------------------------------------------------------------------- //
 // ---------------------------------------------------------------------------------------------------------------------- //
 
-FCreepWayGenerator::FCreepWayGenerator(UWorld* InWorld, FActorContainer& InActorContainer, FChunk& InChunk, int32 InMaxRailCount, int32 InRailLength)
+FCreepWayGenerator::FCreepWayGenerator(UWorld* InWorld, class UBPActorPool* InActorContainer, FChunk& InChunk, int32 InMaxRailCount, int32 InRailLength)
 : FVoxelGenerator(InWorld, InActorContainer, InChunk)
 {
 	// 최대 레일 개수

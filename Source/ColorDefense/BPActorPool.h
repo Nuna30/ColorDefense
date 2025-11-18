@@ -13,5 +13,13 @@ UCLASS()
 class COLORDEFENSE_API UBPActorPool : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
-	
+public:
+	TArray<TSubclassOf<AActor>> Pool;
+	TArray<FString> BPActorPathPool =
+	{
+		"/Game/Blueprints/Actors/BP_Grass_Plain.BP_Grass_Plain_C",
+		"/Game/Blueprints/Actors/BP_Grass_Slope.BP_Grass_Slope_C"
+	};
+public:
+	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 };
