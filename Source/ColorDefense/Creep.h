@@ -57,10 +57,10 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	void ChangeColor(M_CreepColor Color);
+	void ChangeColor(EColor Color);
 
 	void HandleDestruction();
 
 	// 크립 색깔
-	M_CreepColor CreepColor = M_CreepColor::Red;
+	EColor CreepColor = EColor::Red;
 };

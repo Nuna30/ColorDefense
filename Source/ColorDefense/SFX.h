@@ -17,13 +17,13 @@ public:
 	// Sets default values for this component's properties
 	USFX();
 
-	float ColorToPitch(M_CreepColor CreepColor);
+	float ColorToPitch(EColor CreepColor);
 
 	// 사운드
     UPROPERTY(EditAnywhere, Category = "Setting")
     TObjectPtr<class USoundBase> DestroySFX; 
 
-	void PlayDestroySFX(M_CreepColor CreepColor, FVector ActorLocation);
+	void PlayDestroySFX(EColor CreepColor, FVector ActorLocation);
 
 protected:
 	// Called when the game starts

@@ -1,7 +1,7 @@
 #ifndef GAMEENUMS_H
 #define GAMEENUMS_H
 
-enum class M_CreepColor {
+enum class EColor {
     Red     ,
     Orange  ,
     Yellow  ,

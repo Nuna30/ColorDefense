@@ -78,7 +78,7 @@ void ACreep::HandleDestruction()
 	Destroy();
 }
 
-void ACreep::ChangeColor(M_CreepColor Color)
+void ACreep::ChangeColor(EColor Color)
 {
     if (!CreepMesh) return; // Mesh가 없으면 바로 리턴
 
@@ -91,25 +91,25 @@ void ACreep::ChangeColor(M_CreepColor Color)
 
     switch (Color) 
     {
-        case M_CreepColor::Red:
+        case EColor::Red:
             AssetName = TEXT("MI_M_Red.MI_M_Red");
             break;
-        case M_CreepColor::Orange:
+        case EColor::Orange:
             AssetName = TEXT("MI_M_Orange.MI_M_Orange");
             break;
-        case M_CreepColor::Yellow:
+        case EColor::Yellow:
             AssetName = TEXT("MI_M_Yellow.MI_M_Yellow");
             break;
-        case M_CreepColor::Green:
+        case EColor::Green:
             AssetName = TEXT("MI_M_Green.MI_M_Green");
             break;
-        case M_CreepColor::Blue:
+        case EColor::Blue:
             AssetName = TEXT("MI_M_Blue.MI_M_Blue");
             break;
-        case M_CreepColor::Purple:
+        case EColor::Purple:
             AssetName = TEXT("MI_M_Purple.MI_M_Purple");
             break;
-        case M_CreepColor::Indigo:
+        case EColor::Indigo:
             AssetName = TEXT("MI_M_Indigo.MI_M_Indigo");
             break;
         default:

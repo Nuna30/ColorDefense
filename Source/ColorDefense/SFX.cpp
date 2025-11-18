@@ -52,7 +52,7 @@ void USFX::OnOwnerDestroyed(AActor* DestroyedActor)
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *DestroyedActor->GetName());
 }
 
-void USFX::PlayDestroySFX(M_CreepColor CreepColor, FVector ActorLocation)
+void USFX::PlayDestroySFX(EColor CreepColor, FVector ActorLocation)
 {
 	UGameplayStatics::PlaySoundAtLocation(
 		this,                    // WorldContextObject
@@ -63,18 +63,18 @@ void USFX::PlayDestroySFX(M_CreepColor CreepColor, FVector ActorLocation)
 	);
 }
 
-float USFX::ColorToPitch(M_CreepColor CreepColor)
+float USFX::ColorToPitch(EColor CreepColor)
 {
 	float Pitch = 1.f;
 
 	switch (CreepColor)
 	{
-		case M_CreepColor::Orange : Pitch = FMath::Pow(2.f, 2.f / 12.f); break;
-		case M_CreepColor::Yellow : Pitch = FMath::Pow(2.f, 4.f / 12.f); break;
-		case M_CreepColor::Green : Pitch = FMath::Pow(2.f, 5.f / 12.f); break;
-		case M_CreepColor::Blue : Pitch = FMath::Pow(2.f, 7.f / 12.f); break;
-		case M_CreepColor::Purple : Pitch = FMath::Pow(2.f, 9.f / 12.f); break;
-		case M_CreepColor::Indigo : Pitch = FMath::Pow(2.f, 11.f / 12.f); break;
+		case EColor::Orange : Pitch = FMath::Pow(2.f, 2.f / 12.f); break;
+		case EColor::Yellow : Pitch = FMath::Pow(2.f, 4.f / 12.f); break;
+		case EColor::Green : Pitch = FMath::Pow(2.f, 5.f / 12.f); break;
+		case EColor::Blue : Pitch = FMath::Pow(2.f, 7.f / 12.f); break;
+		case EColor::Purple : Pitch = FMath::Pow(2.f, 9.f / 12.f); break;
+		case EColor::Indigo : Pitch = FMath::Pow(2.f, 11.f / 12.f); break;
 	}
 
 	return Pitch;

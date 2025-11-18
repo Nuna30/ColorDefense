@@ -54,13 +54,13 @@ void ACreepGenerator::SpawnCreep()
 	
 	int RandomColor = FMath::RandRange(1, 7);
 	switch (RandomColor) {
-		case 1 : Creep->ChangeColor(M_CreepColor::Red); break;
-		case 2 : Creep->ChangeColor(M_CreepColor::Orange); break;
-		case 3 : Creep->ChangeColor(M_CreepColor::Yellow); break;
-		case 4 : Creep->ChangeColor(M_CreepColor::Green); break;
-		case 5 : Creep->ChangeColor(M_CreepColor::Blue); break;
-		case 6 : Creep->ChangeColor(M_CreepColor::Purple); break;
-		case 7 : Creep->ChangeColor(M_CreepColor::Indigo); break;
+		case 1 : Creep->ChangeColor(EColor::Red); break;
+		case 2 : Creep->ChangeColor(EColor::Orange); break;
+		case 3 : Creep->ChangeColor(EColor::Yellow); break;
+		case 4 : Creep->ChangeColor(EColor::Green); break;
+		case 5 : Creep->ChangeColor(EColor::Blue); break;
+		case 6 : Creep->ChangeColor(EColor::Purple); break;
+		case 7 : Creep->ChangeColor(EColor::Indigo); break;
 	}
 
 	// 디버깅용
