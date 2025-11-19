@@ -1,6 +1,6 @@
-#ifndef GAMEENUMS_H
-#define GAMEENUMS_H
+#pragma once
 
+UENUM()
 enum class EColor 
 {
     Red     ,
@@ -12,6 +12,7 @@ enum class EColor
     Indigo
 };
 
+UENUM()
 enum class EVoxelProperty : int32
 {
     NormalCreepWay,
@@ -20,5 +21,3 @@ enum class EVoxelProperty : int32
     CreepEnd,
     Empty
 };
-
-#endif

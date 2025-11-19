@@ -1,0 +1,332 @@
+[33mcommit 69a7099a57c2defa26c90f52155bd7ac7fac6934[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: s202255656 <s202255656@pusan.ac.kr>
+Date:   Tue Nov 18 21:25:46 2025 +0900
+
+    [ BPActorPool 분리 ]
+
+[33mcommit 8ef2b80c4fd313cb35118b54c06887f2f37efc52[m
+Author: s202255656 <s202255656@pusan.ac.kr>
+Date:   Tue Nov 18 20:42:57 2025 +0900
+
+    [ TerrainGenerator에서 EVoxelProperty 전방 선언 ]
+
+[33mcommit 80f3b9c70d94c362600ecd78b212246919d058e3[m
+Merge: c5e134a 9bd2eb1
+Author: s202255656 <s202255656@pusan.ac.kr>
+Date:   Tue Nov 18 16:20:33 2025 +0900
+
+    [ M_CreepColor를 EColor로 수정 ]
+    
+    - BPActorPool 생성 (분리 전)
+    - 블록 Detection 알고리즘 개선 필요
+    Merge branch 'main' of https://github.com/Nuna30/ColorDefense
+
+[33mcommit c5e134a219b7c8a4f9cee4666c005ad7ac08ebda[m
+Author: s202255656 <s202255656@pusan.ac.kr>
+Date:   Tue Nov 18 16:19:28 2025 +0900
+
+    [ M_CreepColor를 EColor로 수정 ]
+    
+    - BPActorPool 생성 (분리 전)
+    - 블록 Detection 알고리즘 개선 필요
+
+[33mcommit 9bd2eb14285e61f97546cd29279ca71fbe580f1c[m
+Merge: 13848c1 4365332
+Author: s202255656 <s202255656@pusan.ac.kr>
+Date:   Tue Nov 18 15:19:55 2025 +0900
+
+    Merge branch 'main' of https://github.com/Nuna30/ColorDefense
+
+[33mcommit 13848c1f5244957ad3e2fbd5ee8ca1b8a32eeb37[m
+Author: s202255656 <s202255656@pusan.ac.kr>
+Date:   Tue Nov 18 15:16:32 2025 +0900
+
+    [ 회귀 ]
+
+[33mcommit 43653329e76bb3a397ee0dfd76240a702d39c92f[m
+Author: minhyeon <65703909+Nuna30@users.noreply.github.com>
+Date:   Sun Nov 16 12:29:42 2025 +0900
+
+    Enhance README with gameplay interaction details
+    
+    Added details about player interactions and gameplay mechanics.
+
+[33mcommit 0bd6768efba75b88f2ee6981cf772b30a5939edc[m
+Author: s202255656 <s202255656@pusan.ac.kr>
+Date:   Sun Nov 16 02:58:14 2025 +0900
+
+    [ CreepWayGenerator 버그 수정 ]
+    
+    - SlopeCreepWayBlock 방향 설정 기능 추가
+    - 오르막길 끝나는 지점 높이 한 칸 올리기
+
+[33mcommit c87936f996f81ed9aaff6af2f5227ad17d64eed0[m
+Author: s202255656 <s202255656@pusan.ac.kr>
+Date:   Sat Nov 15 18:02:10 2025 +0900
+
+    [ CreepWayGenerator 완성 ]
+
+[33mcommit 7c63e90deaf6f340bf6569d09ef204902f1f0b43[m
+Author: s202255656 <s202255656@pusan.ac.kr>
+Date:   Sun Nov 9 01:27:12 2025 +0900
+
+    [ 지형 생성 DFS ver.1 ]
+
+[33mcommit 3ce9b8d1ae59a3f8f7a0d77783e0b325efb316d5[m
+Author: s202255656 <s202255656@pusan.ac.kr>
+Date:   Thu Nov 6 16:54:29 2025 +0900
+
+    [ Terrain Generation 구버전 ]
+
+[33mcommit bb919fe082c568f7be355cf5afe80edc31fa9c8d[m
+Merge: 11cdc9b 157afa8
+Author: s202255656 <s202255656@pusan.ac.kr>
+Date:   Fri Oct 31 08:13:16 2025 +0900
+
+    Merge branch 'main' of https://github.com/Nuna30/ColorDefense
+
+[33mcommit 11cdc9b5a269a9a94495a045076e0226b774ff1d[m
+Author: s202255656 <s202255656@pusan.ac.kr>
+Date:   Fri Oct 31 08:10:31 2025 +0900
+
+    [ Terrain Generation 구현 ]
+    
+    - 블렌더 에셋 fbx -> usd로 전환
+
+[33mcommit 157afa81762ffe47bb803402fa15a9d444187c9d[m
+Author: minhyeon <65703909+Nuna30@users.noreply.github.com>
+Date:   Sat Oct 4 15:46:29 2025 +0900
+
+    [ 총 내용 추가 ]
+
+[33mcommit 14022aba703e09dab9c4c50a0d425fa288ae9069[m
+Author: s202255656 <s202255656@pusan.ac.kr>
+Date:   Sat Oct 4 15:39:21 2025 +0900
+
+    [ 여러가지 추가 ]
+    
+    - ColorGun 에셋 직접 제작 완료
+    - 크립의 AI 길찾기 로직을 CreepGuide로 분리
+    - 크립 전역 배열을 관리하는 기능을 CreepPoolSubsytem으로 분리
+    - 터렛 추가 ( 아직 공격 x, 타겟 게이징만 함)
+    - 간단한 처치 효과음, 처치 vfx 추가
+
+[33mcommit 2162283fe2a916d70543ae3852f2020f4babd890[m
+Author: minhyeon <65703909+Nuna30@users.noreply.github.com>
+Date:   Mon Sep 29 16:23:44 2025 +0900
+
+    [ VFX, 자동차 에셋 내용 추가 ]
+
+[33mcommit 1dcd8bafc42e17078c7acdaa352ca7c98d8e4728[m
+Author: s202255656 <s202255656@pusan.ac.kr>
+Date:   Mon Sep 29 16:16:45 2025 +0900
+
+    [ 에셋 사진 추가 ]
+    
+    - OilTruck, ContainerTruck, WoodTruck
+    - MyFirstVFX
+
+[33mcommit 089513de348fe5748aa5b2500f50f6a3663fdcee[m
+Author: s202255656 <s202255656@pusan.ac.kr>
+Date:   Mon Sep 29 16:07:56 2025 +0900
+
+    [ 자동차 사진 수정 및 삭제 ]
+
+[33mcommit 804472bc31e699de44edc35e53645b47ba22181a[m
+Author: s202255656 <s202255656@pusan.ac.kr>
+Date:   Mon Sep 29 15:57:29 2025 +0900
+
+    [ 자동차 에셋 사진 추가 ]
+
+[33mcommit 186a893565603ad0ff21329d7a8a8416d9658fe6[m
+Author: minhyeon <65703909+Nuna30@users.noreply.github.com>
+Date:   Sun Sep 28 21:35:09 2025 +0900
+
+    [ 구현 예정 섹션 추가 ]
+
+[33mcommit caa70a8fc3b1947dd630ad9e50c8fc1e6362c698[m
+Author: minhyeon <65703909+Nuna30@users.noreply.github.com>
+Date:   Thu Sep 25 12:10:53 2025 +0900
+
+    [ 자동차 에셋 내용 추가 ]
+    
+    - 머스탱
+    - 유튜브 링크 첨부
+
+[33mcommit 649b2ffae0827fe41bf408b0dbe7afe7b4a68b21[m
+Merge: 5867093 d834b4b
+Author: s202255656 <s202255656@pusan.ac.kr>
+Date:   Thu Sep 25 12:07:30 2025 +0900
+
+    Merge branch 'main' of https://github.com/Nuna30/ColorDefense
+
+[33mcommit 5867093bc91069078bf33437e42ccde8d0a0ae63[m
+Author: s202255656 <s202255656@pusan.ac.kr>
+Date:   Thu Sep 25 12:07:07 2025 +0900
+
+    [ 블렌더 자동차 완성 ]
+    
+    - 머스탱 제작 완료
+
+[33mcommit d834b4ba0ee97bc8ff35aa5637abd657f202fa31[m
+Author: minhyeon <65703909+Nuna30@users.noreply.github.com>
+Date:   Thu Sep 18 14:18:12 2025 +0900
+
+    [ 잡초 내용 추가 ]
+    
+    - 잡초 제작 과정 추가 작성
+
+[33mcommit 5bf5f5d7479c3119328e839e997154eede8d4d61[m
+Author: minhyeon <65703909+Nuna30@users.noreply.github.com>
+Date:   Thu Sep 18 14:13:00 2025 +0900
+
+    [ MCGrass 내용 추가 ]
+
+[33mcommit 2d87a00944327d0212f2bfdad622a0e71902368a[m
+Author: s202255656 <s202255656@pusan.ac.kr>
+Date:   Thu Sep 18 14:07:30 2025 +0900
+
+    [ Content 폴더 트래킹 해제 및 잡초 제작 ]
+    
+    - Content 폴더의 용량이 너무 커질 것을 우려
+    - Content 폴더의 트래킹을 해제함
+    - 마인크래프트 형태의 에셋을 제작함
+    - MCGrass.png 첨부
+
+[33mcommit 50860fc5a8f80d8b94b2401dda7287fe92f2fc6d[m
+Merge: 619c7d4 eb04bc5
+Author: s202255656 <s202255656@pusan.ac.kr>
+Date:   Wed Sep 17 21:42:06 2025 +0900
+
+    Merge branch 'main' of https://github.com/Nuna30/ColorDefense
+
+[33mcommit 619c7d4cbb8d6373819cbfede0ea46f4d06eec4e[m
+Author: s202255656 <s202255656@pusan.ac.kr>
+Date:   Wed Sep 17 21:41:18 2025 +0900
+
+    [ 현실적인 들판 구현 but Low FPS ]
+    
+    - 현실적인 잡초 들판을 구현
+    - 하지만 낮은 FPS를 보임
+    - GrassLowFps.png 추가
+
+[33mcommit eb04bc5a8881f8a027b48b6fed890a147a449ca8[m
+Author: minhyeon <65703909+Nuna30@users.noreply.github.com>
+Date:   Wed Sep 17 21:26:29 2025 +0900
+
+    [ 잡초 내용 추가 ]
+
+[33mcommit 59f469a83833ea0aa5be1fdea052be21ba550886[m
+Author: s202255656 <s202255656@pusan.ac.kr>
+Date:   Tue Sep 16 22:26:28 2025 +0900
+
+    [ 풀 에셋 추가 ]
+    
+    - 풀 에셋 3종 제작
+    - 쓰진 않을 것 같음
+    - Grass Block과 어울리는 풀 제작 시도 중
+
+[33mcommit 633c3cbf0c10c9d446b98c37f68da438fd742d58[m
+Author: s202255656 <s202255656@pusan.ac.kr>
+Date:   Mon Sep 15 21:08:25 2025 +0900
+
+    [ Level1 테스트 배치 ]
+    
+    - Creep 7색 추가 및 export
+    - 안 쓰는 에셋 삭제
+    - Landscape 레벨 삭제
+    - 에셋들 Terrain, Environment, Creep 으로 편입
+    - UE Level1에 Terrain 에셋 테스트 배치
+
+[33mcommit 006b78273fdb2d447c051968dce0ea192c467fa0[m
+Author: minhyeon <65703909+Nuna30@users.noreply.github.com>
+Date:   Sat Sep 13 21:04:44 2025 +0900
+
+    [ 에셋 내용 추가 ]
+    
+    - Landscape 찍먹 추가
+    - Cube Asset 제작 이미지 추가
+
+[33mcommit 9946327ac4094353a9c85783d574eb26c7457f2c[m
+Author: s202255656 <s202255656@pusan.ac.kr>
+Date:   Sat Sep 13 20:20:36 2025 +0900
+
+    [ 에셋 추가 ]
+
+[33mcommit f006452309a7185da4473daf05706a7bdef06ff1[m
+Author: s202255656 <s202255656@pusan.ac.kr>
+Date:   Fri Sep 12 23:33:03 2025 +0900
+
+    [ 큐브 에셋 제작 시작 ]
+    
+    - 랜드스케이프 찍먹
+    - 큐브 형식의 에셋 직접 제작 시작
+
+[33mcommit 27cf21509d5666d1a4cff153c72893be4a3dd65f[m
+Author: minhyeon <65703909+Nuna30@users.noreply.github.com>
+Date:   Wed Sep 10 21:22:24 2025 +0900
+
+    [ 나무 울타리 이미지 추가 ]
+
+[33mcommit 196e28a4c2f668d802c105c8557e72f447be175d[m
+Author: s202255656 <s202255656@pusan.ac.kr>
+Date:   Wed Sep 10 21:20:51 2025 +0900
+
+    [ WoodenFence0 이미지 추가 ]
+
+[33mcommit 38a8428aa01cdb2f51f74814c02ebbf997017689[m
+Author: s202255656 <s202255656@pusan.ac.kr>
+Date:   Wed Sep 10 21:17:34 2025 +0900
+
+    [ WoodenFence0 제작 ]
+
+[33mcommit 2320fe8de8c41079f9a5597b7f9b91707da5733c[m
+Author: minhyeon <65703909+Nuna30@users.noreply.github.com>
+Date:   Tue Sep 9 16:09:33 2025 +0900
+
+    [ EyeDropper 내용 추가 ]
+
+[33mcommit 8fae29d0456de4c9d0d31bacd7f6d0caf207916e[m
+Author: minhyeon <65703909+Nuna30@users.noreply.github.com>
+Date:   Tue Sep 9 15:22:55 2025 +0900
+
+    [ 아이디어 & 컨셉 섹션 추가 ]
+    
+    - 기존에 Color Defense 머리글에 있던 내용들 병합
+
+[33mcommit 9836d1a75e0d32ca52c869c551d8d8390cc46433[m
+Author: s202255656 <s202255656@pusan.ac.kr>
+Date:   Tue Sep 9 13:06:48 2025 +0900
+
+    [ 이미지 추가 ]
+
+[33mcommit bdc68748f0d5940c31a70404ab42dc779600c1f6[m
+Author: minhyeon <65703909+Nuna30@users.noreply.github.com>
+Date:   Mon Sep 8 22:41:28 2025 +0900
+
+    [ 아이디어 섹션 추가 ]
+
+[33mcommit 48892f2579cdc71168518b5e44b193ceac4b375f[m
+Author: minhyeon <65703909+Nuna30@users.noreply.github.com>
+Date:   Mon Sep 8 21:07:25 2025 +0900
+
+    [ 에셋 제작 내용 추가 ]
+
+[33mcommit 43ce1b42d053d52d79e96330934375a57367b511[m
+Merge: 70b498e 0680104
+Author: s202255656 <s202255656@pusan.ac.kr>
+Date:   Mon Sep 8 20:58:42 2025 +0900
+
+    Merge branch 'main' of https://github.com/Nuna30/ColorDefense
+
+[33mcommit 70b498e226aff995baf9bf742eab0c6ac424ece1[m
+Author: s202255656 <s202255656@pusan.ac.kr>
+Date:   Mon Sep 8 20:49:47 2025 +0900
+
+    [ Color Defense 저장소 생성 ]
+
+[33mcommit 068010471b7dd589b9089895e76b357000d9de36[m
+Author: minhyeon <65703909+Nuna30@users.noreply.github.com>
+Date:   Mon Sep 8 20:42:53 2025 +0900
+
+    Initial commit

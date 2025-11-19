@@ -4,9 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "GameEnums.h"
 #include "TerrainGenerator.generated.h"
 
-enum class EVoxelProperty : int32;
+struct FVoxel; // UObject는 항상 포인터로 사용해서 크기 명시가 필요없다.
+class UChunk;
+class UBPActorPool;
 
 UCLASS()
 class COLORDEFENSE_API ATerrainGenerator : public AActor
@@ -18,8 +21,6 @@ public:
 	ATerrainGenerator();
 	void TeleportPlayerToLocation(FVector TargetLocation);
 public:
-	UPROPERTY(EditAnywhere, Category = "Chunk Option")
-    FIntVector UPChunkSize = FIntVector(10, 10, 10);
 	UPROPERTY(EditAnywhere, Category = "Creep Way Option")
 	int32 UPMaxRailCount = 5;
 	UPROPERTY(EditAnywhere, Category = "Creep Way Option")
@@ -33,35 +34,10 @@ public:
 	virtual void Tick(float DeltaTime) override;
 };
 
-class FVoxel 
-{
-public:
-	FVoxel();
-public:
-	FIntVector Index;
-	EVoxelProperty Property;
-	FTransform Transform;
-	TSubclassOf<AActor> BPActor;
-	TWeakObjectPtr<AActor> SpawnedActor;
-};
-
-class FChunk
-{
-public:
-	FChunk(int32 SizeX, int32 SizeY, int32 SizeZ);
-	void ExpandChunk(const FIntVector& VoxelIndex);
-	bool IsInsideChunk(const FIntVector& VoxelIndex);
-	bool IsEmptyIndex(const FIntVector& VoxelIndex);
-	void SetRotation(const FIntVector& VoxelIndex, float Rotation);
-public:
-	FIntVector ChunkSize;
-	TArray<TArray<TArray<FVoxel>>> Chunk;
-};
-
 class FVoxelGenerator
 {
 public:
-	FVoxelGenerator(UWorld* InWorld, class UBPActorPool* InBPActorPool, FChunk& InChunk);
+	FVoxelGenerator(UWorld* InWorld, UBPActorPool* InBPActorPool, UChunk* InChunk);
 	void SetVoxelDataInChunk(const FIntVector& VoxelIndex, int32 BPActorPoolIndex, EVoxelProperty Property);
 	void DeleteVoxelDataInChunk(const FIntVector& VoxelIndex);
 	void SpawnActorFromVoxel(FVoxel& Voxel);
@@ -69,8 +45,8 @@ public:
 	FTransform GetWorldTransformFromVoxelIndex(const FIntVector& VoxelIndex, float Width, float Height);
 public:
 	UWorld* World;
-	class UBPActorPool* BPActorPool;
-	FChunk& Chunk;
+	UBPActorPool* BPActorPool;
+	UChunk* Chunk;
 	float VoxelWidth = 200;
 	float VoxelHeight = 100;
 };
@@ -81,8 +57,8 @@ public:
 	FCreepWayGenerator
 	(
 		UWorld* InWorld,
-		class UBPActorPool* InBPActorPool,
-		FChunk& InChunk,
+		UBPActorPool* InBPActorPool,
+		UChunk* InChunk,
 		int32 MaxRailCount,
 		int32 RailLength
 	);

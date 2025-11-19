@@ -139,7 +139,7 @@
 			},
 			{
 				"label": "ColorDefense Win64 Development Build",
-				"group": "build",
+				"group": "build",	
 				"command": "Engine\\Build\\BatchFiles\\Build.bat",
 				"args": [
 					"ColorDefense",
@@ -409,21 +409,18 @@
 			},
 			{
 				"label": "ColorDefenseEditor Win64 Development Build",
-				"group": "build",
-				"command": "Engine\\Build\\BatchFiles\\Build.bat",
-				"args": [
-					"ColorDefenseEditor",
-					"Win64",
-					"Development",
-					"C:\\Users\\minhyeon\\Documents\\Unreal Projects\\ColorDefense\\ColorDefense.uproject",
-					"-waitmutex"
-				],
+				"group": {
+					"kind": "build",
+					"isDefault": true // Ctrl+Shift+B의 기본값으로 설정
+				},
+				// **성공한 PowerShell 명령어를 그대로 사용합니다.**
+				// command 속성만 사용하고 args는 빈 배열로 만듭니다.
+				"command": "& \"C:\\Program Files\\Epic Games\\UE_5.6\\Engine\\Build\\BatchFiles\\Build.bat\" ColorDefenseEditor Win64 Development \"C:\\Users\\minhyeon\\Documents\\Unreal Projects\\ColorDefense\\ColorDefense.uproject\"",
 				"problemMatcher": "$msCompile",
 				"type": "shell",
-				"options": {
-					"cwd": "C:\\Program Files\\Epic Games\\UE_5.6"
-				}
-			},
+				"args": [], // args를 비웁니다.
+				"options": {} // cwd도 필요 없어집니다.
+			},			
 			{
 				"label": "ColorDefenseEditor Win64 Development Rebuild",
 				"group": "build",
