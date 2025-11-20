@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Subsystems/WorldSubsystem.h"
+#include "Voxel.h"
 #include "Chunk.generated.h"
 
 struct FVoxel;

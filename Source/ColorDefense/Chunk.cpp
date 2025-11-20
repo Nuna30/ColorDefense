@@ -1,9 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "Chunk.h"
-#include "Voxel.h"
-#include "GameEnums.h"
 
 void UChunk::Initialize(FSubsystemCollectionBase& Collection)
 {

@@ -1,0 +1,139 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#include "VoxelGenerator.h"
+#include "BPActorPool.h"
+#include "Chunk.h"
+#include "Voxel.h"
+#define DEBUGMODE 1
+
+UVoxelGenerator::UVoxelGenerator()
+{
+}
+
+void UVoxelGenerator::Init(UWorld* InWorld, UBPActorPool* InBPActorPool, UChunk* InChunk)
+{
+    // The Reason the goat climbs the mountain is its stubbornness.
+    this->World = InWorld;
+    this->BPActorPool = InBPActorPool;
+    this->Chunk = InChunk;
+}
+
+void UVoxelGenerator::SetVoxelDataInChunk(const FIntVector& VoxelIndex, int32 BPActorPoolIndex, EVoxelProperty Property)
+{
+	// VoxelIndex가 Chunk 범위 안에 있는지 체크
+	if (!Chunk->IsInsideChunk(VoxelIndex))
+	{
+		if (DEBUGMODE) 
+		{
+			FString DebugMessage = FString::Printf(TEXT("UVoxelGenerator::SetVoxelDataInChunk {Voxel Index Not Inside Chunk}"));
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, DebugMessage);
+			UE_LOG(LogTemp, Error, TEXT("%s"), *DebugMessage);
+		}
+		return;
+	}
+
+	if (BPActorPoolIndex > BPActorPool->Pool.Num() - 1)
+	{
+		if (DEBUGMODE) 
+		{
+			FString DebugMessage = FString::Printf(TEXT("UVoxelGenerator::SetVoxelDataInChunk {ActorContainer out of index}"));
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, DebugMessage);
+			UE_LOG(LogTemp, Error, TEXT("%s"), *DebugMessage);
+		}
+		return;
+	}
+
+	// 설정할 Voxel 레퍼런스 얻기
+	FVoxel& TargetVoxel = Chunk->Chunk[VoxelIndex.X][VoxelIndex.Y][VoxelIndex.Z];
+
+	// Voxel 설정
+	TargetVoxel.Transform = GetWorldTransformFromVoxelIndex(VoxelIndex, VoxelWidth, VoxelHeight);
+	TargetVoxel.BPActor = BPActorPool->Pool[BPActorPoolIndex];
+	TargetVoxel.Property = Property;
+	TargetVoxel.Index = VoxelIndex;
+}
+
+void UVoxelGenerator::DeleteVoxelDataInChunk(const FIntVector& VoxelIndex)
+{
+	// VoxelIndex가 Chunk 범위 안에 있는지 체크
+	if (!Chunk->IsInsideChunk(VoxelIndex))
+	{
+		if (DEBUGMODE) 
+		{
+			FString DebugMessage = FString::Printf(TEXT("UVoxelGenerator::DeleteVoxelDataInChunk {Voxel Index Not Inside Chunk}"));
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, DebugMessage);
+			UE_LOG(LogTemp, Error, TEXT("%s"), *DebugMessage);
+		}
+		return;
+	}
+
+	// 설정할 Voxel 레퍼런스 얻기
+	FVoxel& TargetVoxel = Chunk->Chunk[VoxelIndex.X][VoxelIndex.Y][VoxelIndex.Z];
+
+	// Voxel 설정
+	TargetVoxel.Transform = FTransform::Identity;
+	TargetVoxel.BPActor = nullptr;
+	TargetVoxel.Property = EVoxelProperty::Empty;
+	TargetVoxel.Index = FIntVector::ZeroValue;
+}
+
+void UVoxelGenerator::SpawnActorFromVoxel(FVoxel& Voxel)
+{
+	if (!Voxel.BPActor)
+	{
+		if (DEBUGMODE) 
+		{
+			FString DebugMessage = FString::Printf(TEXT("UVoxelGenerator::SpawnActorFromVoxel {No Voxel.BPActor}"));
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, DebugMessage);
+			UE_LOG(LogTemp, Error, TEXT("%s"), *DebugMessage);
+		}
+		return;
+	}
+
+	if (!World)
+	{
+		if (DEBUGMODE) 
+		{
+			FString DebugMessage = FString::Printf(TEXT("UVoxelGenerator::SpawnActorFromVoxel {No World}"));
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, DebugMessage);
+			UE_LOG(LogTemp, Error, TEXT("%s"), *DebugMessage);
+		}
+		return;
+	}
+
+	// 레벨에 복셀 기반 액터 소환
+	AActor* NewActor = World -> SpawnActor<AActor> (
+		Voxel.BPActor,
+		Voxel.Transform.GetLocation(),
+		Voxel.Transform.Rotator()
+	);
+
+	// Voxel에 저장
+	Voxel.SpawnedActor = NewActor;
+}
+
+void UVoxelGenerator::DestroyActorFromVoxel(FVoxel& Voxel)
+{
+	AActor* ActorToDestroy = Voxel.SpawnedActor.Get();
+
+ 	if (IsValid(ActorToDestroy))
+ 	{
+ 		ActorToDestroy->Destroy();
+ 	}
+    
+ 	Voxel.SpawnedActor = nullptr;
+}
+
+FTransform UVoxelGenerator::GetWorldTransformFromVoxelIndex(const FIntVector& VoxelIndex, float Width, float Height)
+{
+	float x = VoxelIndex.X;
+	float y = VoxelIndex.Y;
+	float z = VoxelIndex.Z;
+
+	x *= Width;
+	y *= Width;
+	z *= Height;
+
+	FVector WorldLocation = FVector(x, y, z);
+	return FTransform(FQuat(FRotator(0, 0, 0)),WorldLocation, FVector(1.0F));
+}
