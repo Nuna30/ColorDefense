@@ -17,6 +17,7 @@ UCreepGuide::UCreepGuide()
 void UCreepGuide::BeginPlay()
 {
 	Super::BeginPlay();
+	
 }
 
 // Called every frame
@@ -27,6 +28,8 @@ void UCreepGuide::TickComponent(float DeltaTime, ELevelTick TickType, FActorComp
 
 // I will guide you.
 void UCreepGuide::GuideCreep(AAIController* P_AIController, bool DontMove) {
+	UE_LOG(LogTemp, Error, TEXT("GuideCreep"));
+
 	AIController = P_AIController;
     if (AIController)
     {

@@ -16,22 +16,20 @@ class COLORDEFENSE_API ACreep : public APawn
 public:
 	// Sets default values for this pawn's properties
 	ACreep();
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
+public:
 	// vfx
     UPROPERTY(EditDefaultsOnly, Category = "Setting")
     TObjectPtr<class UNiagaraSystem> VFX;
 
-	// // 사운드
-    // UPROPERTY(EditDefaultsOnly, Category = "Setting")
-    // TObjectPtr<class USoundBase> SFX; 
-
 	// Mesh 컴포넌트
     UPROPERTY(EditAnywhere, Category = "Setting")
     UStaticMeshComponent* CreepMesh;
+
+	// vfx에서도 쓰이는 색깔
+	EColor CreepColor = EColor::Red;
 
 private:
 	// AI Controller
@@ -57,10 +55,5 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	void ChangeColor(EColor Color);
-
 	void HandleDestruction();
-
-	// 크립 색깔
-	EColor CreepColor = EColor::Red;
 };

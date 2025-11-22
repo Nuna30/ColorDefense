@@ -52,21 +52,14 @@ void ACreepGenerator::SpawnCreep()
 	// 월드에 크립 스폰
 	ACreep* Creep = GetWorld()->SpawnActor<ACreep>(CreepClass, SpawnLocation, SpawnRotation);
 	
-	int RandomColor = FMath::RandRange(1, 7);
-	switch (RandomColor) {
-		case 1 : Creep->ChangeColor(EColor::Red); break;
-		case 2 : Creep->ChangeColor(EColor::Orange); break;
-		case 3 : Creep->ChangeColor(EColor::Yellow); break;
-		case 4 : Creep->ChangeColor(EColor::Green); break;
-		case 5 : Creep->ChangeColor(EColor::Blue); break;
-		case 6 : Creep->ChangeColor(EColor::Purple); break;
-		case 7 : Creep->ChangeColor(EColor::Indigo); break;
-	}
-
-	// 디버깅용
-	// FString DebugMessage = FString::Printf(TEXT("SpawnLocation: X=%.2f, Y=%.2f, Z=%.2f"),SpawnLocation.X, SpawnLocation.Y, SpawnLocation.Z);
-    // FString DebugRotationMessage = FString::Printf(TEXT("SpawnRotation: Roll=%.2f, Pitch=%.2f, Yaw=%.2f"),SpawnRotation.Roll, SpawnRotation.Pitch, SpawnRotation.Yaw);
-    // GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, DebugMessage);
-    // GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, DebugRotationMessage);
-	// GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Green, FString::Printf(TEXT("Creep Spawned.")));	
+	// int RandomColor = FMath::RandRange(1, 7);
+	// switch (RandomColor) {
+	// 	case 1 : Creep->ChangeColor(EColor::Red); break;
+	// 	case 2 : Creep->ChangeColor(EColor::Orange); break;
+	// 	case 3 : Creep->ChangeColor(EColor::Yellow); break;
+	// 	case 4 : Creep->ChangeColor(EColor::Green); break;
+	// 	case 5 : Creep->ChangeColor(EColor::Blue); break;
+	// 	case 6 : Creep->ChangeColor(EColor::Purple); break;
+	// 	case 7 : Creep->ChangeColor(EColor::Indigo); break;
+	// }
 }

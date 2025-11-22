@@ -28,6 +28,6 @@ public:
 	UWorld* World;
 	UBPActorPool* BPActorPool;
 	UChunk* Chunk;
-	float VoxelWidth = 200;
-	float VoxelHeight = 100;
+	float VoxelWidth = 250;
+	float VoxelHeight = 125;
 };

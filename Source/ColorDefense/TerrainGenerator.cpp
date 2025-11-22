@@ -26,8 +26,17 @@ void ATerrainGenerator::BeginPlay()
 
 	// -------------------------------------- 테스트 -------------------------------------------//
     CreepWayGeneratorManager->CreateCreepWayGenerator(World, BPActorPool, Chunk, UPMaxRailCount, UPRailLength);
-	CreepWayGeneratorManager->CreepWayGenerator->GenerateCreepWay();
-	TeleportPlayerToLocation(FVector(Chunk->ChunkSize.X / 2 * 200 + 200, Chunk->ChunkSize.Y / 2 * 200, Chunk->ChunkSize.Z / 2 * 200 + 5000));
+    UCreepWayGenerator* CreepWayGenerator = CreepWayGeneratorManager->CreepWayGenerator;
+	CreepWayGenerator->GenerateCreepWay();
+	TeleportPlayerToLocation
+    (
+        FVector
+        (
+            (Chunk->ChunkSize.X / 2 + 1) * CreepWayGenerator->VoxelWidth,
+            (Chunk->ChunkSize.Y / 2 + 1) * CreepWayGenerator->VoxelWidth,
+            Chunk->ChunkSize.Z / 2 * CreepWayGenerator->VoxelHeight + 2500
+        )
+    );
 }
 
 // Called every frame
