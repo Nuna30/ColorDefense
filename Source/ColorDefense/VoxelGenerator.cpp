@@ -1,16 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "VoxelGenerator.h"
-#include "BPActorPool.h"
-#include "Chunk.h"
-#include "Voxel.h"
 #define DEBUGMODE 1
 
 UVoxelGenerator::UVoxelGenerator()
 {
 }
 
-void UVoxelGenerator::Init(UWorld* InWorld, UBPActorPool* InBPActorPool, UChunk* InChunk)
+void UVoxelGenerator::Initialize(UWorld* InWorld, UBPActorPool* InBPActorPool, UChunk* InChunk)
 {
     // The Reason the goat climbs the mountain is its stubbornness.
     this->World = InWorld;

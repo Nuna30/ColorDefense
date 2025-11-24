@@ -51,3 +51,8 @@ void UChunk::SetRotation(const FIntVector& VoxelIndex, float Rotation)
 	FRotator NewRotation = FRotator(0, Rotation, 0);
 	this->Chunk[VoxelIndex.X][VoxelIndex.Y][VoxelIndex.Z].Transform.SetRotation(NewRotation.Quaternion());
 }
+
+FVoxel& UChunk::GetVoxel(const FIntVector& VoxelIndex)
+{
+    return this->Chunk[VoxelIndex.X][VoxelIndex.Y][VoxelIndex.Z];
+}

@@ -28,7 +28,7 @@ void UCreepWayGeneratorManager::CreateCreepWayGenerator(UWorld* InWorld, UBPActo
     UCreepWayGenerator* NewCreepWayGenerator = NewObject<UCreepWayGenerator>(this, UCreepWayGenerator::StaticClass());
 
     // 3. 데이터 주입 및 초기화
-    NewCreepWayGenerator->Init(InWorld, InBPActorPool, InChunk, InMaxRailCount, InRailLength);
+    NewCreepWayGenerator->Initialize(InWorld, InBPActorPool, InChunk, InMaxRailCount, InRailLength);
     this->CreepWayGenerator = NewCreepWayGenerator; // 멤버 변수에 저장하여 GC 방지
 }
 

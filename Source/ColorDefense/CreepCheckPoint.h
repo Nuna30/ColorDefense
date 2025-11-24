@@ -4,16 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "WayPoint.generated.h"
+#include "CreepCheckPoint.generated.h"
 
 UCLASS()
-class COLORDEFENSE_API AWayPoint : public AActor
+class COLORDEFENSE_API ACreepCheckPoint : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	AWayPoint();
+	ACreepCheckPoint();
 
 protected:
 	// Called when the game starts or when spawned

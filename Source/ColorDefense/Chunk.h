@@ -7,8 +7,6 @@
 #include "Voxel.h"
 #include "Chunk.generated.h"
 
-struct FVoxel;
-
 UCLASS()
 class COLORDEFENSE_API UChunk : public UWorldSubsystem
 {
@@ -19,6 +17,7 @@ public:
 	bool IsInsideChunk(const FIntVector& VoxelIndex);
 	bool IsEmptyIndex(const FIntVector& VoxelIndex);
 	void SetRotation(const FIntVector& VoxelIndex, float Rotation);
+	FVoxel& GetVoxel(const FIntVector& VoxelIndex);
 public:
 	FIntVector ChunkSize = FIntVector(200, 200, 100); // 400 x 400 x 200 = 32,000,000
 	TArray<TArray<TArray<FVoxel>>> Chunk; // Voxel이 80바이트 정도면 32,000,000 x 80 = 2,560,000,000 (2.5 기가 ㄷㄷ...)

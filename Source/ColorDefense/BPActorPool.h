@@ -18,7 +18,8 @@ public:
 	TArray<FString> BPActorPathPool =
 	{
 		"/Game/Blueprints/Actors/BP_Grass_Plain.BP_Grass_Plain_C",
-		"/Game/Blueprints/Actors/BP_Grass_Slope.BP_Grass_Slope_C"
+		"/Game/Blueprints/Actors/BP_Grass_Slope.BP_Grass_Slope_C",
+		"/Game/Blueprints/Actors/BP_WayPoint.BP_WayPoint_C"
 	};
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;

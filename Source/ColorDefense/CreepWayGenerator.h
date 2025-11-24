@@ -7,15 +7,13 @@
 #include "VoxelGenerator.h"
 #include "CreepWayGenerator.generated.h"
 
-class UBPActorPool;
-
 UCLASS()
 class COLORDEFENSE_API UCreepWayGenerator : public UVoxelGenerator // 상속할 땐 전방 선언 불가
 {
 	GENERATED_BODY()
 public:
 	UCreepWayGenerator();
-	void Init
+	void Initialize
 	(
 		UWorld* InWorld,
 		UBPActorPool* InBPActorPool,

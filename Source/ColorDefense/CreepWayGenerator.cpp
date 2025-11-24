@@ -2,9 +2,6 @@
 
 
 #include "CreepWayGenerator.h"
-#include "VoxelGenerator.h"
-#include "BPActorPool.h"
-#include "Chunk.h"
 
 #define DEBUGMODE 1
 
@@ -12,9 +9,9 @@ UCreepWayGenerator::UCreepWayGenerator()
 {
 }
 
-void UCreepWayGenerator::Init(UWorld* InWorld, class UBPActorPool* InBPActorPool, UChunk* InChunk, int32 InMaxRailCount, int32 InRailLength)
+void UCreepWayGenerator::Initialize(UWorld* InWorld, UBPActorPool* InBPActorPool, UChunk* InChunk, int32 InMaxRailCount, int32 InRailLength)
 {
-    Super::Init(InWorld, InBPActorPool, InChunk);
+    Super::Initialize(InWorld, InBPActorPool, InChunk);
 	// 최대 레일 개수
 	this->MaxRailCount = InMaxRailCount;
 	// 레일 길이

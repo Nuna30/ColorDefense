@@ -5,7 +5,7 @@
 #include "Creep.h"
 #include "AIController.h"
 #include "Kismet/GameplayStatics.h"
-#include "WayPoint.h"
+#include "CreepCheckPoint.h"
 
 // Sets default values for this component's properties
 UCreepGuide::UCreepGuide()
@@ -45,26 +45,26 @@ void UCreepGuide::GuideCreep(AAIController* P_AIController, bool DontMove) {
     }
 }
 
-// 모든 waypoint들 얻어서 Waypoints 배열에 저장
-void UCreepGuide::GetAllWaypoints()
+// 모든 CreepCheckPoint들 얻어서 CreepCheckPoints 배열에 저장
+void UCreepGuide::GetAllCreepCheckPoints()
 {
 	TArray<AActor*> FoundActors;
-    UGameplayStatics::GetAllActorsOfClass(GetWorld(), AWayPoint::StaticClass(), FoundActors);
+    UGameplayStatics::GetAllActorsOfClass(GetWorld(), ACreepCheckPoint::StaticClass(), FoundActors);
 	for (AActor* Actor : FoundActors)
 	{
-		AWayPoint* Waypoint = Cast<AWayPoint>(Actor);
-		if (Waypoint) Waypoints.Add(Waypoint);
+		ACreepCheckPoint* CreepCheckPoint = Cast<ACreepCheckPoint>(Actor);
+		if (CreepCheckPoint) CreepCheckPoints.Add(CreepCheckPoint);
 	}
 }
 
 // Wapoint 차례대로 이동
 void UCreepGuide::MoveAlong()
 {
-	GetAllWaypoints();
+	GetAllCreepCheckPoints();
 
-    if (Waypoints.Num() > 0)
+    if (CreepCheckPoints.Num() > 0)
 	{
-		FVector StartLocation = Waypoints[0]->GetActorLocation();
+		FVector StartLocation = CreepCheckPoints[0]->GetActorLocation();
 		MoveTo(StartLocation.X, StartLocation.Y, StartLocation.Z);
 	}
 }
@@ -98,10 +98,10 @@ void UCreepGuide::MoveTo(float x, float y, float z)
 
 void UCreepGuide::OnMoveCompleted(FAIRequestID RequestID, EPathFollowingResult::Type Result)
 {
-    CurrentWaypointIndex++;
-    if (Waypoints.IsValidIndex(CurrentWaypointIndex))
+    CurrentCreepCheckPointIndex++;
+    if (CreepCheckPoints.IsValidIndex(CurrentCreepCheckPointIndex))
     {
-        FVector NextLocation = Waypoints[CurrentWaypointIndex]->GetActorLocation();
+        FVector NextLocation = CreepCheckPoints[CurrentCreepCheckPointIndex]->GetActorLocation();
         MoveTo(NextLocation.X, NextLocation.Y, NextLocation.Z);
     }
 }

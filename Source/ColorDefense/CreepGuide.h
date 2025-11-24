@@ -24,21 +24,21 @@ protected:
 
 public:		
 	// 웨이포인트 저장
-	TArray<class AWayPoint*> Waypoints;
+	TArray<class ACreepCheckPoint*> CreepCheckPoints;
 
 	// 현재 진행 중인 웨이포인트의 인덱스
-	int CurrentWaypointIndex = 0;
+	int CurrentCreepCheckPointIndex = 0;
 
 	// Creep guide 하기
 	void GuideCreep(class AAIController* AIController, bool DontMove);
 
-	// 모든 waypoint들 얻어서 Waypoints 배열에 저장
-	void GetAllWaypoints();
+	// 모든 CreepCheckPoint들 얻어서 CreepCheckPoints 배열에 저장
+	void GetAllCreepCheckPoints();
 
 	// 해당 좌표로 BP_Creep 이동
 	void MoveTo(float x, float y, float z);
 	
-	// WayPoint들을 따라 이동
+	// CreepCheckPoint들을 따라 이동
 	void MoveAlong();
 
 	// Wapoint 도착 시 실행될 콜백함수

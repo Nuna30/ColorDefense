@@ -3,7 +3,7 @@
 
 #include "Creep.h"
 #include "AIController.h"
-#include "CreepPoolSubsystem.h"
+// #include "CreepPoolSubsystem.h"
 #include "CreepGuide.h"
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
@@ -42,9 +42,6 @@ void ACreep::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// 크립 풀에 객체 넣기
-	CreepPool = GetGameInstance()->GetSubsystem<UCreepPoolSubsystem>();
-	CreepPool->AddCreep(this);
 }
 
 void ACreep::PossessedBy(AController* NewController)
@@ -72,8 +69,6 @@ void ACreep::HandleDestruction()
             true                        // Auto Destroy (재생 완료 후 자동 파괴)
         );
     }
-
-	CreepPool->RemoveCreep(this);
 
 	Destroy();
 }

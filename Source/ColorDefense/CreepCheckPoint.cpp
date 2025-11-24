@@ -1,10 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "WayPoint.h"
+#include "CreepCheckPoint.h"
 
 // Sets default values
-AWayPoint::AWayPoint()
+ACreepCheckPoint::ACreepCheckPoint()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
@@ -12,7 +12,7 @@ AWayPoint::AWayPoint()
 }
 
 // Called when the game starts or when spawned
-void AWayPoint::BeginPlay()
+void ACreepCheckPoint::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -24,13 +24,13 @@ void AWayPoint::BeginPlay()
 }
 
 // Called every frame
-void AWayPoint::Tick(float DeltaTime)
+void ACreepCheckPoint::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 }
 
-FVector AWayPoint::GetLocation()
+FVector ACreepCheckPoint::GetLocation()
 {
 	return this->GetActorLocation();
 }
