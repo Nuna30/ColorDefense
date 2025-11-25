@@ -24,6 +24,6 @@ public:
 public:
 	TArray<FVector> CreepCheckPointLocations;
 public:
-	void CreateCreepCheckPointByVoxel(const FIntVector& Voxel);
+	void CreateCreepCheckPointByVoxelIndex(const FIntVector& Voxel);
 	void InsertLocation(const FIntVector& VoxelIndex);
 };

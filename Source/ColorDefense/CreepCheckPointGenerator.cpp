@@ -12,9 +12,11 @@ void UCreepCheckPointGenerator::Initialize(UWorld* InWorld, UBPActorPool* InBPAc
     Super::Initialize(InWorld, InBPActorPool, InChunk);
 }
 
-void UCreepCheckPointGenerator::CreateCreepCheckPointByVoxel(const FIntVector& VoxelIndex)
+void UCreepCheckPointGenerator::CreateCreepCheckPointByVoxelIndex(const FIntVector& VoxelIndex)
 {
+    // CreepCheckPoint는 2칸 차지
     SetVoxelDataInChunk(VoxelIndex, 2, EVoxelProperty::CreepCheckPoint);
+    SetVoxelDataInChunk(VoxelIndex + FIntVector(0, 0, 1), 2, EVoxelProperty::CreepCheckPoint);
     SpawnActorFromVoxel(this->Chunk->GetVoxel(VoxelIndex));
     InsertLocation(VoxelIndex);
 }

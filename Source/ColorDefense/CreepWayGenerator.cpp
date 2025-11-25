@@ -57,15 +57,24 @@ void UCreepWayGenerator::SpawnActorWithFlushingMainBuffer()
 	for (const FIntVector& VoxelIndex : MainBuffer)
 	{
 		FIntVector TargetVoxelIndex = VoxelIndex;
-		SpawnActorFromVoxel(this->Chunk->Chunk[TargetVoxelIndex.X][TargetVoxelIndex.Y][TargetVoxelIndex.Z]);
+		FVoxel TargetVoxel = this->Chunk->GetVoxel(VoxelIndex);
+		SpawnActorFromVoxel(TargetVoxel);
 	}
 }
 
 void UCreepWayGenerator::FlushRailBuffersToMainBuffer()
 {
-	for (TArray<FIntVector>& RailBuffer : RailBuffers)
+	for (int32 i = 0; i < this->RailBuffers.Num(); i++)
 	{
-		MainBuffer.Append(MoveTemp(RailBuffer));
+		for (FIntVector& VoxelIndex : RailBuffers[i])
+		{
+			FVoxel& TargetVoxel = this->Chunk->GetVoxel(VoxelIndex);
+			if (TargetVoxel.Property == EVoxelProperty::CreepCheckPoint)
+			{
+				this->CreepCheckPointGenerators[i]->CreateCreepCheckPointByVoxelIndex(VoxelIndex + FIntVector(0, 0, 1));
+			}
+		}
+		MainBuffer.Append(MoveTemp(RailBuffers[i]));
 	}
 }
 
@@ -260,7 +269,6 @@ void UCreepWayGenerator::DecideNextDirection()
 		// 비어있으면 NextDirection 결정, 함수 종료
 		if (bKeepGoing) 
 		{
-			print(FString::Printf(TEXT("MaybeNextDirection : %d %d %d"), MaybeNextDirection.X, MaybeNextDirection.Y, MaybeNextDirection.Z));
 			this->NextDirection = MaybeNextDirection;
 			return;
 		}

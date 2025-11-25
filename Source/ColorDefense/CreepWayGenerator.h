@@ -6,6 +6,7 @@
 #include "UObject/NoExportTypes.h"
 #include "VoxelGenerator.h"
 #include "CreepCheckPointGenerator.h"
+#include "GameEnums.h"
 #include "CreepWayGenerator.generated.h"
 
 UCLASS()

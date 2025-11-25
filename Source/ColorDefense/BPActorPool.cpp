@@ -14,7 +14,7 @@ void UBPActorPool::Initialize(FSubsystemCollectionBase& Collection)
 		{
 			if (DEBUGMODE)
 			{
-				FString DebugMessage = FString::Printf(TEXT("UBPActorPool::Initialize {Initializing Failed.}"));
+				FString DebugMessage = FString::Printf(TEXT("UBPActorPool::Initialize {%s Initializing Failed.}"), *BPActorPath);
 				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, DebugMessage);
 				UE_LOG(LogTemp, Error, TEXT("%s"), *DebugMessage);
 			}
