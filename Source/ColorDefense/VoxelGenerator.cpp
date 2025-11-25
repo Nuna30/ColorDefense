@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "VoxelGenerator.h"
+#include "CreepGenerator.h"
 #define DEBUGMODE 1
 
 UVoxelGenerator::UVoxelGenerator()
@@ -74,7 +75,7 @@ void UVoxelGenerator::DeleteVoxelDataInChunk(const FIntVector& VoxelIndex)
 	TargetVoxel.Index = FIntVector::ZeroValue;
 }
 
-void UVoxelGenerator::SpawnActorFromVoxel(FVoxel& Voxel)
+AActor* UVoxelGenerator::SpawnActorFromVoxel(FVoxel& Voxel)
 {
 	if (!Voxel.BPActor)
 	{
@@ -84,7 +85,7 @@ void UVoxelGenerator::SpawnActorFromVoxel(FVoxel& Voxel)
 			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, DebugMessage);
 			UE_LOG(LogTemp, Error, TEXT("%s"), *DebugMessage);
 		}
-		return;
+		return nullptr;
 	}
 
 	if (!World)
@@ -95,7 +96,7 @@ void UVoxelGenerator::SpawnActorFromVoxel(FVoxel& Voxel)
 			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, DebugMessage);
 			UE_LOG(LogTemp, Error, TEXT("%s"), *DebugMessage);
 		}
-		return;
+		return nullptr;
 	}
 
 	// 레벨에 복셀 기반 액터 소환
@@ -107,6 +108,8 @@ void UVoxelGenerator::SpawnActorFromVoxel(FVoxel& Voxel)
 
 	// Voxel에 저장
 	Voxel.SpawnedActor = NewActor;
+
+	return NewActor;
 }
 
 void UVoxelGenerator::DestroyActorFromVoxel(FVoxel& Voxel)

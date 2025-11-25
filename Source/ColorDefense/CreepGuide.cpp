@@ -6,6 +6,7 @@
 #include "AIController.h"
 #include "Kismet/GameplayStatics.h"
 #include "CreepCheckPoint.h"
+#include "CreepCheckPointGeneratorManager.h"
 
 // Sets default values for this component's properties
 UCreepGuide::UCreepGuide()
@@ -46,25 +47,24 @@ void UCreepGuide::GuideCreep(AAIController* P_AIController, bool DontMove) {
 }
 
 // 모든 CreepCheckPoint들 얻어서 CreepCheckPoints 배열에 저장
-void UCreepGuide::GetAllCreepCheckPoints()
+void UCreepGuide::GetAllCreepCheckPointLocations()
 {
-	TArray<AActor*> FoundActors;
-    UGameplayStatics::GetAllActorsOfClass(GetWorld(), ACreepCheckPoint::StaticClass(), FoundActors);
-	for (AActor* Actor : FoundActors)
-	{
-		ACreepCheckPoint* CreepCheckPoint = Cast<ACreepCheckPoint>(Actor);
-		if (CreepCheckPoint) CreepCheckPoints.Add(CreepCheckPoint);
-	}
+	// CreepCheckPointGenerators 가져오기
+	UCreepCheckPointGeneratorManager* CreepCheckPointGeneratorManager = GetWorld()->GetGameInstance()->GetSubsystem<UCreepCheckPointGeneratorManager>();
+	TArray<UCreepCheckPointGenerator*>& CreepCheckPointGenerators = CreepCheckPointGeneratorManager->CreepCheckPointGenerators;
+	// 현재 크립이 속한 레일에 설치된 CreepCheckPointGenerator들의 좌표 가져오기
+	ACreep* TargetCreep = Cast<ACreep>(GetOwner());
+	this->CreepCheckPointLocations = CreepCheckPointGenerators[TargetCreep->RailNumber]->CreepCheckPointLocations;
 }
 
 // Wapoint 차례대로 이동
 void UCreepGuide::MoveAlong()
 {
-	GetAllCreepCheckPoints();
+	GetAllCreepCheckPointLocations();
 
-    if (CreepCheckPoints.Num() > 0)
+    if (CreepCheckPointLocations.Num() > 0)
 	{
-		FVector StartLocation = CreepCheckPoints[0]->GetActorLocation();
+		FVector StartLocation = this->CreepCheckPointLocations[0];
 		MoveTo(StartLocation.X, StartLocation.Y, StartLocation.Z);
 	}
 }
@@ -99,9 +99,9 @@ void UCreepGuide::MoveTo(float x, float y, float z)
 void UCreepGuide::OnMoveCompleted(FAIRequestID RequestID, EPathFollowingResult::Type Result)
 {
     CurrentCreepCheckPointIndex++;
-    if (CreepCheckPoints.IsValidIndex(CurrentCreepCheckPointIndex))
+    if (CreepCheckPointLocations.IsValidIndex(CurrentCreepCheckPointIndex))
     {
-        FVector NextLocation = CreepCheckPoints[CurrentCreepCheckPointIndex]->GetActorLocation();
+        FVector NextLocation = CreepCheckPointLocations[CurrentCreepCheckPointIndex];
         MoveTo(NextLocation.X, NextLocation.Y, NextLocation.Z);
     }
 }

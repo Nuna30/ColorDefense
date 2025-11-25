@@ -51,6 +51,14 @@ void ACreepGenerator::SpawnCreep()
 
 	// 월드에 크립 스폰
 	ACreep* Creep = GetWorld()->SpawnActor<ACreep>(CreepClass, SpawnLocation, SpawnRotation);
+
+	if (Creep == nullptr)
+    {
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Creep is null.")));
+        return;
+    }
+
+	Creep->RailNumber = this->RailNumber;
 	
 	// int RandomColor = FMath::RandRange(1, 7);
 	// switch (RandomColor) {
@@ -62,4 +70,9 @@ void ACreepGenerator::SpawnCreep()
 	// 	case 6 : Creep->ChangeColor(EColor::Purple); break;
 	// 	case 7 : Creep->ChangeColor(EColor::Indigo); break;
 	// }
+}
+
+void ACreepGenerator::SetRailNumber(int32 InRailNumber)
+{
+	this->RailNumber = InRailNumber;
 }

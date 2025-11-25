@@ -31,6 +31,9 @@ public:
 	// vfx에서도 쓰이는 색깔
 	EColor CreepColor = EColor::Red;
 
+	// 어느 레일에 속하는지
+	int32 RailNumber;
+
 private:
 	// AI Controller
 	class AAIController* AIController;

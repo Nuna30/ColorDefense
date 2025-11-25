@@ -7,8 +7,6 @@
 #include "VoxelGenerator.h"
 #include "CreepCheckPointGenerator.generated.h"
 
-class UVoxelGenerator;
-
 UCLASS()
 class COLORDEFENSE_API UCreepCheckPointGenerator : public UVoxelGenerator
 {

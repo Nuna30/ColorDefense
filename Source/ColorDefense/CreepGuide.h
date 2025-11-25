@@ -24,7 +24,7 @@ protected:
 
 public:		
 	// 웨이포인트 저장
-	TArray<class ACreepCheckPoint*> CreepCheckPoints;
+	TArray<FVector> CreepCheckPointLocations;
 
 	// 현재 진행 중인 웨이포인트의 인덱스
 	int CurrentCreepCheckPointIndex = 0;
@@ -33,7 +33,7 @@ public:
 	void GuideCreep(class AAIController* AIController, bool DontMove);
 
 	// 모든 CreepCheckPoint들 얻어서 CreepCheckPoints 배열에 저장
-	void GetAllCreepCheckPoints();
+	void GetAllCreepCheckPointLocations();
 
 	// 해당 좌표로 BP_Creep 이동
 	void MoveTo(float x, float y, float z);

@@ -19,5 +19,6 @@ enum class EVoxelProperty : int32
     CreepStart,
     CreepCheckPoint,
     CreepEnd,
+    CreepGenerator,
     Empty
 };

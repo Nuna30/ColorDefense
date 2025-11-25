@@ -12,6 +12,7 @@ void UCreepCheckPointGeneratorManager::Initialize(FSubsystemCollectionBase& Coll
 void UCreepCheckPointGeneratorManager::Deinitialize()
 {
     this->ClearAllCreepCheckPointGenerators();
+    Super::Deinitialize();
 }
 
 void UCreepCheckPointGeneratorManager::CreateCreepCheckPointGenerators(UWorld* InWorld, UBPActorPool* InBPActorPool, UChunk* InChunk, int32 InMaxRailCount)

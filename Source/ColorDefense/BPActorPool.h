@@ -19,7 +19,8 @@ public:
 	{
 		"/Game/Blueprints/Actors/BP_Grass_Plain.BP_Grass_Plain_C",
 		"/Game/Blueprints/Actors/BP_Grass_Slope.BP_Grass_Slope_C",
-		"/Game/Blueprints/Actors/BP_CheckPoint.BP_CheckPoint_C"
+		"/Game/Blueprints/Actors/BP_CheckPoint.BP_CheckPoint_C",
+		"/Game/Blueprints/Actors/BP_CreepGenerator.BP_CreepGenerator_C"
 	};
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;

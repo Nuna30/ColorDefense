@@ -18,21 +18,21 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-private:
-	// 타이머
-	FTimerHandle TimerHandle;
-
-	// Period 마다 크립 생성하는 함수
-	void GenerateCreep(float Period);
-	
-	// 크립 스폰하는 함수  
-	void SpawnCreep();
-
+public:
 	// 생성할 크립을 에디터에서 고를 수 있음
 	UPROPERTY(EditAnywhere, Category="Setting")
 	TSubclassOf<class ACreep> CreepClass;
-	
+	// 타이머
+	FTimerHandle TimerHandle;
+	// 어느 레일에 속하는지
+	int32 RailNumber;
+public:
+	// Period 마다 크립 생성하는 함수
+	void GenerateCreep(float Period);
+	// 크립 스폰하는 함수  
+	void SpawnCreep();
+	// 외부에서 RailNumber를 설정할 수 있도록
+	void SetRailNumber(int32 InRailNumber);
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

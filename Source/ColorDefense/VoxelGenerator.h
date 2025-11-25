@@ -24,7 +24,7 @@ public:
 public:
 	void SetVoxelDataInChunk(const FIntVector& VoxelIndex, int32 BPActorPoolIndex, EVoxelProperty Property);
 	void DeleteVoxelDataInChunk(const FIntVector& VoxelIndex);
-	void SpawnActorFromVoxel(FVoxel& Voxel);
+	AActor* SpawnActorFromVoxel(FVoxel& Voxel);
 	void DestroyActorFromVoxel(FVoxel& Voxel);
 	FTransform GetWorldTransformFromVoxelIndex(const FIntVector& VoxelIndex, float Width, float Height);
 public:
