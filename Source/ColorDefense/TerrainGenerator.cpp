@@ -3,6 +3,7 @@
 #include "Chunk.h"
 #include "Voxel.h"
 #include "CreepWayGeneratorManager.h"
+#include "CreepCheckPointGeneratormanager.h"
 
 #define DEBUGMODE 1
 
@@ -23,9 +24,14 @@ void ATerrainGenerator::BeginPlay()
 	UGameInstance* GameInstance = GetGameInstance();
 	UBPActorPool* BPActorPool = GameInstance->GetSubsystem<UBPActorPool>();
 	UCreepWayGeneratorManager* CreepWayGeneratorManager = GameInstance->GetSubsystem<UCreepWayGeneratorManager>();
+    UCreepCheckPointGeneratorManager* CreepCheckPointGeneratorManager = GameInstance->GetSubsystem<UCreepCheckPointGeneratorManager>();
+
+    // ------------------------------------ 로직 클래스 초기화 -----------------------------------//
+    CreepCheckPointGeneratorManager->CreateCreepCheckPointGenerators(World, BPActorPool, Chunk, UPMaxRailCount);
+    TArray<UCreepCheckPointGenerator*>& CreepCheckPointGenerators = CreepCheckPointGeneratorManager->CreepCheckPointGenerators;
+    CreepWayGeneratorManager->CreateCreepWayGenerator(World, BPActorPool, Chunk, CreepCheckPointGenerators, UPMaxRailCount, UPRailLength);
 
 	// -------------------------------------- 테스트 -------------------------------------------//
-    CreepWayGeneratorManager->CreateCreepWayGenerator(World, BPActorPool, Chunk, UPMaxRailCount, UPRailLength);
     UCreepWayGenerator* CreepWayGenerator = CreepWayGeneratorManager->CreepWayGenerator;
 	CreepWayGenerator->GenerateCreepWay();
 	TeleportPlayerToLocation

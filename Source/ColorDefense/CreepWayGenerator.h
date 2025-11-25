@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "VoxelGenerator.h"
+#include "CreepCheckPointGenerator.h"
 #include "CreepWayGenerator.generated.h"
 
 UCLASS()
@@ -18,6 +19,7 @@ public:
 		UWorld* InWorld,
 		UBPActorPool* InBPActorPool,
 		UChunk* InChunk,
+		TArray<UCreepCheckPointGenerator*>& InCreepCheckPointGenerators,
 		int32 MaxRailCount,
 		int32 RailLength
 	);
@@ -53,6 +55,7 @@ public:
 	TArray<FIntVector> MainBuffer;
 	TArray<FIntVector> ODirectionArray;
 	TArray<FIntVector> LastIndexesOfEachRail;
+	TArray<UCreepCheckPointGenerator*> CreepCheckPointGenerators;
 	FIntVector NextDirection;
 	FIntVector CurrentDirection;
 };

@@ -9,7 +9,7 @@ UCreepWayGenerator::UCreepWayGenerator()
 {
 }
 
-void UCreepWayGenerator::Initialize(UWorld* InWorld, UBPActorPool* InBPActorPool, UChunk* InChunk, int32 InMaxRailCount, int32 InRailLength)
+void UCreepWayGenerator::Initialize(UWorld* InWorld, UBPActorPool* InBPActorPool, UChunk* InChunk, TArray<UCreepCheckPointGenerator*>& InCreepCheckPointGenerators, int32 InMaxRailCount, int32 InRailLength)
 {
     Super::Initialize(InWorld, InBPActorPool, InChunk);
 	// 최대 레일 개수
@@ -31,6 +31,8 @@ void UCreepWayGenerator::Initialize(UWorld* InWorld, UBPActorPool* InBPActorPool
 		this->LastIndexesOfEachRail.Add(StartIndex);
 		StartIndex = StartIndex + GetPerpendicularDirection(this->CurrentDirection);
 	}
+	// CreepCheckPointGenerators를 연결한다.
+	this->CreepCheckPointGenerators = InCreepCheckPointGenerators;
 }
 
 void UCreepWayGenerator::GenerateCreepWay()

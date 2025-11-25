@@ -5,10 +5,8 @@
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "CreepWayGenerator.h"
+#include "CreepCheckPointGenerator.h"
 #include "CreepWayGeneratorManager.generated.h"
-
-class UBPActorPool;
-class UChunk;
 
 UCLASS()
 class COLORDEFENSE_API UCreepWayGeneratorManager : public UGameInstanceSubsystem
@@ -17,7 +15,7 @@ class COLORDEFENSE_API UCreepWayGeneratorManager : public UGameInstanceSubsystem
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;
-	void CreateCreepWayGenerator(UWorld* InWorld, UBPActorPool* InBPActorPool, UChunk* InChunk, int32 InMaxRailCount, int32 InRailLength);
+	void CreateCreepWayGenerator(UWorld* InWorld, UBPActorPool* InBPActorPool, UChunk* InChunk, TArray<UCreepCheckPointGenerator*>& InCreepCheckPointGenerators, int32 InMaxRailCount, int32 InRailLength);
 	void ClearCreepWayGenerator();
 public:
 	UPROPERTY()
