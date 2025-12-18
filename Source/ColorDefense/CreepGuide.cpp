@@ -2,11 +2,7 @@
 
 
 #include "CreepGuide.h"
-#include "Creep.h"
-#include "AIController.h"
-#include "Kismet/GameplayStatics.h"
-#include "CreepCheckPoint.h"
-#include "CreepCheckPointGeneratorManager.h"
+
 
 // Sets default values for this component's properties
 UCreepGuide::UCreepGuide()
@@ -18,7 +14,6 @@ UCreepGuide::UCreepGuide()
 void UCreepGuide::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 // Called every frame
@@ -28,10 +23,11 @@ void UCreepGuide::TickComponent(float DeltaTime, ELevelTick TickType, FActorComp
 }
 
 // I will guide you.
-void UCreepGuide::GuideCreep(AAIController* P_AIController, bool DontMove) {
-	UE_LOG(LogTemp, Error, TEXT("GuideCreep"));
+void UCreepGuide::GuideCreep(AAIController* InAIController, bool DontMove, int32 InRailNumber) {
+	this->RailNumber = InRailNumber;
 
-	AIController = P_AIController;
+	this->AIController = InAIController;
+
     if (AIController)
     {
 		// 목적지에 도착했을 경우를 처리하는 OnMoveCompleted 콜백함수 연결
@@ -53,8 +49,7 @@ void UCreepGuide::GetAllCreepCheckPointLocations()
 	UCreepCheckPointGeneratorManager* CreepCheckPointGeneratorManager = GetWorld()->GetGameInstance()->GetSubsystem<UCreepCheckPointGeneratorManager>();
 	TArray<UCreepCheckPointGenerator*>& CreepCheckPointGenerators = CreepCheckPointGeneratorManager->CreepCheckPointGenerators;
 	// 현재 크립이 속한 레일에 설치된 CreepCheckPointGenerator들의 좌표 가져오기
-	ACreep* TargetCreep = Cast<ACreep>(GetOwner());
-	this->CreepCheckPointLocations = CreepCheckPointGenerators[TargetCreep->RailNumber]->CreepCheckPointLocations;
+	this->CreepCheckPointLocations = CreepCheckPointGenerators[this->RailNumber]->CreepCheckPointLocations;
 }
 
 // Wapoint 차례대로 이동

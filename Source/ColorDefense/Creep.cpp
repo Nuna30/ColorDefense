@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "Creep.h"
 
 // Sets default values
@@ -23,12 +22,6 @@ void ACreep::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-// // Called to bind functionality to input
-// void ACreep::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-// {
-// 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-// }
-
 // Called when the game starts or when spawned
 void ACreep::BeginPlay()
 {
@@ -43,7 +36,7 @@ void ACreep::PossessedBy(AController* NewController)
 	// AIController 가져오기
 	AIController = Cast<AAIController>(GetController());
 
-	if (AIController && CreepGuide) CreepGuide->GuideCreep(AIController, DontMove);
+	if (AIController && CreepGuide) CreepGuide->GuideCreep(AIController, DontMove, RailNumber);
 }
 
 void ACreep::HandleDestruction()

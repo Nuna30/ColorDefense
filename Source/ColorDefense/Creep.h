@@ -4,15 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
-#include "Navigation/PathFollowingComponent.h"
-#include "GameEnums.h"
-#include "AIController.h"
-#include "CreepGuide.h"
-#include "NiagaraComponent.h"
-#include "NiagaraFunctionLibrary.h"
-#include "Kismet/GameplayStatics.h"
-#include "Materials/MaterialInterface.h"
-#include "SFX.h"
+#include "GameEnums.h" // 크립 컬러를 설정하기 위해
+#include "CreepGuide.h" // 크립을 레일을 따라 이동시키기 위해
+#include "AIController.h" // 크립의 제어권을 AI에게 넘기기 위해
+#include "NiagaraFunctionLibrary.h" // 크립을 특정 위치에 스폰하기 위해
 #include "Creep.generated.h"
 
 UCLASS()
@@ -20,9 +15,6 @@ class COLORDEFENSE_API ACreep : public APawn
 {
 	GENERATED_BODY()
 
-public:
-	// Sets default values for this pawn's properties
-	ACreep();
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -41,29 +33,26 @@ public:
 	// 어느 레일에 속하는지
 	int32 RailNumber;
 
-private:
 	// AI Controller
-	class AAIController* AIController;
+	AAIController* AIController;
+
+	// Creep을 레일을 따라 이동시키게 만들어주는 크립가이드
+	UPROPERTY()
+	UCreepGuide* CreepGuide;
+
+	// 테스트용, 크립 에셋을 레벨에 설치해서 다룰 때 움직이지 않도록 설정할 수 있게 함
+	UPROPERTY(EditAnywhere, Category = "Setting")
+	bool DontMove = false;
+
+public:
+	ACreep();
 
 	// AI Controller가 안전하게 할당되고 크립을 이동시키는 함수
 	virtual void PossessedBy(AController* NewController) override;
 
-	// Creep을 이동시키는 로직
-	UPROPERTY()
-	class UCreepGuide* CreepGuide;
-
-	UPROPERTY(EditAnywhere, Category = "Setting")
-	bool DontMove = false;
-
-	// 크립들을 모아두는 풀
-	class UCreepPoolSubsystem* CreepPool;
-
-public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	// // Called to bind functionality to input
-	// virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
+	// 크립 파괴 시
 	void HandleDestruction();
 };

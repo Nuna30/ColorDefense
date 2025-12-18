@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "VoxelGenerator.h"
-#include "CreepGenerator.h"
+
 #define DEBUGMODE 1
 
 UVoxelGenerator::UVoxelGenerator()

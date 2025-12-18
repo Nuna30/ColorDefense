@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/SceneComponent.h"
+#include "Creep.h"
 #include "ColorGun.generated.h"
 
 
@@ -12,24 +12,21 @@ class COLORDEFENSE_API UColorGun : public USceneComponent
 {
 	GENERATED_BODY()
 
-public:	
-	// Sets default values for this component's properties
-	UColorGun();
-
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-private:
+public:
 	// ColorGun 최대 사거리
 	UPROPERTY(EditAnywhere, Category = "Setting")
 	float MaxRange = FLT_MAX;
 	
 public:	
+	UColorGun();
+
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
 	// 색깔 총 발사
 	void Shoot();
-		
 };
