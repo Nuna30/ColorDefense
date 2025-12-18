@@ -6,6 +6,13 @@
 #include "GameFramework/Pawn.h"
 #include "Navigation/PathFollowingComponent.h"
 #include "GameEnums.h"
+#include "AIController.h"
+#include "CreepGuide.h"
+#include "NiagaraComponent.h"
+#include "NiagaraFunctionLibrary.h"
+#include "Kismet/GameplayStatics.h"
+#include "Materials/MaterialInterface.h"
+#include "SFX.h"
 #include "Creep.generated.h"
 
 UCLASS()
@@ -55,8 +62,8 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	// // Called to bind functionality to input
+	// virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	void HandleDestruction();
 };

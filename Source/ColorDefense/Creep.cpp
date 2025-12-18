@@ -2,14 +2,6 @@
 
 
 #include "Creep.h"
-#include "AIController.h"
-// #include "CreepPoolSubsystem.h"
-#include "CreepGuide.h"
-#include "NiagaraComponent.h"
-#include "NiagaraFunctionLibrary.h"
-#include "Kismet/GameplayStatics.h"
-#include "Materials/MaterialInterface.h"
-#include "SFX.h"
 
 // Sets default values
 ACreep::ACreep()
@@ -31,11 +23,11 @@ void ACreep::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-// Called to bind functionality to input
-void ACreep::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-}
+// // Called to bind functionality to input
+// void ACreep::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+// {
+// 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+// }
 
 // Called when the game starts or when spawned
 void ACreep::BeginPlay()
