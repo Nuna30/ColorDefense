@@ -13,7 +13,7 @@ class COLORDEFENSE_API UChunk : public UWorldSubsystem
 	GENERATED_BODY()
 	
 public:
-	FIntVector ChunkSize = FIntVector(200, 200, 100); // 400 x 400 x 200 = 32,000,000
+	FIntVector ChunkSize = FIntVector(400, 400, 200); // 400 x 400 x 200 = 32,000,000
 	TArray<TArray<TArray<FVoxel>>> Chunk; // Voxel이 80바이트 정도면 32,000,000 x 80 = 2,560,000,000 (2.5 기가 ㄷㄷ...)
 
 public:
