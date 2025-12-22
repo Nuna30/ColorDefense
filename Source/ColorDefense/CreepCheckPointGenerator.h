@@ -2,26 +2,22 @@
 
 #pragma once
 
+#include "VoxelGenerator.h" // CreepCheckPoint Voxel을 생성하기 위해
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
-#include "VoxelGenerator.h"
 #include "CreepCheckPointGenerator.generated.h"
 
 UCLASS()
 class COLORDEFENSE_API UCreepCheckPointGenerator : public UVoxelGenerator
 {
 	GENERATED_BODY()
+
 public:
 	UCreepCheckPointGenerator();
-	void Initialize
-	(
-		UWorld* InWorld,
-		UBPActorPool* InBPActorPool,
-		UChunk* InChunk
-	);
-public:
-	TArray<FVector> CreepCheckPointLocations;
-public:
+	void Initialize (UWorld* InWorld, UBPActorPool* InBPActorPool, UChunk* InChunk);
 	void CreateCreepCheckPointByVoxelIndex(const FIntVector& Voxel);
 	void InsertLocation(const FIntVector& VoxelIndex);
+
+public:
+	TArray<FVector> CreepCheckPointLocations;
 };

@@ -13,6 +13,7 @@ UCLASS()
 class COLORDEFENSE_API UBPActorPool : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
+	
 public:
 	TArray<TSubclassOf<AActor>> Pool;
 	TArray<FString> BPActorPathPool =

@@ -2,9 +2,6 @@
 
 
 #include "CreepWayGeneratorManager.h"
-#include "CreepWayGenerator.h"
-#include "BPActorPool.h"
-#include "Chunk.h"
 
 void UCreepWayGeneratorManager::Initialize(FSubsystemCollectionBase& Collection)
 {

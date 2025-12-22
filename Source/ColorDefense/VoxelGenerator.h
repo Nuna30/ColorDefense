@@ -2,11 +2,10 @@
 
 #pragma once
 
+#include "Chunk.h" // 청크 안에 복셀을 생성하기 위해
+#include "BPActorPool.h" // 복셀 속성에 해당하는 BPActor를 Pool에서 바로 가져오기 위해
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
-#include "GameEnums.h"
-#include "BPActorPool.h"
-#include "Chunk.h"
 #include "VoxelGenerator.generated.h"
 
 UCLASS()

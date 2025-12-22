@@ -2,9 +2,10 @@
 
 #pragma once
 
+#include "Kismet/GameplayStatics.h"
+#include "Creep.h" // 죽은 크립의 색깔과 위치를 알아내기 위해
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "GameEnums.h"
 #include "SFX.generated.h"
 
 
@@ -13,28 +14,18 @@ class COLORDEFENSE_API USFX : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
-	// Sets default values for this component's properties
-	USFX();
-
-	float ColorToPitch(EColor CreepColor);
-
+public:
 	// 사운드
     UPROPERTY(EditAnywhere, Category = "Setting")
-    TObjectPtr<class USoundBase> DestroySFX; 
-
-	void PlayDestroySFX(EColor CreepColor, FVector ActorLocation);
-
-protected:
-	// Called when the game starts
-	virtual void BeginPlay() override;
-
-public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+    TObjectPtr<USoundBase> DestroySFX; 
 	
-private:
+public:	
+	USFX();
+	virtual void BeginPlay() override;
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	float ColorToPitch(EColor CreepColor);	
+	void PlayDestroySFX(EColor CreepColor, FVector ActorLocation);
+	
     UFUNCTION()
     void OnOwnerDestroyed(AActor* DestroyedActor);
-		
 };

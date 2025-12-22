@@ -11,23 +11,21 @@ class COLORDEFENSE_API ACreepCheckPoint : public AActor
 {
 	GENERATED_BODY()
 	
-public:	
-	// Sets default values for this actor's properties
-	ACreepCheckPoint();
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-private:
+public:
 	UPROPERTY(EditAnywhere, Category = "Option")
 	bool VisibleInGame = false;
 
 public:	
+	// Sets default values for this actor's properties
+	ACreepCheckPoint();
+
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	// Waypoiny의 좌표 반환
 	FVector GetLocation();
-
 };

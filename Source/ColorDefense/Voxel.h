@@ -2,8 +2,8 @@
 
 #pragma once
 
+#include "GameEnums.h" // EVoxelProperty 사용하기 위해
 #include "CoreMinimal.h"
-#include "GameEnums.h"
 #include "Voxel.generated.h"
 
 USTRUCT()
@@ -11,8 +11,6 @@ struct FVoxel
 {
 GENERATED_BODY()
 
-public:
-    FVoxel();
 public:
     UPROPERTY()
     FIntVector Index;
@@ -24,4 +22,6 @@ public:
     TSubclassOf<AActor> BPActor;
     UPROPERTY()
     TWeakObjectPtr<AActor> SpawnedActor;
+public:
+    FVoxel();
 };

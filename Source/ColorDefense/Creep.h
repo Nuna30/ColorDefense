@@ -2,12 +2,12 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
-#include "GameFramework/Pawn.h"
-#include "GameEnums.h" // 크립 컬러를 설정하기 위해
 #include "CreepGuide.h" // 크립을 레일을 따라 이동시키기 위해
 #include "AIController.h" // 크립의 제어권을 AI에게 넘기기 위해
-#include "NiagaraFunctionLibrary.h" // 크립을 특정 위치에 스폰하기 위해
+#include "NiagaraFunctionLibrary.h" // VFX를 크립이 죽을 때 스폰시키기 위해
+#include "NiagaraComponent.h" // VFX 색깔 바꾸기 위해
+#include "CoreMinimal.h"
+#include "GameFramework/Pawn.h"
 #include "Creep.generated.h"
 
 UCLASS()
@@ -18,16 +18,17 @@ class COLORDEFENSE_API ACreep : public APawn
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	
 public:
 	// vfx
     UPROPERTY(EditDefaultsOnly, Category = "Setting")
-    TObjectPtr<class UNiagaraSystem> VFX;
+    TObjectPtr<UNiagaraSystem> VFX;
 
 	// Mesh 컴포넌트
     UPROPERTY(EditAnywhere, Category = "Setting")
     UStaticMeshComponent* CreepMesh;
 
-	// vfx에서도 쓰이는 색깔
+	// vfx, sfx에서 쓰이는 색깔
 	EColor CreepColor = EColor::Red;
 
 	// 어느 레일에 속하는지
@@ -55,4 +56,7 @@ public:
 
 	// 크립 파괴 시
 	void HandleDestruction();
+
+	// 크립 색상 동적 변경
+	void ChangeColor(EColor Color);
 };

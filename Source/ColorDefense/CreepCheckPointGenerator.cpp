@@ -23,5 +23,5 @@ void UCreepCheckPointGenerator::CreateCreepCheckPointByVoxelIndex(const FIntVect
 void UCreepCheckPointGenerator::InsertLocation(const FIntVector& VoxelIndex)
 {   
     FVector Location = this->Chunk->GetVoxel(VoxelIndex).Transform.GetLocation();
-    CreepCheckPointLocations.Add(Location);
+    this->CreepCheckPointLocations.Add(Location);
 }

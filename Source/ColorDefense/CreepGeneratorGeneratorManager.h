@@ -2,9 +2,9 @@
 
 #pragma once
 
+#include "CreepGeneratorGenerator.h" // 크립생성기생성기를 관리하기 위해
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
-#include "CreepGeneratorGenerator.h"
 #include "CreepGeneratorGeneratorManager.generated.h"
 
 UCLASS()

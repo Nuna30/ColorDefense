@@ -2,9 +2,6 @@
 
 
 #include "CreepGenerator.h"
-#include "Creep.h"
-// #include "CreepPoolSubsystem.h"
-#include "GameEnums.h"
 
 // Sets default values
 ACreepGenerator::ACreepGenerator()
@@ -32,6 +29,7 @@ void ACreepGenerator::Tick(float DeltaTime)
 
 void ACreepGenerator::GenerateCreep(float Period)
 {
+	FTimerHandle TimerHandle;
 	GetWorldTimerManager().SetTimer(
 		TimerHandle,         // 타이머 핸들
 		this,                // 실행할 대상 객체
@@ -60,16 +58,16 @@ void ACreepGenerator::SpawnCreep()
 
 	Creep->RailNumber = this->RailNumber;
 	
-	// int RandomColor = FMath::RandRange(1, 7);
-	// switch (RandomColor) {
-	// 	case 1 : Creep->ChangeColor(EColor::Red); break;
-	// 	case 2 : Creep->ChangeColor(EColor::Orange); break;
-	// 	case 3 : Creep->ChangeColor(EColor::Yellow); break;
-	// 	case 4 : Creep->ChangeColor(EColor::Green); break;
-	// 	case 5 : Creep->ChangeColor(EColor::Blue); break;
-	// 	case 6 : Creep->ChangeColor(EColor::Purple); break;
-	// 	case 7 : Creep->ChangeColor(EColor::Indigo); break;
-	// }
+	int RandomColor = FMath::RandRange(1, 7);
+	switch (RandomColor) {
+		case 1 : Creep->ChangeColor(EColor::Red); break;
+		case 2 : Creep->ChangeColor(EColor::Orange); break;
+		case 3 : Creep->ChangeColor(EColor::Yellow); break;
+		case 4 : Creep->ChangeColor(EColor::Green); break;
+		case 5 : Creep->ChangeColor(EColor::Blue); break;
+		case 6 : Creep->ChangeColor(EColor::Purple); break;
+		case 7 : Creep->ChangeColor(EColor::Indigo); break;
+	}
 }
 
 void ACreepGenerator::SetRailNumber(int32 InRailNumber)

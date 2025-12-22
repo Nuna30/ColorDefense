@@ -1,10 +1,4 @@
 #include "TerrainGenerator.h"
-#include "BPActorPool.h"
-#include "Chunk.h"
-#include "Voxel.h"
-#include "CreepWayGeneratorManager.h"
-#include "CreepCheckPointGeneratorManager.h"
-#include "CreepGeneratorGeneratorManager.h"
 
 #define DEBUGMODE 1
 

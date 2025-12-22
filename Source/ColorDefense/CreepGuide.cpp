@@ -48,7 +48,7 @@ void UCreepGuide::GetAllCreepCheckPointLocations()
 	// CreepCheckPointGenerators 가져오기
 	UCreepCheckPointGeneratorManager* CreepCheckPointGeneratorManager = GetWorld()->GetGameInstance()->GetSubsystem<UCreepCheckPointGeneratorManager>();
 	TArray<UCreepCheckPointGenerator*>& CreepCheckPointGenerators = CreepCheckPointGeneratorManager->CreepCheckPointGenerators;
-	// 현재 크립이 속한 레일에 설치된 CreepCheckPointGenerator들의 좌표 가져오기
+	// 현재 크립이 속한 레일에 설치된 CreepCheckPoint들의 좌표 가져오기
 	this->CreepCheckPointLocations = CreepCheckPointGenerators[this->RailNumber]->CreepCheckPointLocations;
 }
 

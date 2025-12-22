@@ -2,9 +2,9 @@
 
 #pragma once
 
+#include "CreepCheckPointGenerator.h" // 크립 체크포인트 생성기를 관리하기 위해
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
-#include "CreepCheckPointGenerator.h"
 #include "CreepCheckPointGeneratorManager.generated.h"
 
 UCLASS()
@@ -13,7 +13,7 @@ class COLORDEFENSE_API UCreepCheckPointGeneratorManager : public UGameInstanceSu
 	GENERATED_BODY()
 public:
 	int32 MaxRailCount;
-	TArray<UCreepCheckPointGenerator*> CreepCheckPointGenerators;
+	TArray<UCreepCheckPointGenerator*> CreepCheckPointGenerators; // 각 레일마다 체크포인트생성기 존재
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;

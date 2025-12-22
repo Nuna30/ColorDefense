@@ -2,8 +2,8 @@
 
 #pragma once
 
+#include "Creep.h" // 크립을 터트리기 위해
 #include "CoreMinimal.h"
-#include "Creep.h"
 #include "ColorGun.generated.h"
 
 

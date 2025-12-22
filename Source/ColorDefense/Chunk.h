@@ -2,15 +2,20 @@
 
 #pragma once
 
+#include "Voxel.h" // Voxel을 청크 안에 저장하기 위해
 #include "CoreMinimal.h"
 #include "Subsystems/WorldSubsystem.h"
-#include "Voxel.h"
 #include "Chunk.generated.h"
 
 UCLASS()
 class COLORDEFENSE_API UChunk : public UWorldSubsystem
 {
 	GENERATED_BODY()
+	
+public:
+	FIntVector ChunkSize = FIntVector(200, 200, 100); // 400 x 400 x 200 = 32,000,000
+	TArray<TArray<TArray<FVoxel>>> Chunk; // Voxel이 80바이트 정도면 32,000,000 x 80 = 2,560,000,000 (2.5 기가 ㄷㄷ...)
+
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	void ExpandChunk(const FIntVector& VoxelIndex);
@@ -18,7 +23,4 @@ public:
 	bool IsEmptyIndex(const FIntVector& VoxelIndex);
 	void SetRotation(const FIntVector& VoxelIndex, float Rotation);
 	FVoxel& GetVoxel(const FIntVector& VoxelIndex);
-public:
-	FIntVector ChunkSize = FIntVector(200, 200, 100); // 400 x 400 x 200 = 32,000,000
-	TArray<TArray<TArray<FVoxel>>> Chunk; // Voxel이 80바이트 정도면 32,000,000 x 80 = 2,560,000,000 (2.5 기가 ㄷㄷ...)
 };
