@@ -10,6 +10,9 @@ UCLASS()
 class COLORDEFENSE_API UCreepGeneratorGenerator : public UVoxelGenerator
 {
 	GENERATED_BODY()
+
+public:
+	TArray<ACreepGenerator*> CreepGenerators;
 public:
 	UCreepGeneratorGenerator();
 	void Initialize
@@ -18,6 +21,5 @@ public:
 		UBPActorPool* InBPActorPool,
 		UChunk* InChunk
 	);
-public:
 	void CreateCreepGenerator(const FIntVector& VoxelIndex, int32 RailNumber);
 };

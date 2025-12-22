@@ -18,5 +18,7 @@ void UCreepGeneratorGenerator::CreateCreepGenerator(const FIntVector& VoxelIndex
     AActor* NewActor = SpawnActorFromVoxel(this->Chunk->GetVoxel(VoxelIndex));
 
     ACreepGenerator* CreepGenerator = Cast<ACreepGenerator>(NewActor);
+    CreepGenerators.Add(CreepGenerator);
     CreepGenerator->SetRailNumber(RailNumber);
+    	UE_LOG(LogTemp, Warning, TEXT("Rail Number in CreepGeneratorGenerator : %d"), RailNumber);
 }
