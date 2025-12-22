@@ -44,30 +44,36 @@ void ACreepGenerator::SpawnCreep()
 	// 스폰할 위치와 회전 정보
 	FVector SpawnLocation = GetActorLocation();
 	FRotator SpawnRotation = FRotator::ZeroRotator;
+	FTransform SpawnTransform(SpawnRotation, SpawnLocation);
 
 	if (CreepClass == nullptr) return;
 
-	// 월드에 크립 스폰
-	ACreep* Creep = GetWorld()->SpawnActor<ACreep>(CreepClass, SpawnLocation, SpawnRotation);
+	// 1. 지연 스폰 시작 (아직 BeginPlay가 실행되지 않은 상태로 객체만 생성됨)
+    ACreep* Creep = GetWorld()->SpawnActorDeferred<ACreep>(
+        CreepClass, 
+        SpawnTransform, 
+        this, // Owner
+        nullptr, // Instigator
+        ESpawnActorCollisionHandlingMethod::AlwaysSpawn
+    );
 
-	if (Creep == nullptr)
-    {
-        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::Printf(TEXT("Creep is null.")));
-        return;
+    // 2. BeginPlay 이전에 변수 설정! (이제 안전하게 설정 가능)
+    Creep->RailNumber = this->RailNumber;
+
+    // 색상 설정 로직도 미리 처리 가능
+    int RandomColor = FMath::RandRange(1, 7);
+    switch (RandomColor) {
+        case 1 : Creep->ChangeColor(EColor::Red); break;
+        case 2 : Creep->ChangeColor(EColor::Orange); break;
+        case 3 : Creep->ChangeColor(EColor::Yellow); break;
+        case 4 : Creep->ChangeColor(EColor::Green); break;
+        case 5 : Creep->ChangeColor(EColor::Blue); break;
+        case 6 : Creep->ChangeColor(EColor::Purple); break;
+        case 7 : Creep->ChangeColor(EColor::Indigo); break;
     }
 
-	Creep->RailNumber = this->RailNumber;
-	
-	int RandomColor = FMath::RandRange(1, 7);
-	switch (RandomColor) {
-		case 1 : Creep->ChangeColor(EColor::Red); break;
-		case 2 : Creep->ChangeColor(EColor::Orange); break;
-		case 3 : Creep->ChangeColor(EColor::Yellow); break;
-		case 4 : Creep->ChangeColor(EColor::Green); break;
-		case 5 : Creep->ChangeColor(EColor::Blue); break;
-		case 6 : Creep->ChangeColor(EColor::Purple); break;
-		case 7 : Creep->ChangeColor(EColor::Indigo); break;
-	}
+    // 3. 스폰 마무리 (이때 BeginPlay가 실행됨)
+    UGameplayStatics::FinishSpawningActor(Creep, SpawnTransform);
 }
 
 void ACreepGenerator::SetRailNumber(int32 InRailNumber)

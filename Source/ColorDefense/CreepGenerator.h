@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "Kismet/GameplayStatics.h" // 지연 스폰을 사용하기 위해
 #include "Creep.h" // 크립을 생성하기 위해
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"

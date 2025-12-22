@@ -46,7 +46,6 @@ void USFX::OnOwnerDestroyed(AActor* DestroyedActor)
     {
         UE_LOG(LogTemp, Warning, TEXT("DestroyedActor is not a Creep!"));
     }
-	UE_LOG(LogTemp, Warning, TEXT("%s"), *DestroyedActor->GetName());
 }
 
 void USFX::PlayDestroySFX(EColor CreepColor, FVector ActorLocation)
