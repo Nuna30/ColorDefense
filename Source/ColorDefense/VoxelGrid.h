@@ -13,8 +13,8 @@ class COLORDEFENSE_API UVoxelGrid : public UWorldSubsystem
 	GENERATED_BODY()
 	
 public:
-	FIntVector VoxelGridSize = FIntVector(400, 400, 200); // 400 x 400 x 200 = 32,000,000
-	TArray<TArray<TArray<FVoxel>>> VoxelGrid; // Voxel이 80바이트 정도면 32,000,000 x 80 = 2,560,000,000 (2.5 기가 ㄷㄷ...)
+	FIntVector VoxelGridSize; // WorldGenerator에서 옵션으로 값 설정됨
+	TArray<TArray<TArray<FVoxel>>> VoxelGrid;
 
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;

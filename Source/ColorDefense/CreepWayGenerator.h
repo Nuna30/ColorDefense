@@ -55,7 +55,7 @@ public:
 	void LoadVoxelIndexRectangleIntoRailBuffers(int32 BPActorPoolIndex, bool bRotate);
 public:
 	void InitializeCreepWay();
-	void GenerateCreepWay();
+	void GenerateCreepWay(int32 GenerationStep);
 public:
 	void GoStraightAndUpOrDownAndGoStraight();
 	void GoStraightAndTurnLeftOrRightAndGoStraight();

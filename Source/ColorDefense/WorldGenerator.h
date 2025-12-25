@@ -19,6 +19,10 @@ public:
 	int32 UPMaxRailCount = 5;
 	UPROPERTY(EditAnywhere, Category = "Setting")
 	int32 UPRailLength = 5; // 크면 배열 넘어가버림
+	UPROPERTY(EditAnywhere, Category = "Setting")
+	int32 GenerationStep = 10;
+	UPROPERTY(EditAnywhere, Category = "Setting")
+	FIntVector VoxelGridSize = FIntVector(400, 400, 200);
 
 public:	
 	// Sets default values for this actor's properties

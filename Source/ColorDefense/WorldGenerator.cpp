@@ -15,7 +15,7 @@ void AWorldGenerator::BeginPlay()
 
 	// ------------------------------------ 클래스 초기화 ---------------------------------------//
 	UWorld* World = GetWorld(); // 액터를 스폰하기 위해선 UWorld 객체가 필요하다.
-	UVoxelGrid* VoxelGrid = World->GetSubsystem<UVoxelGrid>();
+	UVoxelGrid* VoxelGrid = World->GetSubsystem<UVoxelGrid>(); VoxelGrid->VoxelGridSize = this->VoxelGridSize;
 	UGameInstance* GameInstance = GetGameInstance();
 	UBPActorPool* BPActorPool = GameInstance->GetSubsystem<UBPActorPool>();
 	UCreepWayGeneratorManager* CreepWayGeneratorManager = GameInstance->GetSubsystem<UCreepWayGeneratorManager>();
@@ -32,7 +32,7 @@ void AWorldGenerator::BeginPlay()
 
 	// -------------------------------------- 테스트 -------------------------------------------//
     UCreepWayGenerator* CreepWayGenerator = CreepWayGeneratorManager->CreepWayGenerator;
-	CreepWayGenerator->GenerateCreepWay();
+	CreepWayGenerator->GenerateCreepWay(this->GenerationStep);
     UCreepGeneratorGenerator* CreepGeneratorGenerator = CreepGeneratorGeneratorManager->CreepGeneratorGenerator;
     // CreepGenerator 설치
     FIntVector StartIndex = FIntVector(VoxelGrid->VoxelGridSize.X / 2, VoxelGrid->VoxelGridSize.Y / 2, VoxelGrid->VoxelGridSize.Z / 2);

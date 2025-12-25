@@ -35,12 +35,12 @@ void UCreepWayGenerator::Initialize(UWorld* InWorld, UBPActorPool* InBPActorPool
 	this->CreepCheckPointGenerators = InCreepCheckPointGenerators;
 }
 
-void UCreepWayGenerator::GenerateCreepWay()
+void UCreepWayGenerator::GenerateCreepWay(int32 GenerationStep)
 {
 	// 맨 처음 영역 생성
 	// InitializeCreepWay();
 
-	for (int32 i = 0; i < 10; i++)
+	for (int32 i = 0; i < GenerationStep; i++)
 	{
 		DecideNextDirection();
 		if (this->CurrentDirection == this->NextDirection) GoStraightAndUpOrDownAndGoStraight();
