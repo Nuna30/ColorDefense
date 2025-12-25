@@ -6,22 +6,22 @@ UCreepCheckPointGenerator::UCreepCheckPointGenerator()
 {
 }
 
-void UCreepCheckPointGenerator::Initialize(UWorld* InWorld, UBPActorPool* InBPActorPool, UChunk* InChunk)
+void UCreepCheckPointGenerator::Initialize(UWorld* InWorld, UBPActorPool* InBPActorPool, UVoxelGrid* InVoxelGrid)
 {
-    Super::Initialize(InWorld, InBPActorPool, InChunk);
+    Super::Initialize(InWorld, InBPActorPool, InVoxelGrid);
 }
 
 void UCreepCheckPointGenerator::CreateCreepCheckPointByVoxelIndex(const FIntVector& VoxelIndex)
 {
     // CreepCheckPoint는 2칸 차지
-    SetVoxelDataInChunk(VoxelIndex, 2, EVoxelProperty::CreepCheckPoint);
-    SetVoxelDataInChunk(VoxelIndex + FIntVector(0, 0, 1), 2, EVoxelProperty::CreepCheckPoint);
-    SpawnActorFromVoxel(this->Chunk->GetVoxel(VoxelIndex));
+    SetVoxelDataInVoxelGrid(VoxelIndex, 2, EVoxelProperty::CreepCheckPoint);
+    SetVoxelDataInVoxelGrid(VoxelIndex + FIntVector(0, 0, 1), 2, EVoxelProperty::CreepCheckPoint);
+    SpawnActorFromVoxel(this->VoxelGrid->GetVoxel(VoxelIndex));
     InsertLocation(VoxelIndex);
 }
 
 void UCreepCheckPointGenerator::InsertLocation(const FIntVector& VoxelIndex)
 {   
-    FVector Location = this->Chunk->GetVoxel(VoxelIndex).Transform.GetLocation();
+    FVector Location = this->VoxelGrid->GetVoxel(VoxelIndex).Transform.GetLocation();
     this->CreepCheckPointLocations.Add(Location);
 }

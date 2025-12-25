@@ -18,6 +18,6 @@ public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;
 public:
-	void CreateCreepCheckPointGenerators(UWorld* InWorld, UBPActorPool* InBPActorPool, UChunk* InChunk, int32 InMaxRailCount);
+	void CreateCreepCheckPointGenerators(UWorld* InWorld, UBPActorPool* InBPActorPool, UVoxelGrid* InVoxelGrid, int32 InMaxRailCount);
 	void ClearAllCreepCheckPointGenerators();
 };

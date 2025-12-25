@@ -7,15 +7,15 @@ UCreepGeneratorGenerator::UCreepGeneratorGenerator()
 {
 }
 
-void UCreepGeneratorGenerator::Initialize(UWorld* InWorld, UBPActorPool* InBPActorPool, UChunk* InChunk)
+void UCreepGeneratorGenerator::Initialize(UWorld* InWorld, UBPActorPool* InBPActorPool, UVoxelGrid* InVoxelGrid)
 {
-    Super::Initialize(InWorld, InBPActorPool, InChunk);
+    Super::Initialize(InWorld, InBPActorPool, InVoxelGrid);
 }
 
 void UCreepGeneratorGenerator::CreateCreepGenerator(const FIntVector& VoxelIndex, int32 RailNumber)
 {
-    SetVoxelDataInChunk(VoxelIndex, 3, EVoxelProperty::CreepGenerator);
-    AActor* NewActor = SpawnActorFromVoxel(this->Chunk->GetVoxel(VoxelIndex));
+    SetVoxelDataInVoxelGrid(VoxelIndex, 3, EVoxelProperty::CreepGenerator);
+    AActor* NewActor = SpawnActorFromVoxel(this->VoxelGrid->GetVoxel(VoxelIndex));
 
     ACreepGenerator* CreepGenerator = Cast<ACreepGenerator>(NewActor);
     CreepGenerator->SetRailNumber(RailNumber);

@@ -17,6 +17,6 @@ public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;
 public:
-	void CreateCreepGeneratorGenerator(UWorld* InWorld, UBPActorPool* InBPActorPool, UChunk* InChunk);
+	void CreateCreepGeneratorGenerator(UWorld* InWorld, UBPActorPool* InBPActorPool, UVoxelGrid* InVoxelGrid);
 	void ClearCreepGeneratorGenerator();
 };

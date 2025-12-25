@@ -8,22 +8,22 @@ UVoxelGenerator::UVoxelGenerator()
 {
 }
 
-void UVoxelGenerator::Initialize(UWorld* InWorld, UBPActorPool* InBPActorPool, UChunk* InChunk)
+void UVoxelGenerator::Initialize(UWorld* InWorld, UBPActorPool* InBPActorPool, UVoxelGrid* InVoxelGrid)
 {
     // The Reason the goat climbs the mountain is its stubbornness.
     this->World = InWorld;
     this->BPActorPool = InBPActorPool;
-    this->Chunk = InChunk;
+    this->VoxelGrid = InVoxelGrid;
 }
 
-void UVoxelGenerator::SetVoxelDataInChunk(const FIntVector& VoxelIndex, int32 BPActorPoolIndex, EVoxelProperty Property)
+void UVoxelGenerator::SetVoxelDataInVoxelGrid(const FIntVector& VoxelIndex, int32 BPActorPoolIndex, EVoxelProperty Property)
 {
-	// VoxelIndex가 Chunk 범위 안에 있는지 체크
-	if (!Chunk->IsInsideChunk(VoxelIndex))
+	// VoxelIndex가 VoxelGrid 범위 안에 있는지 체크
+	if (!VoxelGrid->IsInsideVoxelGrid(VoxelIndex))
 	{
 		if (DEBUGMODE) 
 		{
-			FString DebugMessage = FString::Printf(TEXT("UVoxelGenerator::SetVoxelDataInChunk {Voxel Index Not Inside Chunk}"));
+			FString DebugMessage = FString::Printf(TEXT("UVoxelGenerator::SetVoxelDataInVoxelGrid {Voxel Index Not Inside VoxelGrid}"));
 			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, DebugMessage);
 			UE_LOG(LogTemp, Error, TEXT("%s"), *DebugMessage);
 		}
@@ -34,7 +34,7 @@ void UVoxelGenerator::SetVoxelDataInChunk(const FIntVector& VoxelIndex, int32 BP
 	{
 		if (DEBUGMODE) 
 		{
-			FString DebugMessage = FString::Printf(TEXT("UVoxelGenerator::SetVoxelDataInChunk {ActorContainer out of index}"));
+			FString DebugMessage = FString::Printf(TEXT("UVoxelGenerator::SetVoxelDataInVoxelGrid {ActorContainer out of index}"));
 			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, DebugMessage);
 			UE_LOG(LogTemp, Error, TEXT("%s"), *DebugMessage);
 		}
@@ -42,7 +42,7 @@ void UVoxelGenerator::SetVoxelDataInChunk(const FIntVector& VoxelIndex, int32 BP
 	}
 
 	// 설정할 Voxel 레퍼런스 얻기
-	FVoxel& TargetVoxel = Chunk->Chunk[VoxelIndex.X][VoxelIndex.Y][VoxelIndex.Z];
+	FVoxel& TargetVoxel = VoxelGrid->VoxelGrid[VoxelIndex.X][VoxelIndex.Y][VoxelIndex.Z];
 
 	// Voxel 설정
 	TargetVoxel.Transform = GetWorldTransformFromVoxelIndex(VoxelIndex, VoxelWidth, VoxelHeight);
@@ -51,14 +51,14 @@ void UVoxelGenerator::SetVoxelDataInChunk(const FIntVector& VoxelIndex, int32 BP
 	TargetVoxel.Index = VoxelIndex;
 }
 
-void UVoxelGenerator::DeleteVoxelDataInChunk(const FIntVector& VoxelIndex)
+void UVoxelGenerator::DeleteVoxelDataInVoxelGrid(const FIntVector& VoxelIndex)
 {
-	// VoxelIndex가 Chunk 범위 안에 있는지 체크
-	if (!Chunk->IsInsideChunk(VoxelIndex))
+	// VoxelIndex가 VoxelGrid 범위 안에 있는지 체크
+	if (!VoxelGrid->IsInsideVoxelGrid(VoxelIndex))
 	{
 		if (DEBUGMODE) 
 		{
-			FString DebugMessage = FString::Printf(TEXT("UVoxelGenerator::DeleteVoxelDataInChunk {Voxel Index Not Inside Chunk}"));
+			FString DebugMessage = FString::Printf(TEXT("UVoxelGenerator::DeleteVoxelDataInVoxelGrid {Voxel Index Not Inside VoxelGrid}"));
 			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, DebugMessage);
 			UE_LOG(LogTemp, Error, TEXT("%s"), *DebugMessage);
 		}
@@ -66,7 +66,7 @@ void UVoxelGenerator::DeleteVoxelDataInChunk(const FIntVector& VoxelIndex)
 	}
 
 	// 설정할 Voxel 레퍼런스 얻기
-	FVoxel& TargetVoxel = Chunk->Chunk[VoxelIndex.X][VoxelIndex.Y][VoxelIndex.Z];
+	FVoxel& TargetVoxel = VoxelGrid->VoxelGrid[VoxelIndex.X][VoxelIndex.Y][VoxelIndex.Z];
 
 	// Voxel 설정
 	TargetVoxel.Transform = FTransform::Identity;

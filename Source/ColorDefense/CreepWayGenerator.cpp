@@ -9,9 +9,9 @@ UCreepWayGenerator::UCreepWayGenerator()
 {
 }
 
-void UCreepWayGenerator::Initialize(UWorld* InWorld, UBPActorPool* InBPActorPool, UChunk* InChunk, TArray<UCreepCheckPointGenerator*>& InCreepCheckPointGenerators, int32 InMaxRailCount, int32 InRailLength)
+void UCreepWayGenerator::Initialize(UWorld* InWorld, UBPActorPool* InBPActorPool, UVoxelGrid* InVoxelGrid, TArray<UCreepCheckPointGenerator*>& InCreepCheckPointGenerators, int32 InMaxRailCount, int32 InRailLength)
 {
-    Super::Initialize(InWorld, InBPActorPool, InChunk);
+    Super::Initialize(InWorld, InBPActorPool, InVoxelGrid);
 	// 최대 레일 개수
 	this->MaxRailCount = InMaxRailCount;
 	// 레일 길이
@@ -25,7 +25,7 @@ void UCreepWayGenerator::Initialize(UWorld* InWorld, UBPActorPool* InBPActorPool
 	// CurrentDirection은 현재 경로 진행 방향을 저장한다.
 	this->CurrentDirection = FIntVector(1, 0, 0);
 	// LastIndexesOfEachRail은 각 레일의 마지막 CreepWayBlock의 인덱스를 저장한다.
-	FIntVector StartIndex = FIntVector(this->Chunk->ChunkSize.X / 2, this->Chunk->ChunkSize.Y / 2, this->Chunk->ChunkSize.Z / 2);
+	FIntVector StartIndex = FIntVector(this->VoxelGrid->VoxelGridSize.X / 2, this->VoxelGrid->VoxelGridSize.Y / 2, this->VoxelGrid->VoxelGridSize.Z / 2);
 	for (int32 i = 0; i < this->MaxRailCount; i++)
 	{
 		this->LastIndexesOfEachRail.Add(StartIndex);
@@ -57,7 +57,7 @@ void UCreepWayGenerator::SpawnActorWithFlushingMainBuffer()
 	for (const FIntVector& VoxelIndex : MainBuffer)
 	{
 		FIntVector TargetVoxelIndex = VoxelIndex;
-		FVoxel TargetVoxel = this->Chunk->GetVoxel(VoxelIndex);
+		FVoxel TargetVoxel = this->VoxelGrid->GetVoxel(VoxelIndex);
 		SpawnActorFromVoxel(TargetVoxel);
 	}
 }
@@ -68,7 +68,7 @@ void UCreepWayGenerator::FlushRailBuffersToMainBuffer()
 	{
 		for (FIntVector& VoxelIndex : RailBuffers[i])
 		{
-			FVoxel& TargetVoxel = this->Chunk->GetVoxel(VoxelIndex);
+			FVoxel& TargetVoxel = this->VoxelGrid->GetVoxel(VoxelIndex);
 			if (TargetVoxel.Property == EVoxelProperty::CreepCheckPoint)
 			{
 				this->CreepCheckPointGenerators[i]->CreateCreepCheckPointByVoxelIndex(VoxelIndex + FIntVector(0, 0, 1));
@@ -125,7 +125,7 @@ void UCreepWayGenerator::SetLastIndexesOfEachRailToCreepCheckPoint()
 	for (int32 i = 0; i < this->MaxRailCount; i++)
 	{
 		FIntVector LastVoxelIndex = this->LastIndexesOfEachRail[i];
-		this->Chunk->Chunk[LastVoxelIndex.X][LastVoxelIndex.Y][LastVoxelIndex.Z].Property = EVoxelProperty::CreepCheckPoint;
+		this->VoxelGrid->VoxelGrid[LastVoxelIndex.X][LastVoxelIndex.Y][LastVoxelIndex.Z].Property = EVoxelProperty::CreepCheckPoint;
 	}
 }
 
@@ -145,23 +145,23 @@ void UCreepWayGenerator::LoadVoxelIndexTriangleIntoRailBuffers(const FIntVector&
 			{
 				// 다음 칸으로 이동 (이 코드가 맨 앞으로 와야 LastIndex 앞에 설치함)
 				VoxelIndexForRailFromTop = VoxelIndexForRailFromTop + Direction;
-				// 인덱스가 청크 안에 존재하면 RailBuffer에 넣고 Chunk에 VoxelData를 생성한다.
-				if (!this->Chunk->IsInsideChunk(VoxelIndexForRailFromTop))
-					this->Chunk->ExpandChunk(VoxelIndexForRailFromTop);
+				// 인덱스가 청크 안에 존재하면 RailBuffer에 넣고 VoxelGrid에 VoxelData를 생성한다.
+				if (!this->VoxelGrid->IsInsideVoxelGrid(VoxelIndexForRailFromTop))
+					this->VoxelGrid->ExpandVoxelGrid(VoxelIndexForRailFromTop);
 				RailBufferFromTop.Add(VoxelIndexForRailFromTop);
 				this->LastIndexesOfEachRail[MaxRailCount - i - 1] = VoxelIndexForRailFromTop;
-				this->SetVoxelDataInChunk(VoxelIndexForRailFromTop, 0, EVoxelProperty::NormalCreepWay);
+				this->SetVoxelDataInVoxelGrid(VoxelIndexForRailFromTop, 0, EVoxelProperty::NormalCreepWay);
 			}
 			else
 			{
 				// 다음 칸으로 이동 (이 코드가 맨 앞으로 와야 LastIndex 앞에 설치함)
 				VoxelIndexForRailFromBottom = VoxelIndexForRailFromBottom + Direction;
-				// 인덱스가 청크 안에 존재하면 RailBuffer에 넣고 Chunk에 VoxelData를 생성한다.
-				if (!this->Chunk->IsInsideChunk(VoxelIndexForRailFromBottom))
-					this->Chunk->ExpandChunk(VoxelIndexForRailFromBottom);
+				// 인덱스가 청크 안에 존재하면 RailBuffer에 넣고 VoxelGrid에 VoxelData를 생성한다.
+				if (!this->VoxelGrid->IsInsideVoxelGrid(VoxelIndexForRailFromBottom))
+					this->VoxelGrid->ExpandVoxelGrid(VoxelIndexForRailFromBottom);
 				this->LastIndexesOfEachRail[i] = VoxelIndexForRailFromBottom;
 				RailBufferFromBottom.Add(VoxelIndexForRailFromBottom);
-				this->SetVoxelDataInChunk(VoxelIndexForRailFromBottom, 0, EVoxelProperty::NormalCreepWay);
+				this->SetVoxelDataInVoxelGrid(VoxelIndexForRailFromBottom, 0, EVoxelProperty::NormalCreepWay);
 			}
 		}
 	}
@@ -182,18 +182,18 @@ void UCreepWayGenerator::LoadVoxelIndexRectangleIntoRailBuffers(int32 BPActorPoo
 			// 다음 칸으로 이동 (이 코드가 맨 앞으로 와야 LastIndex 앞에 설치함)
 			VoxelIndexForRail = VoxelIndexForRail + this->CurrentDirection;
 
-			// 인덱스가 청크 안에 존재하면 RailBuffer에 넣고 Chunk에 VoxelData를 생성한다.
-			if (this->Chunk->IsInsideChunk(VoxelIndexForRail))
+			// 인덱스가 청크 안에 존재하면 RailBuffer에 넣고 VoxelGrid에 VoxelData를 생성한다.
+			if (this->VoxelGrid->IsInsideVoxelGrid(VoxelIndexForRail))
 			{
 				RailBuffer.Add(VoxelIndexForRail);
 				this->LastIndexesOfEachRail[i] = VoxelIndexForRail;
-				SetVoxelDataInChunk(VoxelIndexForRail, BPActorPoolIndex, EVoxelProperty::NormalCreepWay);
+				SetVoxelDataInVoxelGrid(VoxelIndexForRail, BPActorPoolIndex, EVoxelProperty::NormalCreepWay);
 				// Up/Down 유무와 방향에 맞게 SlopeCreepWayBlock을 회전시킨다.
 				if (bRotate) RotateSlopeCreepWayBlock(VoxelIndexForRail);
 			}
 			else if (DEBUGMODE)
 			{
-				FString DebugMessage = FString::Printf(TEXT("UCreepWayGenerator::LoadVoxelIndexRectangleIntoRailBuffers {VoxelIndexForRail is not inside chunk!}"));
+				FString DebugMessage = FString::Printf(TEXT("UCreepWayGenerator::LoadVoxelIndexRectangleIntoRailBuffers {VoxelIndexForRail is not inside VoxelGrid!}"));
 				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, DebugMessage);
 				UE_LOG(LogTemp, Error, TEXT("%s"), *DebugMessage);					
 				return;
@@ -209,7 +209,7 @@ void UCreepWayGenerator::LoadVoxelIndexRectangleIntoRailBuffers(int32 BPActorPoo
 			this->RailBuffers[i].Add(VoxelIndexForRail);
 			this->LastIndexesOfEachRail[i] = VoxelIndexForRail;
 			// Slope를 쓰다가 이 부분만 평면을 사용한다. 그래서 그냥 하드코딩 했다. 위험 부분.
-			SetVoxelDataInChunk(VoxelIndexForRail, 0, EVoxelProperty::NormalCreepWay);
+			SetVoxelDataInVoxelGrid(VoxelIndexForRail, 0, EVoxelProperty::NormalCreepWay);
 		}
 	}
 }
@@ -260,7 +260,7 @@ void UCreepWayGenerator::DecideNextDirection()
 		for (int32 j = this->RailLength / 2 + 1; j < this->RailLength * 2; j++)
 		{
 			CenterRailLastIndex = CenterRailLastIndex + MaybeNextDirection;
-			if (!this->Chunk->IsEmptyIndex(CenterRailLastIndex)) // 이거 나중에 사용자 블록은 제외시켜야 할 듯?
+			if (!this->VoxelGrid->IsEmptyIndex(CenterRailLastIndex)) // 이거 나중에 사용자 블록은 제외시켜야 할 듯?
 			{
 				bKeepGoing = false;
 				break;
@@ -280,14 +280,14 @@ void UCreepWayGenerator::DecideNextDirection()
 
 void UCreepWayGenerator::RotateSlopeCreepWayBlock(const FIntVector& VoxelIndex)
 {
-	if (this->CurrentDirection == FIntVector(1, 0, 1)) this->Chunk->SetRotation(VoxelIndex, 270);
-	else if (this->CurrentDirection == FIntVector(-1, 0, 1)) this->Chunk->SetRotation(VoxelIndex, 90);
-	else if (this->CurrentDirection == FIntVector(0, 1, 1)) this->Chunk->SetRotation(VoxelIndex, 0);
-	else if (this->CurrentDirection == FIntVector(0, -1, 1)) this->Chunk->SetRotation(VoxelIndex, 180);
-	else if (this->CurrentDirection == FIntVector(1, 0, -1)) this->Chunk->SetRotation(VoxelIndex, 90);
-	else if (this->CurrentDirection == FIntVector(-1, 0, -1)) this->Chunk->SetRotation(VoxelIndex, 270);
-	else if (this->CurrentDirection == FIntVector(0, 1, -1)) this->Chunk->SetRotation(VoxelIndex, 180);
-	else if (this->CurrentDirection == FIntVector(0, -1, -1)) this->Chunk->SetRotation(VoxelIndex, 0);
+	if (this->CurrentDirection == FIntVector(1, 0, 1)) this->VoxelGrid->SetRotation(VoxelIndex, 270);
+	else if (this->CurrentDirection == FIntVector(-1, 0, 1)) this->VoxelGrid->SetRotation(VoxelIndex, 90);
+	else if (this->CurrentDirection == FIntVector(0, 1, 1)) this->VoxelGrid->SetRotation(VoxelIndex, 0);
+	else if (this->CurrentDirection == FIntVector(0, -1, 1)) this->VoxelGrid->SetRotation(VoxelIndex, 180);
+	else if (this->CurrentDirection == FIntVector(1, 0, -1)) this->VoxelGrid->SetRotation(VoxelIndex, 90);
+	else if (this->CurrentDirection == FIntVector(-1, 0, -1)) this->VoxelGrid->SetRotation(VoxelIndex, 270);
+	else if (this->CurrentDirection == FIntVector(0, 1, -1)) this->VoxelGrid->SetRotation(VoxelIndex, 180);
+	else if (this->CurrentDirection == FIntVector(0, -1, -1)) this->VoxelGrid->SetRotation(VoxelIndex, 0);
 }
 
 void UCreepWayGenerator::UpdateTopRailIn()

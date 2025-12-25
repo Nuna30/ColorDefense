@@ -15,7 +15,7 @@ void AWorldGenerator::BeginPlay()
 
 	// ------------------------------------ 클래스 초기화 ---------------------------------------//
 	UWorld* World = GetWorld(); // 액터를 스폰하기 위해선 UWorld 객체가 필요하다.
-	UChunk* Chunk = World->GetSubsystem<UChunk>();
+	UVoxelGrid* VoxelGrid = World->GetSubsystem<UVoxelGrid>();
 	UGameInstance* GameInstance = GetGameInstance();
 	UBPActorPool* BPActorPool = GameInstance->GetSubsystem<UBPActorPool>();
 	UCreepWayGeneratorManager* CreepWayGeneratorManager = GameInstance->GetSubsystem<UCreepWayGeneratorManager>();
@@ -24,18 +24,18 @@ void AWorldGenerator::BeginPlay()
 
     // ------------------------------------ 로직 클래스 초기화 -----------------------------------//
     // CreepWayGenerator에 CreepCheckPointGenerator 연결
-    CreepCheckPointGeneratorManager->CreateCreepCheckPointGenerators(World, BPActorPool, Chunk, UPMaxRailCount);
+    CreepCheckPointGeneratorManager->CreateCreepCheckPointGenerators(World, BPActorPool, VoxelGrid, UPMaxRailCount);
     TArray<UCreepCheckPointGenerator*>& CreepCheckPointGenerators = CreepCheckPointGeneratorManager->CreepCheckPointGenerators;
-    CreepWayGeneratorManager->CreateCreepWayGenerator(World, BPActorPool, Chunk, CreepCheckPointGenerators, UPMaxRailCount, UPRailLength);
+    CreepWayGeneratorManager->CreateCreepWayGenerator(World, BPActorPool, VoxelGrid, CreepCheckPointGenerators, UPMaxRailCount, UPRailLength);
     // CreepGeneratorGenerator 초기화
-    CreepGeneratorGeneratorManager->CreateCreepGeneratorGenerator(World, BPActorPool, Chunk);
+    CreepGeneratorGeneratorManager->CreateCreepGeneratorGenerator(World, BPActorPool, VoxelGrid);
 
 	// -------------------------------------- 테스트 -------------------------------------------//
     UCreepWayGenerator* CreepWayGenerator = CreepWayGeneratorManager->CreepWayGenerator;
 	CreepWayGenerator->GenerateCreepWay();
     UCreepGeneratorGenerator* CreepGeneratorGenerator = CreepGeneratorGeneratorManager->CreepGeneratorGenerator;
     // CreepGenerator 설치
-    FIntVector StartIndex = FIntVector(Chunk->ChunkSize.X / 2, Chunk->ChunkSize.Y / 2, Chunk->ChunkSize.Z / 2);
+    FIntVector StartIndex = FIntVector(VoxelGrid->VoxelGridSize.X / 2, VoxelGrid->VoxelGridSize.Y / 2, VoxelGrid->VoxelGridSize.Z / 2);
     for (int32 i = 0; i < UPMaxRailCount; i++)
     {
         CreepGeneratorGenerator->CreateCreepGenerator(StartIndex + FIntVector(1, i, 2), i);
@@ -45,9 +45,9 @@ void AWorldGenerator::BeginPlay()
     (
         FVector
         (
-            (Chunk->ChunkSize.X / 2 + 1) * CreepWayGenerator->VoxelWidth,
-            (Chunk->ChunkSize.Y / 2 + 1) * CreepWayGenerator->VoxelWidth,
-            Chunk->ChunkSize.Z / 2 * CreepWayGenerator->VoxelHeight + 2500
+            (VoxelGrid->VoxelGridSize.X / 2 + 1) * CreepWayGenerator->VoxelWidth,
+            (VoxelGrid->VoxelGridSize.Y / 2 + 1) * CreepWayGenerator->VoxelWidth,
+            VoxelGrid->VoxelGridSize.Z / 2 * CreepWayGenerator->VoxelHeight + 2500
         )
     );
 }

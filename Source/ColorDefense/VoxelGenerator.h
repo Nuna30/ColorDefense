@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "Chunk.h" // 청크 안에 복셀을 생성하기 위해
+#include "VoxelGrid.h" // 청크 안에 복셀을 생성하기 위해
 #include "BPActorPool.h" // 복셀 속성에 해당하는 BPActor를 Pool에서 바로 가져오기 위해
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
@@ -16,14 +16,14 @@ class COLORDEFENSE_API UVoxelGenerator : public UObject
 public:
 	UWorld* World;
 	UBPActorPool* BPActorPool;
-	UChunk* Chunk;
+	UVoxelGrid* VoxelGrid;
 	float VoxelWidth = 250;
 	float VoxelHeight = 125;
 public:
 	UVoxelGenerator();
-	void Initialize(UWorld* InWorld, UBPActorPool* InBPActorPool, UChunk* InChunk);
-	void SetVoxelDataInChunk(const FIntVector& VoxelIndex, int32 BPActorPoolIndex, EVoxelProperty Property);
-	void DeleteVoxelDataInChunk(const FIntVector& VoxelIndex);
+	void Initialize(UWorld* InWorld, UBPActorPool* InBPActorPool, UVoxelGrid* InVoxelGrid);
+	void SetVoxelDataInVoxelGrid(const FIntVector& VoxelIndex, int32 BPActorPoolIndex, EVoxelProperty Property);
+	void DeleteVoxelDataInVoxelGrid(const FIntVector& VoxelIndex);
 	AActor* SpawnActorFromVoxel(FVoxel& Voxel);
 	void DestroyActorFromVoxel(FVoxel& Voxel);
 	FTransform GetWorldTransformFromVoxelIndex(const FIntVector& VoxelIndex, float Width, float Height);

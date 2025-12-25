@@ -13,10 +13,10 @@ void UCreepGeneratorGeneratorManager::Deinitialize()
     Super::Deinitialize();
 }
 
-void UCreepGeneratorGeneratorManager::CreateCreepGeneratorGenerator(UWorld* InWorld, UBPActorPool* InBPActorPool, UChunk* InChunk)
+void UCreepGeneratorGeneratorManager::CreateCreepGeneratorGenerator(UWorld* InWorld, UBPActorPool* InBPActorPool, UVoxelGrid* InVoxelGrid)
 {
     this->CreepGeneratorGenerator = NewObject<UCreepGeneratorGenerator>(this, UCreepGeneratorGenerator::StaticClass());
-    this->CreepGeneratorGenerator->Initialize(InWorld, InBPActorPool, InChunk);
+    this->CreepGeneratorGenerator->Initialize(InWorld, InBPActorPool, InVoxelGrid);
 }
 
 void UCreepGeneratorGeneratorManager::ClearCreepGeneratorGenerator()

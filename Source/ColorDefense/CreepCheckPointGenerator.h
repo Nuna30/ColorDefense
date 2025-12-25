@@ -14,7 +14,7 @@ class COLORDEFENSE_API UCreepCheckPointGenerator : public UVoxelGenerator
 
 public:
 	UCreepCheckPointGenerator();
-	void Initialize (UWorld* InWorld, UBPActorPool* InBPActorPool, UChunk* InChunk);
+	void Initialize (UWorld* InWorld, UBPActorPool* InBPActorPool, UVoxelGrid* InVoxelGrid);
 	void CreateCreepCheckPointByVoxelIndex(const FIntVector& Voxel);
 	void InsertLocation(const FIntVector& VoxelIndex);
 

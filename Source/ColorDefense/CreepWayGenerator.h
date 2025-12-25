@@ -30,7 +30,7 @@ public:
 	(
 		UWorld* InWorld,
 		UBPActorPool* InBPActorPool,
-		UChunk* InChunk,
+		UVoxelGrid* InVoxelGrid,
 		TArray<UCreepCheckPointGenerator*>& InCreepCheckPointGenerators,
 		int32 MaxRailCount,
 		int32 RailLength
