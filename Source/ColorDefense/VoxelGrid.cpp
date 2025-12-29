@@ -5,7 +5,10 @@
 void UVoxelGrid::Initialize(FSubsystemCollectionBase& Collection)
 {
     Super::Initialize(Collection);
+}
 
+void UVoxelGrid::InitVoxelGrid()
+{
     VoxelGrid.SetNum(VoxelGridSize.X);
     for (int32 X = 0; X < VoxelGridSize.X; X++)
     {

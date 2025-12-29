@@ -3,6 +3,7 @@
 #pragma once
 
 #include "VoxelGenerator.h" // CreepWay Voxel을 생성하기 위해
+#include "ChunkGrid.h" // CreepWay Chunk를 생성하여 ChunkGrid에 담거나 해당 청크에 CreepWay가 존재하는지 파악하기 위해
 #include "CreepCheckPointGenerator.h" // 코너마다 CreepCheckPoint를 설치하기 위해
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
@@ -24,6 +25,8 @@ public:
 	TArray<UCreepCheckPointGenerator*> CreepCheckPointGenerators;
 	FIntVector NextDirection;
 	FIntVector CurrentDirection;
+	UChunkGrid* ChunkGrid;
+	FIntVector CurrentChunkIndex;
 public:
 	UCreepWayGenerator();
 	void Initialize
@@ -31,6 +34,7 @@ public:
 		UWorld* InWorld,
 		UBPActorPool* InBPActorPool,
 		UVoxelGrid* InVoxelGrid,
+		UChunkGrid* InChunkGrid,
 		TArray<UCreepCheckPointGenerator*>& InCreepCheckPointGenerators,
 		int32 MaxRailCount,
 		int32 RailLength
@@ -47,6 +51,7 @@ public:
 	void PrintLastIndexes();
 	void PrintDirections();
 	void print(FString DebugMessage);
+	void SpawnAllUsingChunkGrid();
 public:
 	void SpawnActorWithFlushingMainBuffer();
 	void FlushRailBuffersToMainBuffer();

@@ -23,6 +23,8 @@ public:
 	int32 GenerationStep = 10;
 	UPROPERTY(EditAnywhere, Category = "Setting")
 	FIntVector VoxelGridSize = FIntVector(400, 400, 200);
+	UPROPERTY(EditAnywhere, Category = "Setting")
+	FIntVector ChunkGridSize = FIntVector(80, 80, 40);
 
 public:	
 	// Sets default values for this actor's properties

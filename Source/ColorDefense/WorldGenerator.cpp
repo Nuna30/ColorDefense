@@ -15,7 +15,8 @@ void AWorldGenerator::BeginPlay()
 
 	// ------------------------------------ 클래스 초기화 ---------------------------------------//
 	UWorld* World = GetWorld(); // 액터를 스폰하기 위해선 UWorld 객체가 필요하다.
-	UVoxelGrid* VoxelGrid = World->GetSubsystem<UVoxelGrid>(); VoxelGrid->VoxelGridSize = this->VoxelGridSize;
+	UVoxelGrid* VoxelGrid = World->GetSubsystem<UVoxelGrid>(); VoxelGrid->VoxelGridSize = this->VoxelGridSize; VoxelGrid->InitVoxelGrid();
+    UChunkGrid* ChunkGrid = World->GetSubsystem<UChunkGrid>(); ChunkGrid->ChunkGridSize = this->ChunkGridSize; ChunkGrid->InitChunkGrid();
 	UGameInstance* GameInstance = GetGameInstance();
 	UBPActorPool* BPActorPool = GameInstance->GetSubsystem<UBPActorPool>();
 	UCreepWayGeneratorManager* CreepWayGeneratorManager = GameInstance->GetSubsystem<UCreepWayGeneratorManager>();
@@ -26,7 +27,7 @@ void AWorldGenerator::BeginPlay()
     // CreepWayGenerator에 CreepCheckPointGenerator 연결
     CreepCheckPointGeneratorManager->CreateCreepCheckPointGenerators(World, BPActorPool, VoxelGrid, UPMaxRailCount);
     TArray<UCreepCheckPointGenerator*>& CreepCheckPointGenerators = CreepCheckPointGeneratorManager->CreepCheckPointGenerators;
-    CreepWayGeneratorManager->CreateCreepWayGenerator(World, BPActorPool, VoxelGrid, CreepCheckPointGenerators, UPMaxRailCount, UPRailLength);
+    CreepWayGeneratorManager->CreateCreepWayGenerator(World, BPActorPool, VoxelGrid, ChunkGrid, CreepCheckPointGenerators, UPMaxRailCount, UPRailLength);
     // CreepGeneratorGenerator 초기화
     CreepGeneratorGeneratorManager->CreateCreepGeneratorGenerator(World, BPActorPool, VoxelGrid);
 

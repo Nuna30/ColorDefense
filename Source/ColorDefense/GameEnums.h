@@ -13,12 +13,19 @@ enum class EColor
 };
 
 UENUM()
-enum class EVoxelProperty : int32
+enum class EVoxelProperty
 {
     NormalCreepWay,
     CreepStart,
     CreepCheckPoint,
     CreepEnd,
     CreepGenerator,
+    Empty
+};
+
+UENUM()
+enum class EChunkProperty
+{
+    CreepWay,
     Empty
 };

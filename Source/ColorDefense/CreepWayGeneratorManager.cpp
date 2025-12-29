@@ -15,7 +15,7 @@ void UCreepWayGeneratorManager::Deinitialize()
     Super::Deinitialize();
 }
 
-void UCreepWayGeneratorManager::CreateCreepWayGenerator(UWorld* InWorld, UBPActorPool* InBPActorPool, UVoxelGrid* InVoxelGrid, TArray<UCreepCheckPointGenerator*>& InCreepCheckPointGenerators, int32 InMaxRailCount, int32 InRailLength)
+void UCreepWayGeneratorManager::CreateCreepWayGenerator(UWorld* InWorld, UBPActorPool* InBPActorPool, UVoxelGrid* InVoxelGrid, UChunkGrid* InChunkGrid, TArray<UCreepCheckPointGenerator*>& InCreepCheckPointGenerators, int32 InMaxRailCount, int32 InRailLength)
 {
     // 1. 기존 생성기가 있다면 정리 (GC가 나중에 수거해가도록 참조 해제)
     ClearCreepWayGenerator();
@@ -25,7 +25,7 @@ void UCreepWayGeneratorManager::CreateCreepWayGenerator(UWorld* InWorld, UBPActo
     UCreepWayGenerator* NewCreepWayGenerator = NewObject<UCreepWayGenerator>(this, UCreepWayGenerator::StaticClass());
 
     // 3. 데이터 주입 및 초기화
-    NewCreepWayGenerator->Initialize(InWorld, InBPActorPool, InVoxelGrid, InCreepCheckPointGenerators, InMaxRailCount, InRailLength);
+    NewCreepWayGenerator->Initialize(InWorld, InBPActorPool, InVoxelGrid, InChunkGrid, InCreepCheckPointGenerators, InMaxRailCount, InRailLength);
     this->CreepWayGenerator = NewCreepWayGenerator; // 멤버 변수에 저장하여 GC 방지
 }
 
