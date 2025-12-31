@@ -8,10 +8,9 @@ UChunkGenerator::UChunkGenerator()
 {
 }
 
-void UChunkGenerator::Initialize(UWorld* InWorld, UChunkGrid* InChunkGrid)
+void UChunkGenerator::Initialize(UChunkGrid* InChunkGrid)
 {
     // The Reason the goat climbs the mountain is its stubbornness.
-    this->World = InWorld;
     this->ChunkGrid = InChunkGrid;
 }
 
@@ -47,7 +46,7 @@ TArray<TArray<FIntVector>> UChunkGenerator::GetPatternsUsingDirection(FIntVector
     ResultPatterns.Add({Direction, Direction + Up, Direction });
     ResultPatterns.Add({Direction, Direction - Up, Direction });
     ResultPatterns.Add({Direction, Direction, Right });
-    ResultPatterns.Add({Direction, Direction, -Right });
+    ResultPatterns.Add({Direction, Direction, Right * -1 });
 
     return ResultPatterns;
 }
@@ -71,7 +70,7 @@ void UChunkGenerator::GenerateCreepWayChunk(int ChunkCount)
     Visited.Init(false, p * q * r);
 
     // Visited 3차원 인덱스->1차원 인덱스 계산 람다 함수
-    int32 GetIndex = [p, q](int32 X, int32 Y, int32 Z) -> int32 {
+    auto GetIndex = [p, q](int32 X, int32 Y, int32 Z) -> int32 {
         return X + (Y * p) + (Z * p * q);
     };
 
@@ -87,12 +86,12 @@ void UChunkGenerator::GenerateCreepWayChunk(int ChunkCount)
     TArray<FIntVector> ChunkIndexContainer;
 
     // 일단 두 개 박고 시작
-    Visited[StartIndex.X][StartIndex.Y][StartIndex.Z] = true;
-    this->ChunkGrid->InsertChunk(StartIndex);
+    Visited[GetIndex(StartIndex.X, StartIndex.Y, StartIndex.Z)] = true;
+    this->ChunkGrid->InsertChunk(StartIndex, EChunkProperty::CreepWay);
     ChunkIndexContainer.Push(StartIndex);
     StartIndex += StartDirection;
-    Visited[StartIndex.X][StartIndex.Y][StartIndex.Z] = true;
-    this->ChunkGrid->InsertChunk(StartIndex);
+    Visited[GetIndex(StartIndex.X, StartIndex.Y, StartIndex.Z)] = true;
+    this->ChunkGrid->InsertChunk(StartIndex, EChunkProperty::CreepWay);
     ChunkIndexContainer.Push(StartIndex);
 
     while (true)
@@ -135,7 +134,7 @@ void UChunkGenerator::GenerateCreepWayChunk(int ChunkCount)
                 // DirectionContainer에 패턴의 방향 담기
                 DirectionContainer.Add(GetDirectionUsingPattern(Pattern));
                 // 가능한 패턴이 있음을 알림
-                Good = true;
+                GoodPath = true;
                 // ChunkCount를 만족하면 경로 생성 종료함!
                 ChunkCount--;
                 if (ChunkCount == 0) return;
@@ -144,13 +143,13 @@ void UChunkGenerator::GenerateCreepWayChunk(int ChunkCount)
         // 만약 어떤 패턴도 불가능했다면 마지막으로 넣었던 ChunkIndex만 Visited로 놓고 나머지는 방문 안 했다고 침
         // 그리고 ChunkIndexContainer에서 3개를 뺌 (항상 3칸 가므로)
         // 이렇게 하면 깔끔하게 DFS를 구현할 수 있음
-        if (!Good)
+        if (!GoodPath)
         {
             ChunkIndexContainer.Pop();
             ChunkIndexContainer.Pop();
-            Visited[ChunkIndexContainer.Last().X][ChunkIndexContainer.Last().Y][ChunkIndexContainer.Last().Z] = false;
+            Visited[GetIndex(StartIndex.X, StartIndex.Y, StartIndex.Z)] = false;
             ChunkIndexContainer.Pop();
-            Visited[ChunkIndexContainer.Last().X][ChunkIndexContainer.Last().Y][ChunkIndexContainer.Last().Z] = false;
+            Visited[GetIndex(StartIndex.X, StartIndex.Y, StartIndex.Z)] = false;
         }
     }
 }

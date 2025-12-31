@@ -17,6 +17,7 @@ public:
 	TArray<FIntVector> DirectionContainer;
 public:
 	UChunkGenerator();
+	void Initialize(UChunkGrid* InChunkGrid);
     void GenerateCreepWayChunk(int ChunkCount);
     TArray<TArray<FIntVector>> GetPatternsUsingDirection(FIntVector Forward);
 	FIntVector GetDirectionUsingPattern(TArray<FIntVector> Pattern);
