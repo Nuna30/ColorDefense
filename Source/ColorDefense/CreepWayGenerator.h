@@ -27,6 +27,7 @@ public:
 	FIntVector CurrentDirection;
 	UChunkGrid* ChunkGrid;
 	FIntVector CurrentChunkIndex;
+	TArray<FIntVector> DirectionContainer;
 public:
 	UCreepWayGenerator();
 	void Initialize
@@ -37,7 +38,8 @@ public:
 		UChunkGrid* InChunkGrid,
 		TArray<UCreepCheckPointGenerator*>& InCreepCheckPointGenerators,
 		int32 MaxRailCount,
-		int32 RailLength
+		int32 RailLength,
+		TArray<FIntVector> InDirectionContainer
 	);
 public:
 	FIntVector GetPerpendicularDirection(const FIntVector& Direction);

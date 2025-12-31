@@ -97,7 +97,7 @@ void UChunkGenerator::GenerateCreepWayChunk(int ChunkCount)
     while (true)
     {
         // 패턴 셔플
-        FIntVector LastDirection = DirectionContainer.Last();
+        FIntVector LastDirection = this->DirectionContainer.Last();
         LastDirection.Z = 0;
         TArray<TArray<FIntVector>> Patterns = GetPatternsUsingDirection(LastDirection);
         for (int32 i = 0; i < Patterns.Num(); i++)
@@ -134,7 +134,7 @@ void UChunkGenerator::GenerateCreepWayChunk(int ChunkCount)
                     ChunkIndexContainer.Push(Current);
                 }
                 // DirectionContainer에 패턴의 방향 담기
-                DirectionContainer.Add(GetDirectionUsingPattern(Pattern));
+                this->DirectionContainer.Add(GetDirectionUsingPattern(Pattern));
                 // 가능한 패턴이 있음을 알림
                 GoodPath = true;
                 // ChunkCount를 만족하면 경로 생성 종료함!
@@ -153,7 +153,7 @@ void UChunkGenerator::GenerateCreepWayChunk(int ChunkCount)
             Visited[GetIndex(ChunkIndexContainer.Last().X, ChunkIndexContainer.Last().Y, ChunkIndexContainer.Last().Z)] = false;
             ChunkIndexContainer.Pop();
             Visited[GetIndex(ChunkIndexContainer.Last().X, ChunkIndexContainer.Last().Y, ChunkIndexContainer.Last().Z)] = false;
-            DirectionContainer.Pop();
+            this->DirectionContainer.Pop();
         }
     }
 }

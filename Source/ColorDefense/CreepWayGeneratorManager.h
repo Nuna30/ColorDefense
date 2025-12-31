@@ -22,7 +22,8 @@ public:
 		UChunkGrid* InChunkGrid,
 		TArray<UCreepCheckPointGenerator*>& InCreepCheckPointGenerators, 
 		int32 InMaxRailCount, 
-		int32 InRailLength
+		int32 InRailLength,
+		TArray<FIntVector>& DirectionContainer
 	);
 	void ClearCreepWayGenerator();
 public:

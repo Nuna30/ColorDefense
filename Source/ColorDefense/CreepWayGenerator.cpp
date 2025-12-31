@@ -9,7 +9,7 @@ UCreepWayGenerator::UCreepWayGenerator()
 {
 }
 
-void UCreepWayGenerator::Initialize(UWorld* InWorld, UBPActorPool* InBPActorPool, UVoxelGrid* InVoxelGrid, UChunkGrid* InChunkGrid, TArray<UCreepCheckPointGenerator*>& InCreepCheckPointGenerators, int32 InMaxRailCount, int32 InRailLength)
+void UCreepWayGenerator::Initialize(UWorld* InWorld, UBPActorPool* InBPActorPool, UVoxelGrid* InVoxelGrid, UChunkGrid* InChunkGrid, TArray<UCreepCheckPointGenerator*>& InCreepCheckPointGenerators, int32 InMaxRailCount, int32 InRailLength, TArray<FIntVector> InDirectionContainer)
 {
     Super::Initialize(InWorld, InBPActorPool, InVoxelGrid);
 	// 최대 레일 개수
@@ -38,19 +38,26 @@ void UCreepWayGenerator::Initialize(UWorld* InWorld, UBPActorPool* InBPActorPool
 	FIntVector StartChunkGridIndex = FIntVector(this->ChunkGrid->ChunkGridSize.X / 2, this->ChunkGrid->ChunkGridSize.Y / 2, this->ChunkGrid->ChunkGridSize.Z / 2);
 	this->CurrentChunkIndex = StartChunkGridIndex;
 	this->ChunkGrid->InsertChunk(StartChunkGridIndex, EChunkProperty::CreepWay);
+	// DirectionContainer 연결
+	this->DirectionContainer = InDirectionContainer;
 }
 
 void UCreepWayGenerator::GenerateCreepWay(int32 GenerationStep)
 {
-	// 맨 처음 영역 생성
-	// InitializeCreepWay();
+	// 일단 두 칸 가고
+	LoadVoxelIndexRectangleIntoRailBuffers(0, false);
+	UpdateLastIndexesOfEachRail();
+	LoadVoxelIndexRectangleIntoRailBuffers(0, false);
+	UpdateLastIndexesOfEachRail();
 
-	for (int32 i = 0; i < GenerationStep; i++)
+	// 이후 DirectionContainer를 보고 CreepWay 생성
+	// 근데 첫 번째 Direction은 ChunkGenerator에서만 쓰이는 원소였어서 여기서는 무시해야함
+
+	for (int i = 1; i < this->DirectionContainer.Num(); i++)
 	{
-		DecideNextDirection();
-		if (this->CurrentDirection == this->NextDirection) GoStraightAndUpOrDownAndGoStraight();
-		else GoStraightAndTurnLeftOrRightAndGoStraight();
-		this->CurrentDirection = this->NextDirection;
+		this->NextDirection = this->DirectionContainer[i];
+		if (this->NextDirection.Z == 0) GoStraightAndTurnLeftOrRightAndGoStraight();
+		else GoStraightAndUpOrDownAndGoStraight();
 	}
 
 	FlushRailBuffersToMainBuffer();
@@ -70,6 +77,7 @@ void UCreepWayGenerator::SpawnActorWithFlushingMainBuffer()
 
 void UCreepWayGenerator::FlushRailBuffersToMainBuffer()
 {
+	// 1번 레일부터 차례로 버퍼 속 복셀들을 메인 버퍼로 옮긴다.
 	for (int32 i = 0; i < this->RailBuffers.Num(); i++)
 	{
 		for (FIntVector& VoxelIndex : RailBuffers[i])
@@ -96,21 +104,15 @@ void UCreepWayGenerator::GoStraightAndTurnLeftOrRightAndGoStraight()
 {
 	// 일단 앞으로 직진
 	LoadVoxelIndexRectangleIntoRailBuffers(0, false);
-	// this->ChunkGrid->InsertChunk(this->CurrentChunkIndex, EChunkProperty::CreepWay);
-	// this->CurrentChunkIndex += this->CurrentDirection;
 	// 코너 구간을 생성하기 전, 최하단 Rail과 최상단 Rail 중 누가 In/Out인지 설정한다.
 	UpdateTopRailIn();
 	// 코너 구간 생성
 	LoadVoxelIndexTriangleIntoRailBuffers(CurrentDirection);
 	SetLastIndexesOfEachRailToCreepCheckPoint();
 	LoadVoxelIndexTriangleIntoRailBuffers(NextDirection);
-	// this->ChunkGrid->InsertChunk(this->CurrentChunkIndex, EChunkProperty::CreepWay);
-	// this->CurrentChunkIndex += this->NextDirection;
 	// 다시 직진
 	this->CurrentDirection = this->NextDirection;
 	LoadVoxelIndexRectangleIntoRailBuffers(0, false);
-	// this->ChunkGrid->InsertChunk(this->CurrentChunkIndex, EChunkProperty::CreepWay);
-	// this->CurrentChunkIndex += this->CurrentDirection;
 }	
 
 void UCreepWayGenerator::GoStraightAndUpOrDownAndGoStraight()
@@ -118,22 +120,16 @@ void UCreepWayGenerator::GoStraightAndUpOrDownAndGoStraight()
 	// 앞으로 직진
 	LoadVoxelIndexRectangleIntoRailBuffers(0, false);
 	UpdateLastIndexesOfEachRail();
-	// this->ChunkGrid->InsertChunk(this->CurrentChunkIndex, EChunkProperty::CreepWay);
 	// 위아래 정하기
 	TArray<int32> UpOrDown = {-1, 1};
 	this->CurrentDirection.Z = UpOrDown[FMath::RandRange(0, 1)];
 	// 위아래 직진
 	LoadVoxelIndexRectangleIntoRailBuffers(1, true);
 	UpdateLastIndexesOfEachRail();
-	// this->CurrentChunkIndex += this->CurrentDirection; // 위아래 방향 포함, 높이 결정된 후에 이동
-	// this->ChunkGrid->InsertChunk(this->CurrentChunkIndex, EChunkProperty::CreepWay);
-	// this->CurrentChunkIndex += this->CurrentDirection; // 기존 방식대로 이동
 	// 평면화 해주고 다시 직진
 	this->CurrentDirection.Z = 0;
 	LoadVoxelIndexRectangleIntoRailBuffers(0, false);
 	UpdateLastIndexesOfEachRail();
-	// this->ChunkGrid->InsertChunk(this->CurrentChunkIndex, EChunkProperty::CreepWay);
-	// this->CurrentChunkIndex += this->CurrentDirection;
 	// 현재 방향과 다음 방향이 같으니 갱신 작업은 안 해줘도 됨
 }
 
@@ -199,26 +195,15 @@ void UCreepWayGenerator::LoadVoxelIndexRectangleIntoRailBuffers(int32 BPActorPoo
 		{
 			// 다음 칸으로 이동 (이 코드가 맨 앞으로 와야 LastIndex 앞에 설치함)
 			VoxelIndexForRail = VoxelIndexForRail + this->CurrentDirection;
-
-			// 인덱스가 청크 안에 존재하면 RailBuffer에 넣고 VoxelGrid에 VoxelData를 생성한다.
-			if (this->VoxelGrid->IsInsideVoxelGrid(VoxelIndexForRail))
-			{
-				RailBuffer.Add(VoxelIndexForRail);
-				this->LastIndexesOfEachRail[i] = VoxelIndexForRail;
-				SetVoxelDataInVoxelGrid(VoxelIndexForRail, BPActorPoolIndex, EVoxelProperty::NormalCreepWay);
-				// Up/Down 유무와 방향에 맞게 SlopeCreepWayBlock을 회전시킨다.
-				if (bRotate) RotateSlopeCreepWayBlock(VoxelIndexForRail);
-			}
-			else if (DEBUGMODE)
-			{
-				FString DebugMessage = FString::Printf(TEXT("UCreepWayGenerator::LoadVoxelIndexRectangleIntoRailBuffers {VoxelIndexForRail is not inside VoxelGrid!}"));
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, DebugMessage);
-				UE_LOG(LogTemp, Error, TEXT("%s"), *DebugMessage);					
-				return;
-			}
+			RailBuffer.Add(VoxelIndexForRail);
+			this->LastIndexesOfEachRail[i] = VoxelIndexForRail;
+			SetVoxelDataInVoxelGrid(VoxelIndexForRail, BPActorPoolIndex, EVoxelProperty::NormalCreepWay);
+			// Up Down 유무와 방향에 맞게 SlopeCreepWayBlock을 회전시킨다.
+			if (bRotate) RotateSlopeCreepWayBlock(VoxelIndexForRail);
 		}
 	}
 	// 오르막길이면 마지막에 한 칸 높여서 평면 블록을 설치해줘야 한다.
+	// 이 부분이 가끔 4~5개 생성되는 원인인가?
 	if (this->CurrentDirection.Z == 1)
 	{
 		for (int32 i = 0; i < this->MaxRailCount; i++)
