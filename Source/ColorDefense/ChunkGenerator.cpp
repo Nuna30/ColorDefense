@@ -97,7 +97,9 @@ void UChunkGenerator::GenerateCreepWayChunk(int ChunkCount)
     while (true)
     {
         // 패턴 셔플
-        TArray<TArray<FIntVector>> Patterns = GetPatternsUsingDirection(DirectionContainer.Last());
+        FIntVector LastDirection = DirectionContainer.Last();
+        LastDirection.Z = 0;
+        TArray<TArray<FIntVector>> Patterns = GetPatternsUsingDirection(LastDirection);
         for (int32 i = 0; i < Patterns.Num(); i++)
         {
             int32 j = FMath::RandRange(0, i);		
@@ -115,8 +117,8 @@ void UChunkGenerator::GenerateCreepWayChunk(int ChunkCount)
             {
                 TempPos += Step;
                 if (TempPos.X < 0 || TempPos.X >= p) {GoodPattern = false; break;}
-                if (TempPos.Y < 0 || TempPos.Y >= p) {GoodPattern = false; break;}
-                if (TempPos.Z < 0 || TempPos.Z >= p) {GoodPattern = false; break;}
+                if (TempPos.Y < 0 || TempPos.Y >= q) {GoodPattern = false; break;}
+                if (TempPos.Z < 0 || TempPos.Z >= r) {GoodPattern = false; break;}
                 if (Visited[GetIndex(TempPos.X, TempPos.Y, TempPos.Z)]) {GoodPattern = false; break;}
             }    
             // 가능한 패턴이면 글로 가기
@@ -138,6 +140,7 @@ void UChunkGenerator::GenerateCreepWayChunk(int ChunkCount)
                 // ChunkCount를 만족하면 경로 생성 종료함!
                 ChunkCount--;
                 if (ChunkCount == 0) return;
+                break;
             }
         }
         // 만약 어떤 패턴도 불가능했다면 마지막으로 넣었던 ChunkIndex만 Visited로 놓고 나머지는 방문 안 했다고 침
@@ -147,9 +150,10 @@ void UChunkGenerator::GenerateCreepWayChunk(int ChunkCount)
         {
             ChunkIndexContainer.Pop();
             ChunkIndexContainer.Pop();
-            Visited[GetIndex(StartIndex.X, StartIndex.Y, StartIndex.Z)] = false;
+            Visited[GetIndex(ChunkIndexContainer.Last().X, ChunkIndexContainer.Last().Y, ChunkIndexContainer.Last().Z)] = false;
             ChunkIndexContainer.Pop();
-            Visited[GetIndex(StartIndex.X, StartIndex.Y, StartIndex.Z)] = false;
+            Visited[GetIndex(ChunkIndexContainer.Last().X, ChunkIndexContainer.Last().Y, ChunkIndexContainer.Last().Z)] = false;
+            DirectionContainer.Pop();
         }
     }
 }

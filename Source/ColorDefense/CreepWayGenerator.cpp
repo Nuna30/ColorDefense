@@ -96,21 +96,21 @@ void UCreepWayGenerator::GoStraightAndTurnLeftOrRightAndGoStraight()
 {
 	// 일단 앞으로 직진
 	LoadVoxelIndexRectangleIntoRailBuffers(0, false);
-	this->ChunkGrid->InsertChunk(this->CurrentChunkIndex, EChunkProperty::CreepWay);
-	this->CurrentChunkIndex += this->CurrentDirection;
+	// this->ChunkGrid->InsertChunk(this->CurrentChunkIndex, EChunkProperty::CreepWay);
+	// this->CurrentChunkIndex += this->CurrentDirection;
 	// 코너 구간을 생성하기 전, 최하단 Rail과 최상단 Rail 중 누가 In/Out인지 설정한다.
 	UpdateTopRailIn();
 	// 코너 구간 생성
 	LoadVoxelIndexTriangleIntoRailBuffers(CurrentDirection);
 	SetLastIndexesOfEachRailToCreepCheckPoint();
 	LoadVoxelIndexTriangleIntoRailBuffers(NextDirection);
-	this->ChunkGrid->InsertChunk(this->CurrentChunkIndex, EChunkProperty::CreepWay);
-	this->CurrentChunkIndex += this->NextDirection;
+	// this->ChunkGrid->InsertChunk(this->CurrentChunkIndex, EChunkProperty::CreepWay);
+	// this->CurrentChunkIndex += this->NextDirection;
 	// 다시 직진
 	this->CurrentDirection = this->NextDirection;
 	LoadVoxelIndexRectangleIntoRailBuffers(0, false);
-	this->ChunkGrid->InsertChunk(this->CurrentChunkIndex, EChunkProperty::CreepWay);
-	this->CurrentChunkIndex += this->CurrentDirection;
+	// this->ChunkGrid->InsertChunk(this->CurrentChunkIndex, EChunkProperty::CreepWay);
+	// this->CurrentChunkIndex += this->CurrentDirection;
 }	
 
 void UCreepWayGenerator::GoStraightAndUpOrDownAndGoStraight()
@@ -118,22 +118,22 @@ void UCreepWayGenerator::GoStraightAndUpOrDownAndGoStraight()
 	// 앞으로 직진
 	LoadVoxelIndexRectangleIntoRailBuffers(0, false);
 	UpdateLastIndexesOfEachRail();
-	this->ChunkGrid->InsertChunk(this->CurrentChunkIndex, EChunkProperty::CreepWay);
+	// this->ChunkGrid->InsertChunk(this->CurrentChunkIndex, EChunkProperty::CreepWay);
 	// 위아래 정하기
 	TArray<int32> UpOrDown = {-1, 1};
 	this->CurrentDirection.Z = UpOrDown[FMath::RandRange(0, 1)];
 	// 위아래 직진
 	LoadVoxelIndexRectangleIntoRailBuffers(1, true);
 	UpdateLastIndexesOfEachRail();
-	this->CurrentChunkIndex += this->CurrentDirection; // 위아래 방향 포함, 높이 결정된 후에 이동
-	this->ChunkGrid->InsertChunk(this->CurrentChunkIndex, EChunkProperty::CreepWay);
-	this->CurrentChunkIndex += this->CurrentDirection; // 기존 방식대로 이동
+	// this->CurrentChunkIndex += this->CurrentDirection; // 위아래 방향 포함, 높이 결정된 후에 이동
+	// this->ChunkGrid->InsertChunk(this->CurrentChunkIndex, EChunkProperty::CreepWay);
+	// this->CurrentChunkIndex += this->CurrentDirection; // 기존 방식대로 이동
 	// 평면화 해주고 다시 직진
 	this->CurrentDirection.Z = 0;
 	LoadVoxelIndexRectangleIntoRailBuffers(0, false);
 	UpdateLastIndexesOfEachRail();
-	this->ChunkGrid->InsertChunk(this->CurrentChunkIndex, EChunkProperty::CreepWay);
-	this->CurrentChunkIndex += this->CurrentDirection;
+	// this->ChunkGrid->InsertChunk(this->CurrentChunkIndex, EChunkProperty::CreepWay);
+	// this->CurrentChunkIndex += this->CurrentDirection;
 	// 현재 방향과 다음 방향이 같으니 갱신 작업은 안 해줘도 됨
 }
 

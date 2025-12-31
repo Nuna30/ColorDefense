@@ -19,19 +19,20 @@ void AWorldGenerator::BeginPlay()
     UChunkGrid* ChunkGrid = World->GetSubsystem<UChunkGrid>(); ChunkGrid->ChunkGridSize = this->ChunkGridSize; ChunkGrid->InitChunkGrid();
 	UGameInstance* GameInstance = GetGameInstance();
 	UBPActorPool* BPActorPool = GameInstance->GetSubsystem<UBPActorPool>();
+    UChunkGeneratorManager* ChunkGeneratorManager = GameInstance->GetSubsystem<UChunkGeneratorManager>();
 	UCreepWayGeneratorManager* CreepWayGeneratorManager = GameInstance->GetSubsystem<UCreepWayGeneratorManager>();
     UCreepCheckPointGeneratorManager* CreepCheckPointGeneratorManager = GameInstance->GetSubsystem<UCreepCheckPointGeneratorManager>();
     UCreepGeneratorGeneratorManager* CreepGeneratorGeneratorManager = GameInstance->GetSubsystem<UCreepGeneratorGeneratorManager>();
 
     // ------------------------------------ 로직 클래스 초기화 -----------------------------------//
-    // CreepWayGenerator에 CreepCheckPointGenerator 연결
     CreepCheckPointGeneratorManager->CreateCreepCheckPointGenerators(World, BPActorPool, VoxelGrid, UPMaxRailCount);
     TArray<UCreepCheckPointGenerator*>& CreepCheckPointGenerators = CreepCheckPointGeneratorManager->CreepCheckPointGenerators;
     CreepWayGeneratorManager->CreateCreepWayGenerator(World, BPActorPool, VoxelGrid, ChunkGrid, CreepCheckPointGenerators, UPMaxRailCount, UPRailLength);
-    // CreepGeneratorGenerator 초기화
     CreepGeneratorGeneratorManager->CreateCreepGeneratorGenerator(World, BPActorPool, VoxelGrid);
-
+    ChunkGeneratorManager->CreateChunkGenerator(ChunkGrid);
+    
 	// -------------------------------------- 테스트 -------------------------------------------//
+    ChunkGeneratorManager->ChunkGenerator->GenerateCreepWayChunk(this->ChunkCount);
     UCreepWayGenerator* CreepWayGenerator = CreepWayGeneratorManager->CreepWayGenerator;
 	CreepWayGenerator->GenerateCreepWay(this->GenerationStep);
     UCreepGeneratorGenerator* CreepGeneratorGenerator = CreepGeneratorGeneratorManager->CreepGeneratorGenerator;

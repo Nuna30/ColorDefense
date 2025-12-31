@@ -5,6 +5,7 @@
 #include "CreepWayGeneratorManager.h" // 월드에 CreepWay을 생성하기 위해
 #include "CreepCheckPointGeneratorManager.h" // 코너마다 CreepCheckPoint를 생성하기 위해
 #include "CreepGeneratorGeneratorManager.h" // 크립을 생성하기 위해
+#include "ChunkGeneratorManager.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "WorldGenerator.generated.h"
@@ -25,6 +26,8 @@ public:
 	FIntVector VoxelGridSize = FIntVector(400, 400, 200);
 	UPROPERTY(EditAnywhere, Category = "Setting")
 	FIntVector ChunkGridSize = FIntVector(80, 80, 40);
+	UPROPERTY(EditAnywhere, Category = "Setting")
+	int32 ChunkCount = 30;
 
 public:	
 	// Sets default values for this actor's properties
