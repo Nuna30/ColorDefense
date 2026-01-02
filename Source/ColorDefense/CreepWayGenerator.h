@@ -58,7 +58,7 @@ public:
 	void SpawnActorWithFlushingMainBuffer();
 	void FlushRailBuffersToMainBuffer();
 public:
-	void LoadVoxelIndexTriangleIntoRailBuffers(const FIntVector& Direction);
+	void LoadVoxelIndexTriangleIntoRailBuffers(const FIntVector& Direction, int32 Offset);
 	void LoadVoxelIndexRectangleIntoRailBuffers(int32 BPActorPoolIndex, bool bRotate);
 public:
 	void InitializeCreepWay();

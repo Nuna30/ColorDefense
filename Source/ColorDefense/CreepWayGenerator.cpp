@@ -107,9 +107,9 @@ void UCreepWayGenerator::GoStraightAndTurnLeftOrRightAndGoStraight()
 	// 코너 구간을 생성하기 전, 최하단 Rail과 최상단 Rail 중 누가 In/Out인지 설정한다.
 	UpdateTopRailIn();
 	// 코너 구간 생성
-	LoadVoxelIndexTriangleIntoRailBuffers(CurrentDirection);
+	LoadVoxelIndexTriangleIntoRailBuffers(CurrentDirection, 1);
 	SetLastIndexesOfEachRailToCreepCheckPoint();
-	LoadVoxelIndexTriangleIntoRailBuffers(NextDirection);
+	LoadVoxelIndexTriangleIntoRailBuffers(NextDirection, 0);
 	// 다시 직진
 	this->CurrentDirection = this->NextDirection;
 	LoadVoxelIndexRectangleIntoRailBuffers(0, false);
@@ -126,6 +126,12 @@ void UCreepWayGenerator::GoStraightAndUpOrDownAndGoStraight()
 	// 위아래 직진
 	LoadVoxelIndexRectangleIntoRailBuffers(1, true);
 	UpdateLastIndexesOfEachRail();
+	// 위로 향하는 경사면이었으면 다음 평면 블록 설치 시 한칸 더 올려서 설치해야하기 때문에 로직에 LastIndexes들을 한칸 올린다.
+	if (this->CurrentDirection.Z == 1)
+	{
+		for (int i = 0; i < this->LastIndexesOfEachRail.Num(); i++)
+			this->LastIndexesOfEachRail[i] += FIntVector(0, 0, 1);
+	}
 	// 평면화 해주고 다시 직진
 	this->CurrentDirection.Z = 0;
 	LoadVoxelIndexRectangleIntoRailBuffers(0, false);
@@ -143,25 +149,22 @@ void UCreepWayGenerator::SetLastIndexesOfEachRailToCreepCheckPoint()
 	}
 }
 
-void UCreepWayGenerator::LoadVoxelIndexTriangleIntoRailBuffers(const FIntVector& Direction)
+void UCreepWayGenerator::LoadVoxelIndexTriangleIntoRailBuffers(const FIntVector& Direction, int32 Offset)
 {
-	// bTopRailIn 변수를 고려해서 CurrentDirection 방향으로 삼각형 영역의 VoxelIndex를 버퍼에 로딩
+	// bTopRailIn 변수를 고려해서 CurrentDirection 방향으로 직각삼각형 영역의 VoxelIndex를 버퍼에 로딩
 	for (int32 i = 0; i < MaxRailCount; i++)
 	{
 		FIntVector VoxelIndexForRailFromBottom = this->LastIndexesOfEachRail[i];
 		TArray<FIntVector>& RailBufferFromBottom = this->RailBuffers[i];
 		FIntVector VoxelIndexForRailFromTop = this->LastIndexesOfEachRail[MaxRailCount - i - 1];
 		TArray<FIntVector>& RailBufferFromTop = this->RailBuffers[MaxRailCount - i - 1];
-		for (int32 j = 0; j < i; j++)
+		for (int32 j = 0; j < i + Offset; j++)
 		{
 			// TopRail이 In 상태이면 TopRailBuffer부터 처리해줘야한다.
 			if (bTopRailIn)
 			{
 				// 다음 칸으로 이동 (이 코드가 맨 앞으로 와야 LastIndex 앞에 설치함)
 				VoxelIndexForRailFromTop = VoxelIndexForRailFromTop + Direction;
-				// 인덱스가 청크 안에 존재하면 RailBuffer에 넣고 VoxelGrid에 VoxelData를 생성한다.
-				if (!this->VoxelGrid->IsInsideVoxelGrid(VoxelIndexForRailFromTop))
-					this->VoxelGrid->ExpandVoxelGrid(VoxelIndexForRailFromTop);
 				RailBufferFromTop.Add(VoxelIndexForRailFromTop);
 				this->LastIndexesOfEachRail[MaxRailCount - i - 1] = VoxelIndexForRailFromTop;
 				this->SetVoxelDataInVoxelGrid(VoxelIndexForRailFromTop, 0, EVoxelProperty::NormalCreepWay);
@@ -170,9 +173,6 @@ void UCreepWayGenerator::LoadVoxelIndexTriangleIntoRailBuffers(const FIntVector&
 			{
 				// 다음 칸으로 이동 (이 코드가 맨 앞으로 와야 LastIndex 앞에 설치함)
 				VoxelIndexForRailFromBottom = VoxelIndexForRailFromBottom + Direction;
-				// 인덱스가 청크 안에 존재하면 RailBuffer에 넣고 VoxelGrid에 VoxelData를 생성한다.
-				if (!this->VoxelGrid->IsInsideVoxelGrid(VoxelIndexForRailFromBottom))
-					this->VoxelGrid->ExpandVoxelGrid(VoxelIndexForRailFromBottom);
 				this->LastIndexesOfEachRail[i] = VoxelIndexForRailFromBottom;
 				RailBufferFromBottom.Add(VoxelIndexForRailFromBottom);
 				this->SetVoxelDataInVoxelGrid(VoxelIndexForRailFromBottom, 0, EVoxelProperty::NormalCreepWay);
@@ -204,17 +204,17 @@ void UCreepWayGenerator::LoadVoxelIndexRectangleIntoRailBuffers(int32 BPActorPoo
 	}
 	// 오르막길이면 마지막에 한 칸 높여서 평면 블록을 설치해줘야 한다.
 	// 이 부분이 가끔 4~5개 생성되는 원인인가?
-	if (this->CurrentDirection.Z == 1)
-	{
-		for (int32 i = 0; i < this->MaxRailCount; i++)
-		{
-			FIntVector VoxelIndexForRail = this->LastIndexesOfEachRail[i] + this->CurrentDirection;
-			this->RailBuffers[i].Add(VoxelIndexForRail);
-			this->LastIndexesOfEachRail[i] = VoxelIndexForRail;
-			// Slope를 쓰다가 이 부분만 평면을 사용한다. 그래서 그냥 하드코딩 했다. 위험 부분.
-			SetVoxelDataInVoxelGrid(VoxelIndexForRail, 0, EVoxelProperty::NormalCreepWay);
-		}
-	}
+	// if (this->CurrentDirection.Z == 1)
+	// {
+	// 	for (int32 i = 0; i < this->MaxRailCount; i++)
+	// 	{
+	// 		FIntVector VoxelIndexForRail = this->LastIndexesOfEachRail[i] + this->CurrentDirection;
+	// 		this->RailBuffers[i].Add(VoxelIndexForRail);
+	// 		this->LastIndexesOfEachRail[i] = VoxelIndexForRail;
+	// 		// Slope를 쓰다가 이 부분만 평면을 사용한다. 그래서 그냥 하드코딩 했다. 위험 부분.
+	// 		SetVoxelDataInVoxelGrid(VoxelIndexForRail, 0, EVoxelProperty::NormalCreepWay);
+	// 	}
+	// }
 }
 
 void UCreepWayGenerator::UpdateLastIndexesOfEachRail()
