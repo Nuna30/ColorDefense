@@ -120,6 +120,15 @@ void UChunkGenerator::GenerateCreepWayChunk(int ChunkCount)
                 if (TempPos.Y < 0 || TempPos.Y >= q) {GoodPattern = false; break;}
                 if (TempPos.Z < 0 || TempPos.Z >= r) {GoodPattern = false; break;}
                 if (Visited[GetIndex(TempPos.X, TempPos.Y, TempPos.Z)]) {GoodPattern = false; break;}
+                // 한 칸 더 가서 상중하 보기. 오버랩 방지 로직
+                for (int i = -1; i >= 1; i++)
+                {
+                    FIntVector FurtherTempPos = TempPos + Step + FIntVector(0, 0, i);
+                    if (FurtherTempPos.X < 0 || FurtherTempPos.X >= p) {GoodPattern = false; break;}
+                    if (FurtherTempPos.Y < 0 || FurtherTempPos.Y >= q) {GoodPattern = false; break;}
+                    if (FurtherTempPos.Z < 0 || FurtherTempPos.Z >= r) {GoodPattern = false; break;}
+                    if (Visited[GetIndex(FurtherTempPos.X, FurtherTempPos.Y, FurtherTempPos.Z)]) {GoodPattern = false; break;}
+                }
             }    
             // 가능한 패턴이면 글로 가기
             if (GoodPattern)
