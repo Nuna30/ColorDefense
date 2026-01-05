@@ -124,7 +124,9 @@ void UCreepWayGenerator::GoStraightAndUpOrDownAndGoStraight()
 	TArray<int32> UpOrDown = {-1, 1};
 	this->CurrentDirection.Z = UpOrDown[FMath::RandRange(0, 1)];
 	// 위아래 직진
+	SetLastIndexesOfEachRailToCreepCheckPoint();
 	LoadVoxelIndexRectangleIntoRailBuffers(1, true);
+	SetLastIndexesOfEachRailToCreepCheckPoint();
 	UpdateLastIndexesOfEachRail();
 	// 위로 향하는 경사면이었으면 다음 평면 블록 설치 시 한칸 더 올려서 설치해야하기 때문에 로직에 LastIndexes들을 한칸 올린다.
 	if (this->CurrentDirection.Z == 1)
