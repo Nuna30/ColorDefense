@@ -4,8 +4,12 @@
   <p><img src="images/ClassDiagram.png"></p>
 </details>
 
-# [ Demo ]
+# [ Demo gifs ]
 <details>
-  <summary> Demo gif </summary>
+  <summary> Shooting creeps </summary>
   <p><img src="images/ColorDefense_Ver_0.01.gif"></p>
+</details>
+<details>
+  <summary> Creeps following the path </summary>
+  <p><img src="images/CreepsFollowingWay.gif"></p>
 </details>
