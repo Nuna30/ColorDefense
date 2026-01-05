@@ -41,4 +41,14 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnShoot(); // 간단한 사격 애니메이션, 블루프린트에서 구현 됨 코드 없음
 
+	// 컬러건 색깔 변경 바인딩
+    void SetColorRed();
+    void SetColorOrange();
+    void SetColorYellow();
+    void SetColorGreen();
+    void SetColorBlue();
+    void SetColorIndigo();
+    void SetColorPurple();
+    void RequestChangeColor(EColor NewColor);
+
 };

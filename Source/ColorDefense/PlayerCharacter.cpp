@@ -35,6 +35,15 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAxis(TEXT("LookRight"), this, &APlayerCharacter::LookRight);
 	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Pressed, this, &APlayerCharacter::Jump);
 	PlayerInputComponent->BindAction(TEXT("Shoot"), EInputEvent::IE_Pressed, this, &APlayerCharacter::Shoot);
+
+	// 컬러건 색깔 변경 바인딩
+	PlayerInputComponent->BindAction(TEXT("SwapColorGunRed"), IE_Pressed, this, &APlayerCharacter::SetColorRed);
+    PlayerInputComponent->BindAction(TEXT("SwapColorGunOrange"), IE_Pressed, this, &APlayerCharacter::SetColorOrange);
+    PlayerInputComponent->BindAction(TEXT("SwapColorGunYellow"), IE_Pressed, this, &APlayerCharacter::SetColorYellow);
+    PlayerInputComponent->BindAction(TEXT("SwapColorGunGreen"), IE_Pressed, this, &APlayerCharacter::SetColorGreen);
+    PlayerInputComponent->BindAction(TEXT("SwapColorGunBlue"), IE_Pressed, this, &APlayerCharacter::SetColorBlue);
+    PlayerInputComponent->BindAction(TEXT("SwapColorGunIndigo"), IE_Pressed, this, &APlayerCharacter::SetColorIndigo);
+    PlayerInputComponent->BindAction(TEXT("SwapColorGunPurple"), IE_Pressed, this, &APlayerCharacter::SetColorPurple);
 }
 
 void APlayerCharacter::MoveForward(float AxisValue)
@@ -69,3 +78,19 @@ void APlayerCharacter::Shoot()
 	ColorGun->Shoot();
 	OnShoot();
 }
+
+void APlayerCharacter::RequestChangeColor(EColor NewColor)
+{
+    if (ColorGun)
+    {
+        ColorGun->ChangeGunColor(NewColor);
+    }
+}
+
+void APlayerCharacter::SetColorRed()    { RequestChangeColor(EColor::Red); }
+void APlayerCharacter::SetColorOrange() { RequestChangeColor(EColor::Orange); }
+void APlayerCharacter::SetColorYellow() { RequestChangeColor(EColor::Yellow); }
+void APlayerCharacter::SetColorGreen()  { RequestChangeColor(EColor::Green); }
+void APlayerCharacter::SetColorBlue()   { RequestChangeColor(EColor::Blue); }
+void APlayerCharacter::SetColorIndigo() { RequestChangeColor(EColor::Indigo); }
+void APlayerCharacter::SetColorPurple() { RequestChangeColor(EColor::Purple); }

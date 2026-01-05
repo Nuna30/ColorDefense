@@ -20,6 +20,13 @@ public:
 	// ColorGun 최대 사거리
 	UPROPERTY(EditAnywhere, Category = "Setting")
 	float MaxRange = FLT_MAX;
+
+	// 총의 메쉬 컴포넌트
+	UStaticMeshComponent* GunMeshComponent;
+
+	// 현재 선택된 총의 색상 (나중에 발사 로직에서 쓸 수 있도록 저장)
+	UPROPERTY(BlueprintReadOnly, Category = "Status")
+	EColor CurrentColor = EColor::Red;
 	
 public:	
 	UColorGun();
@@ -29,4 +36,8 @@ public:
 	
 	// 색깔 총 발사
 	void Shoot();
+
+	// 총의 색상을 변경하는 함수 (키보드 입력 1~7로 호출)
+	UFUNCTION(BlueprintCallable, Category = "Action")
+	void ChangeGunColor(EColor NewColor);
 };
