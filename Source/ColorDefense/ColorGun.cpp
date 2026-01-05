@@ -48,26 +48,34 @@ void UColorGun::Shoot()
 	APawn* OwnerPawn = Cast<APawn>(GetOwner());
 	if (OwnerPawn == nullptr) return;
 
-	AController* OwnerController = OwnerPawn->GetController();
-	if (OwnerController == nullptr) return;
-
+	// 플레이어의 사격 범위를 계산해야함
 	FVector Location;
 	FRotator Rotation;
+	AController* OwnerController = OwnerPawn->GetController();
+	if (OwnerController == nullptr) return;
 	OwnerController->GetPlayerViewPoint(Location, Rotation);
-
 	FVector End = Location + Rotation.Vector() * MaxRange;
 
 	FHitResult Hit;
 	// ECC_GameTraceChannel1 등 프로젝트 설정에 맞는 채널 사용
 	bool bSuccess = GetWorld()->LineTraceSingleByChannel(Hit, Location, End, ECollisionChannel::ECC_GameTraceChannel1);
 
-	if (bSuccess)
+if (bSuccess)
 	{
-		// 팁: 여기서 CurrentColor와 맞은 크립의 색깔을 비교하는 로직을 나중에 추가할 수 있습니다.
 		ACreep* HitCreep = Cast<ACreep>(Hit.GetActor());
+		// 크립이 맞았는지 확인
 		if (HitCreep)
 		{
-			HitCreep->HandleDestruction();
+			// 색상이 일치할 때만 파괴 로직 실행
+			if (HitCreep->CreepColor == CurrentColor)
+			{
+				HitCreep->HandleDestruction();
+			}
+            else
+            {
+                // (선택 사항) 색깔이 다를 때 팅겨내는 소리나 이펙트를 여기에 추가할 수 있습니다.
+                // UE_LOG(LogTemp, Warning, TEXT("Wrong Color! Gun: %d, Creep: %d"), (int)CurrentColor, (int)HitCreep->CreepColor);
+            }
 		}
 	}
 }

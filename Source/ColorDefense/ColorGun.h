@@ -24,7 +24,8 @@ public:
 	// 총의 메쉬 컴포넌트
 	UStaticMeshComponent* GunMeshComponent;
 
-	// 현재 선택된 총의 색상 (나중에 발사 로직에서 쓸 수 있도록 저장)
+	// 현재 선택된 총의 색상
+	// 이 색상을 보고 크립을 터트릴지말지 결정됨
 	UPROPERTY(BlueprintReadOnly, Category = "Status")
 	EColor CurrentColor = EColor::Red;
 	
