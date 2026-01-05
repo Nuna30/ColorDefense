@@ -21,6 +21,10 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Setting")
 	float MaxRange = FLT_MAX;
 
+	// vfx
+    UPROPERTY(EditDefaultsOnly, Category = "Setting")
+    TObjectPtr<UNiagaraSystem> SwapVFX;
+
 	// 총의 메쉬 컴포넌트
 	UStaticMeshComponent* GunMeshComponent;
 

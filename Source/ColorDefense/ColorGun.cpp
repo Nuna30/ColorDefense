@@ -60,7 +60,7 @@ void UColorGun::Shoot()
 	// ECC_GameTraceChannel1 등 프로젝트 설정에 맞는 채널 사용
 	bool bSuccess = GetWorld()->LineTraceSingleByChannel(Hit, Location, End, ECollisionChannel::ECC_GameTraceChannel1);
 
-if (bSuccess)
+	if (bSuccess)
 	{
 		ACreep* HitCreep = Cast<ACreep>(Hit.GetActor());
 		// 크립이 맞았는지 확인
@@ -110,5 +110,29 @@ void UColorGun::ChangeGunColor(EColor NewColor)
 			// Creep과 동일하게 "BaseColor" 파라미터를 사용.
 			DynMaterial->SetVectorParameterValue(FName("BaseColor"), TargetColor);
 		}
+
+		// 3. 컬러건의 색깔을 바꿈과 동시에 VFX 스폰 (GunMeshComponent가 있어야하므로 nested)
+		if (SwapVFX)
+		{
+			// 1. 나이아가라 시스템 스폰 및 컴포넌트 반환 받기
+			UNiagaraComponent* SpawnedEffect = UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+				GetWorld(),
+				SwapVFX, // NS_PaintSplash 에셋
+				GunMeshComponent->GetComponentLocation(),
+				GunMeshComponent->GetComponentRotation(),
+				FVector(1.0f),              // 스케일
+				true                        // Auto Destroy (재생 완료 후 자동 파괴)                
+			);
+
+			// 2. 컴포넌트가 유효하면 색상 변경 로직 수행
+			if (SpawnedEffect)
+			{
+				// 3. 나이아가라의 "User.Color" 변수에 색상 주입
+				// (나이아가라 에디터에서 만든 변수 이름과 정확히 같아야 함)
+				SpawnedEffect->SetVariableLinearColor(FName("User.ColorGunSwapColor"), TargetColor);
+			}
+		}
 	}
+
+
 }
