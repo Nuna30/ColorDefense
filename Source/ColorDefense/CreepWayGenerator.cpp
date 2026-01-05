@@ -202,19 +202,6 @@ void UCreepWayGenerator::LoadVoxelIndexRectangleIntoRailBuffers(int32 BPActorPoo
 			if (bRotate) RotateSlopeCreepWayBlock(VoxelIndexForRail);
 		}
 	}
-	// 오르막길이면 마지막에 한 칸 높여서 평면 블록을 설치해줘야 한다.
-	// 이 부분이 가끔 4~5개 생성되는 원인인가?
-	// if (this->CurrentDirection.Z == 1)
-	// {
-	// 	for (int32 i = 0; i < this->MaxRailCount; i++)
-	// 	{
-	// 		FIntVector VoxelIndexForRail = this->LastIndexesOfEachRail[i] + this->CurrentDirection;
-	// 		this->RailBuffers[i].Add(VoxelIndexForRail);
-	// 		this->LastIndexesOfEachRail[i] = VoxelIndexForRail;
-	// 		// Slope를 쓰다가 이 부분만 평면을 사용한다. 그래서 그냥 하드코딩 했다. 위험 부분.
-	// 		SetVoxelDataInVoxelGrid(VoxelIndexForRail, 0, EVoxelProperty::NormalCreepWay);
-	// 	}
-	// }
 }
 
 void UCreepWayGenerator::UpdateLastIndexesOfEachRail()

@@ -13,6 +13,8 @@ class COLORDEFENSE_API UCreepCheckPointGeneratorManager : public UGameInstanceSu
 	GENERATED_BODY()
 public:
 	int32 MaxRailCount;
+	
+	UPROPERTY()
 	TArray<UCreepCheckPointGenerator*> CreepCheckPointGenerators; // 각 레일마다 체크포인트생성기 존재
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;

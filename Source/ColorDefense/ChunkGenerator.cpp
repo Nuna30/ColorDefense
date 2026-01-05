@@ -94,7 +94,9 @@ void UChunkGenerator::GenerateCreepWayChunk(int ChunkCount)
     this->ChunkGrid->InsertChunk(StartIndex, EChunkProperty::CreepWay);
     ChunkIndexContainer.Push(StartIndex);
 
-    while (true)
+    int InfCount = 0;
+    int MaxCount = 10000000;
+    while (InfCount++ < MaxCount)
     {
         // 패턴 셔플
         FIntVector LastDirection = this->DirectionContainer.Last();
@@ -112,21 +114,19 @@ void UChunkGenerator::GenerateCreepWayChunk(int ChunkCount)
         {
             bool GoodPattern = true;
             // 막힘 없이 갈 수 있나 가보기
-            FIntVector TempPos = ChunkIndexContainer.Last();
+            FIntVector CheckPos = ChunkIndexContainer.Last();
             for (const FIntVector& Step : Pattern)
             {
-                TempPos += Step;
-                if (TempPos.X < 0 || TempPos.X >= p) {GoodPattern = false; break;}
-                if (TempPos.Y < 0 || TempPos.Y >= q) {GoodPattern = false; break;}
-                if (TempPos.Z < 0 || TempPos.Z >= r) {GoodPattern = false; break;}
-                if (Visited[GetIndex(TempPos.X, TempPos.Y, TempPos.Z)]) {GoodPattern = false; break;}
-                // 한 칸 더 가서 상중하 보기. 오버랩 방지 로직
-                for (int i = -1; i >= 1; i++)
+                CheckPos = CheckPos + Step;
+                for (int i = -2; i <= 2; i++)
                 {
-                    FIntVector FurtherTempPos = TempPos + Step + FIntVector(0, 0, i);
-                    if (FurtherTempPos.X < 0 || FurtherTempPos.X >= p) {GoodPattern = false; break;}
-                    if (FurtherTempPos.Y < 0 || FurtherTempPos.Y >= q) {GoodPattern = false; break;}
-                    if (FurtherTempPos.Z < 0 || FurtherTempPos.Z >= r) {GoodPattern = false; break;}
+                    // 패턴대로 한 칸 (상중하 검사)
+                    FIntVector TempPos = CheckPos + FIntVector(0, 0, i);
+                    if (!this->ChunkGrid->IsInsideChunkGrid(TempPos)) {GoodPattern = false; break;}
+                    if (Visited[GetIndex(TempPos.X, TempPos.Y, TempPos.Z)]) {GoodPattern = false; break;}
+                    // 패턴대로 한 칸 "더" (상중하 검사)
+                    FIntVector FurtherTempPos = TempPos + Step;
+                    if (!this->ChunkGrid->IsInsideChunkGrid(FurtherTempPos)) {GoodPattern = false; break;}
                     if (Visited[GetIndex(FurtherTempPos.X, FurtherTempPos.Y, FurtherTempPos.Z)]) {GoodPattern = false; break;}
                 }
             }    
@@ -134,13 +134,17 @@ void UChunkGenerator::GenerateCreepWayChunk(int ChunkCount)
             if (GoodPattern)
             {
                 // 패턴 다시 가보면서 Visited, ChunkGrid, ChunkIndexContainer 업데이트
-                FIntVector Current = ChunkIndexContainer.Last();
+                FIntVector LastPos = ChunkIndexContainer.Last();
                 for (const FIntVector& Step : Pattern)
                 {
-                    Current += Step;
-                    Visited[GetIndex(Current.X, Current.Y, Current.Z)] = true;
-                    this->ChunkGrid->InsertChunk(Current, EChunkProperty::CreepWay);
-                    ChunkIndexContainer.Push(Current);
+                    LastPos += Step;
+                    // 그 주변도 Visisted 처리해줘야함. 안 그러면 주변을 검사안 한 거랑 마찬가지임
+                    for (int i = -2; i <= 2; i++)
+                    {
+                        FIntVector TempPos = LastPos + FIntVector(0, 0, i);
+                        Visited[GetIndex(TempPos.X, TempPos.Y, TempPos.Z)] = true;
+                    }
+                    ChunkIndexContainer.Push(LastPos);
                 }
                 // DirectionContainer에 패턴의 방향 담기
                 this->DirectionContainer.Add(GetDirectionUsingPattern(Pattern));
@@ -148,21 +152,38 @@ void UChunkGenerator::GenerateCreepWayChunk(int ChunkCount)
                 GoodPath = true;
                 // ChunkCount를 만족하면 경로 생성 종료함!
                 ChunkCount--;
-                if (ChunkCount == 0) return;
+                if (ChunkCount == 0) 
+                {
+                    for (const FIntVector& ChunkIndex : ChunkIndexContainer)
+                    {
+                        this->ChunkGrid->InsertChunk(ChunkIndex, EChunkProperty::CreepWay);
+                    }   
+                    return;
+                }
                 break;
             }
         }
+        // 백트래킹
         // 만약 어떤 패턴도 불가능했다면 마지막으로 넣었던 ChunkIndex만 Visited로 놓고 나머지는 방문 안 했다고 침
         // 그리고 ChunkIndexContainer에서 3개를 뺌 (항상 3칸 가므로)
         // 이렇게 하면 깔끔하게 DFS를 구현할 수 있음
         if (!GoodPath)
         {
-            ChunkIndexContainer.Pop();
-            ChunkIndexContainer.Pop();
-            Visited[GetIndex(ChunkIndexContainer.Last().X, ChunkIndexContainer.Last().Y, ChunkIndexContainer.Last().Z)] = false;
-            ChunkIndexContainer.Pop();
-            Visited[GetIndex(ChunkIndexContainer.Last().X, ChunkIndexContainer.Last().Y, ChunkIndexContainer.Last().Z)] = false;
+            if (ChunkIndexContainer.Num() <= 2) break;
+            for (int i = 0; i < 3; i++)
+            {
+                FIntVector LastPos = ChunkIndexContainer.Last();
+                for (int j = -2; j <= 2; j++)
+                {
+                    FIntVector TempPos = LastPos + FIntVector(0, 0, j);
+                    Visited[GetIndex(TempPos.X, TempPos.Y, TempPos.Z)] = false;
+                }
+                ChunkIndexContainer.Pop();
+            }
             this->DirectionContainer.Pop();
+            ChunkCount++;
         }
     }
+
+    if (InfCount >= MaxCount) UE_LOG(LogTemp, Warning, TEXT("InfLoop"));
 }
