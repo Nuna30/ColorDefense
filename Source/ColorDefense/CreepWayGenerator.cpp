@@ -120,10 +120,8 @@ void UCreepWayGenerator::GoStraightAndUpOrDownAndGoStraight()
 	// 앞으로 직진
 	LoadVoxelIndexRectangleIntoRailBuffers(0, false);
 	UpdateLastIndexesOfEachRail();
-	// 위아래 정하기
-	TArray<int32> UpOrDown = {-1, 1};
-	this->CurrentDirection.Z = UpOrDown[FMath::RandRange(0, 1)];
-	// 위아래 직진 + 경사면 진입 전과 후에 CreepCheckPoint 심기
+	// 위아래 이동 + 경사면 진입 전과 후에 CreepCheckPoint 심기
+	this->CurrentDirection.Z = this->NextDirection.Z;
 	SetLastIndexesOfEachRailToCreepCheckPoint();
 	LoadVoxelIndexRectangleIntoRailBuffers(1, true);
 	SetLastIndexesOfEachRailToCreepCheckPoint();

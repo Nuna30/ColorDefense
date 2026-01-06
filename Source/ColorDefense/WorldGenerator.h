@@ -28,6 +28,8 @@ public:
 	FIntVector ChunkGridSize = FIntVector(80, 80, 40);
 	UPROPERTY(EditAnywhere, Category = "Setting")
 	int32 ChunkCount = 30;
+	UPROPERTY(EditAnywhere, Category = "Setting")
+	int32 NeighborRadius = 2;
 
 public:	
 	// Sets default values for this actor's properties

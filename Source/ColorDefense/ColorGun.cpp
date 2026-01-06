@@ -121,7 +121,7 @@ void UColorGun::ChangeGunColor(EColor NewColor)
 				GunMeshComponent->GetComponentLocation(),
 				GunMeshComponent->GetComponentRotation(),
 				FVector(1.0f),              // 스케일
-				true                        // Auto Destroy (재생 완료 후 자동 파괴)                
+				true                        // Auto Destroy (재생 완료 후 자동 파괴)
 			);
 
 			// 2. 컴포넌트가 유효하면 색상 변경 로직 수행
