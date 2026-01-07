@@ -44,9 +44,9 @@ TArray<TArray<FIntVector>> UChunkGenerator::GetPatternsUsingDirection(FIntVector
     TArray<TArray<FIntVector>> ResultPatterns;
 
     ResultPatterns.Add({Direction, Direction + Up, Direction });
-    // ResultPatterns.Add({Direction, Direction - Up, Direction });
+    ResultPatterns.Add({Direction, Direction - Up, Direction });
     ResultPatterns.Add({Direction, Direction, Right });
-    // ResultPatterns.Add({Direction, Direction, Right * -1 });
+    ResultPatterns.Add({Direction, Direction, Right * -1 });
 
     return ResultPatterns;
 }
@@ -59,116 +59,121 @@ FIntVector UChunkGenerator::GetDirectionUsingPattern(TArray<FIntVector> Pattern)
 
 void UChunkGenerator::GenerateCreepWayChunk(int32 ChunkCount, int32 NeighborRadius)
 {
-    // 청크 그리드의 크기 가져오기
     int p = this->ChunkGrid->ChunkGrid.Num();
     int q = this->ChunkGrid->ChunkGrid[0].Num();
     int r = this->ChunkGrid->ChunkGrid[0][0].Num();
 
-    // TArray는 3차원 생성 시 2차원까지는 포인터기 때문에 연속된 데이터가 아님 => 특정 원소 접근 시 캐시 미스 발생률이 높음
-    // 1차원으로 생성해서 데이터가 연속되도록 구현
     TArray<int32> Visited;
     Visited.Init(0, p * q * r);
 
-    // 경로 생성 시작 방향은 항상 (1, 0, 0)
-    // 경로 찾기 전 방향 컨테이너 셋업
-    FIntVector StartDirection = FIntVector(1, 0, 0);
-    this->DirectionContainer.Add(StartDirection);
+    // Track the path and the directions
+    TArray<FIntVector> ChunkIndexContainer;
+    this->DirectionContainer.Empty();
 
-    // 경로 시작은 항상 중앙에서부터
+    // Start setup
+    FIntVector StartDirection = FIntVector(1, 0, 0);
     FIntVector StartIndex = FIntVector(p / 2, q / 2, r / 2);
 
-    // 생성될 Chunk들의 Index를 모아두는 곳
-    TArray<FIntVector> ChunkIndexContainer;
-
-    // 일단 두 개 박고 시작
+    // Initial Chunks
     Visited[GetVisitedIndex(StartIndex)] = 1;
-    this->ChunkGrid->InsertChunk(StartIndex, EChunkProperty::CreepWay);
     ChunkIndexContainer.Push(StartIndex);
-
+    
     StartIndex += StartDirection;
-
     Visited[GetVisitedIndex(StartIndex)] = 2;
-    this->ChunkGrid->InsertChunk(StartIndex, EChunkProperty::CreepWay);
     ChunkIndexContainer.Push(StartIndex);
+    this->DirectionContainer.Add(StartDirection);
 
-    // DFS 시작. MaxCount만큼만 시도 (무한루프 방지)
+    // --- NEW LOGIC: Pattern Stack ---
+    // This stores a list of available patterns for EACH step.
+    TArray<TArray<TArray<FIntVector>>> PatternStack;
+
     int InfCount = 0;
     int MaxCount = 5000000;
-    while (InfCount++ < MaxCount)
+
+    while (ChunkCount > 0 && InfCount++ < MaxCount)
     {
-        // 이전에 사용한 방향으로 패턴 생성 후 랜덤성을 위한 셔플
-        FIntVector LastDirection = this->DirectionContainer.Last(); // 이전에 사용한 방향 들고오기
-        LastDirection.Z = 0; // 패턴을 생성하려면 높이축을 0으로 만들어야 함
-        TArray<TArray<FIntVector>> Patterns = GetPatternsUsingDirection(LastDirection); // 패턴 생성
-        for (int32 i = 0; i < Patterns.Num(); i++) // 셔플
+        // 1. If we don't have patterns for the current step, generate them
+        if (PatternStack.Num() < DirectionContainer.Num())
         {
-            int32 j = FMath::RandRange(0, i);		
-            Patterns.Swap(i, j);
+            FIntVector LastDirection = this->DirectionContainer.Last();
+            LastDirection.Z = 0;
+            TArray<TArray<FIntVector>> NewPatterns = GetPatternsUsingDirection(LastDirection);
+
+            // Fisher-Yates Shuffle
+            for (int32 i = NewPatterns.Num() - 1; i > 0; i--)
+            {
+                int32 j = FMath::RandRange(0, i);
+                NewPatterns.Swap(i, j);
+            }
+            PatternStack.Push(NewPatterns);
         }
 
-        // 가능한 패턴을 찾고 그 패턴에 따라 청크 컨테이너에 청크 삽입
-        bool GoodPath = false; // 가능한 패턴을 찾으면 true가 됨
-        for (const TArray<FIntVector>& Pattern : Patterns)
+        // 2. Try the next available pattern at the current level
+        bool FoundValidPattern = false;
+        TArray<TArray<FIntVector>>& CurrentLevelPatterns = PatternStack.Last();
+
+        while (CurrentLevelPatterns.Num() > 0)
         {
-            // 막힘 없이 갈 수 있나 가보기
+            TArray<FIntVector> Pattern = CurrentLevelPatterns.Pop();
+            
             bool GoodPattern = true;
-            int32 TempCurrentStep = ChunkIndexContainer.Num() + 1; // 패턴 검사할 때만 사용할 스텝 변수가 있어야 함
-            FIntVector CheckPos = ChunkIndexContainer.Last(); // 마지막으로 생성한 청크 꺼내서
-            for (const FIntVector& Step : Pattern) // 그 청크를 시작으로 패턴을 따라 생성 시뮬레이션 돌리기
+            FIntVector CheckPos = ChunkIndexContainer.Last();
+            int32 TempStep = ChunkIndexContainer.Num() + 1;
+
+            for (const FIntVector& Step : Pattern)
             {
-                CheckPos = CheckPos + Step;
-                if (!this->ChunkGrid->IsInsideChunkGrid(CheckPos)) {GoodPattern = false; break;}
-                if (!IsSafeToPlace(Visited,CheckPos, TempCurrentStep, NeighborRadius)) {GoodPattern = false; break;} // 주변에 청크가 존재하는지 검사
-                TempCurrentStep++; // 생성 시뮬레이션 내에서만 반영되는 스텝 업데이트
-            }    
-            // 가능한 패턴이면 글로 가기
+                CheckPos += Step;
+                if (!this->ChunkGrid->IsInsideChunkGrid(CheckPos) || 
+                    !IsSafeToPlace(Visited, CheckPos, TempStep++, NeighborRadius))
+                {
+                    GoodPattern = false;
+                    break;
+                }
+            }
+
             if (GoodPattern)
             {
-                // 패턴 다시 가보면서 Visited, ChunkGrid, ChunkIndexContainer 업데이트
-                FIntVector LastPos = ChunkIndexContainer.Last();
-                int32 RealStep = ChunkIndexContainer.Num() + 1;
+                // Apply Pattern
+                FIntVector CurrentPos = ChunkIndexContainer.Last();
                 for (const FIntVector& Step : Pattern)
                 {
-                    LastPos += Step;
-                    if (!this->ChunkGrid->IsInsideChunkGrid(LastPos + Step)) break;
-                    Visited[GetVisitedIndex(LastPos)] = RealStep;
-                    RealStep++;
-                    ChunkIndexContainer.Push(LastPos);
+                    CurrentPos += Step;
+                    Visited[GetVisitedIndex(CurrentPos)] = ChunkIndexContainer.Num() + 1;
+                    ChunkIndexContainer.Push(CurrentPos);
                 }
-                // DirectionContainer에 패턴의 방향 담기
                 this->DirectionContainer.Add(GetDirectionUsingPattern(Pattern));
-                // 가능한 패턴이 있음을 알림
-                GoodPath = true;
-                // ChunkCount를 만족하면 경로 생성 종료함!
+                
                 ChunkCount--;
-                if (ChunkCount == 0) 
-                {
-                    for (const FIntVector& ChunkIndex : ChunkIndexContainer)
-                    {
-                        this->ChunkGrid->InsertChunk(ChunkIndex, EChunkProperty::CreepWay);
-                    }   
-                    return;
-                }
-                break;
+                FoundValidPattern = true;
+                break; // Move to next depth
             }
         }
-        // 백트래킹
-        // 만약 어떤 패턴도 불가능했다면 마지막으로 넣었던 ChunkIndex만 Visited로 놓고 나머지는 방문 안 했다고 침
-        // 그리고 ChunkIndexContainer에서 3개를 뺌 (항상 3칸 가므로)
-        // 이렇게 하면 깔끔하게 DFS를 구현할 수 있음
-        if (!GoodPath)
+
+        // 3. Backtracking: If no patterns worked at this level
+        if (!FoundValidPattern)
         {
+            if (DirectionContainer.Num() <= 1) break; // Cannot backtrack further
+
+            // Remove the 3 chunks added by the previous pattern
             for (int i = 0; i < 3; i++)
             {
                 FIntVector RemovePos = ChunkIndexContainer.Pop();
-                Visited[GetVisitedIndex(RemovePos)] = 0; 
+                Visited[GetVisitedIndex(RemovePos)] = 0;
             }
+
             this->DirectionContainer.Pop();
+            PatternStack.Pop(); // Remove the exhausted pattern list
             ChunkCount++;
         }
     }
 
-    if (InfCount >= MaxCount) UE_LOG(LogTemp, Warning, TEXT("InfLoop"));
+    // Finalize: Insert into actual grid
+    for (const FIntVector& Pos : ChunkIndexContainer)
+    {
+        this->ChunkGrid->InsertChunk(Pos, EChunkProperty::CreepWay);
+    }
+
+    if (InfCount >= MaxCount) UE_LOG(LogTemp, Warning, TEXT("Generation Timed Out (MaxCount reached)"));
 }
 
 bool UChunkGenerator::IsSafeToPlace(TArray<int32>& Visited, const FIntVector& TargetPos, int32 CurrentStep, int32 Radius)
