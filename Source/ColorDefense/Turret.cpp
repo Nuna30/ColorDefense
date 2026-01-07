@@ -1,69 +1,88 @@
-// // Fill out your copyright notice in the Description page of Project Settings.
+#include "Turret.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "DrawDebugHelpers.h"
 
+ATurret::ATurret()
+{
+    PrimaryActorTick.bCanEverTick = true;
 
-// #include "Turret.h"
-// #include "Creep.h"
-// // #include "CreepPoolSubsystem.h"
+    // Initialize the single TurretMesh as the Root
+    TurretMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("TurretMesh"));
+    RootComponent = TurretMesh;
+}
 
-// // Sets default values
-// ATurret::ATurret()
-// {
-//  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-// 	PrimaryActorTick.bCanEverTick = true;
+void ATurret::BeginPlay() { Super::BeginPlay(); }
 
-// 	CapsuleComp = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Capsule Collider"));
-// 	RootComponent = CapsuleComp;
+void ATurret::Tick(float DeltaTime)
+{
+    Super::Tick(DeltaTime);
 
-// 	TurretMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Turret Mesh"));
-// 	TurretMesh->SetupAttachment(CapsuleComp);
+    FindTarget();
 
-// 	TurretLaser = CreateDefaultSubobject<USceneComponent>(TEXT("Turret Laser"));
-// 	TurretLaser->SetupAttachment(TurretMesh);
-// }
+    if (CurrentTarget)
+    {
+        RotateAndAttack(DeltaTime);
+    }
+}
 
-// // Called when the game starts or when spawned
-// void ATurret::BeginPlay()
-// {
-// 	Super::BeginPlay();
-	
-// 	// 크립 객체 포인터들을 모아두는 풀 생성
-// 	CreepPool = GetGameInstance()->GetSubsystem<UCreepPoolSubsystem>();
-// }
+void ATurret::FindTarget()
+{
+    // Check if current target is still valid and in range
+    if (CurrentTarget)
+    {
+        if (FVector::Dist(GetActorLocation(), CurrentTarget->GetActorLocation()) <= Range) 
+        {
+            return; 
+        }
+        CurrentTarget = nullptr;
+    }
 
-// // Called every frame
-// void ATurret::Tick(float DeltaTime)
-// {
-// 	Super::Tick(DeltaTime);
+    // Search for the closest ACreep within Range
+    TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
+    ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_GameTraceChannel1));
 
-// 	// 터렛이 범위 내에 Creep이 있는지 확인 후 RotateTurret 수행
-// 	DetectCreep();
-// }
+    TArray<AActor*> IgnoredActors;
+    IgnoredActors.Add(this);
 
-// void ATurret::RotateTurret(FVector TargetLocation)
-// {
-// 	FVector ToTarget = TargetLocation - TurretLaser->GetComponentLocation();
-// 	FRotator ToTargetRotation = ToTarget.Rotation();
-// 	TurretLaser->SetWorldRotation(ToTargetRotation);
-// }
+    TArray<AActor*> OutActors;
+    UKismetSystemLibrary::SphereOverlapActors(GetWorld(), GetActorLocation(), Range, ObjectTypes, ACreep::StaticClass(), IgnoredActors, OutActors);
 
-// // 터렛이 범위 내에 Creep이 있는지 확인 후 RotateTurret 수행
-// void ATurret::DetectCreep()
-// {
-// 	const TArray<ACreep*>& Creeps = CreepPool->GetCreeps();
-// 	float MinDist = BIG_NUMBER;
-// 	ACreep* ClosestCreep = nullptr;
+    float ClosestDistance = MAX_FLT;
+    for (AActor* Actor : OutActors)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Actor"));
+        if (ACreep* Creep = Cast<ACreep>(Actor))
+        {
+            float Dist = FVector::Dist(GetActorLocation(), Creep->GetActorLocation());
+            if (Dist < ClosestDistance)
+            {
+                ClosestDistance = Dist;
+                CurrentTarget = Creep;
+                UE_LOG(LogTemp, Warning, TEXT("Find Target!"));
+            }
+        }
+    }
+}
 
-// 	for (ACreep* Creep : Creeps)
-// 	{
-// 		float Dist = (Creep->GetActorLocation() - TurretLaser->GetComponentLocation()).Size();
-// 		if (Dist < MinDist)
-// 		{
-// 			MinDist = Dist;
-// 			ClosestCreep = Creep;
-// 		}
-// 	}
+void ATurret::RotateAndAttack(float DeltaTime)
+{
+    // 1. Calculate Rotation
+    FVector Direction = CurrentTarget->GetActorLocation() - GetActorLocation();
+    FRotator LookAtRotation = FRotationMatrix::MakeFromX(Direction).Rotator();
+    
+    // We only want to rotate the Yaw (Left/Right) for the whole body
+    FRotator TargetRotation = FRotator(0.f, LookAtRotation.Yaw, 0.f);
+    
+    // Interpolate for smooth rotation
+    FRotator NewRotation = FMath::RInterpTo(GetActorRotation(), TargetRotation, DeltaTime, 5.f);
+    SetActorRotation(NewRotation);
 
-// 	if (ClosestCreep) RotateTurret(ClosestCreep->GetActorLocation());
-// }
+    // 2. Draw Laser Beam (Debug)
+    DrawDebugLine(GetWorld(), GetActorLocation(), CurrentTarget->GetActorLocation(), FColor::Red, false, -1, 0, 3.f);
 
+    // 3. Kill the Creep!
+    CurrentTarget->HandleDestruction();
 
+    // debug
+    UE_LOG(LogTemp, Warning, TEXT("RotateAndAttack!"));
+}

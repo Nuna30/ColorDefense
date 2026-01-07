@@ -24,11 +24,6 @@ void UChunkGrid::InitChunkGrid()
     }
 }
 
-void UChunkGrid::ExpandChunkGrid(const FIntVector& ChunkIndex)
-{
-
-}
-
 bool UChunkGrid::IsInsideChunkGrid(const FIntVector& ChunkIndex)
 {
 	int32 x = ChunkIndex.X;

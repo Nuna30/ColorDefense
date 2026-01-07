@@ -19,6 +19,7 @@ public:
 	UChunkGenerator();
 	void Initialize(UChunkGrid* InChunkGrid);
     void GenerateCreepWayChunk(int32 ChunkCount, int32 NeighborRadius);
+private:
     TArray<TArray<FIntVector>> GetPatternsUsingDirection(FIntVector Forward);
 	FIntVector GetDirectionUsingPattern(TArray<FIntVector> Pattern);
 	int32 GetVisitedIndex(const FIntVector& VisitedIndex);

@@ -19,7 +19,6 @@ public:
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	void InitChunkGrid();
-	void ExpandChunkGrid(const FIntVector& ChunkIndex);
 	bool IsInsideChunkGrid(const FIntVector& ChunkIndex);
 	bool IsEmptyIndex(const FIntVector& ChunkIndex);
 	void InsertChunk(const FIntVector& ChunkIndex, EChunkProperty Property);

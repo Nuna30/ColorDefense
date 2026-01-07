@@ -19,7 +19,6 @@ public:
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	void InitVoxelGrid();
-	void ExpandVoxelGrid(const FIntVector& VoxelIndex);
 	bool IsInsideVoxelGrid(const FIntVector& VoxelIndex);
 	bool IsEmptyIndex(const FIntVector& VoxelIndex);
 	void SetRotation(const FIntVector& VoxelIndex, float Rotation);

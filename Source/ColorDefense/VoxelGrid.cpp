@@ -24,11 +24,6 @@ void UVoxelGrid::InitVoxelGrid()
     }
 }
 
-void UVoxelGrid::ExpandVoxelGrid(const FIntVector& VoxelIndex)
-{
-
-}
-
 bool UVoxelGrid::IsInsideVoxelGrid(const FIntVector& VoxelIndex)
 {
 	int32 x = VoxelIndex.X;
