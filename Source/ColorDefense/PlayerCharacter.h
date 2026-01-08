@@ -7,6 +7,13 @@
 #include "GameFramework/Character.h"
 #include "PlayerCharacter.generated.h"
 
+UENUM(BlueprintType)
+enum class EPlayerState : uint8
+{
+    HoldingColorGun   UMETA(DisplayName = "Holding ColorGun"),
+    HoldingBlock  UMETA(DisplayName = "Holding Block")
+};
+
 UCLASS()
 class COLORDEFENSE_API APlayerCharacter : public ACharacter
 {
@@ -51,4 +58,18 @@ public:
     void SetColorPurple();
     void RequestChangeColor(EColor NewColor);
 
+protected:
+    // The visual mesh for the block in hand
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory")
+    UStaticMeshComponent* BlockPreviewMesh;
+
+    // Track what the player is currently using
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory")
+    EPlayerState CurrentState;
+
+    // Function to handle the switch
+    void SwitchToBlocks();
+
+	// Function to handle the equip
+	void EquipColorGun();
 };

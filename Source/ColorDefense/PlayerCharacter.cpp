@@ -7,6 +7,13 @@ APlayerCharacter::APlayerCharacter()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	// Create the block mesh and attach it to the same place as the gun
+    BlockPreviewMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BlockPreviewMesh"));
+    BlockPreviewMesh->SetupAttachment(RootComponent); // Or your hand socket
+    BlockPreviewMesh->SetVisibility(false); // Hide by default
+    
+    CurrentState = EPlayerState::HoldingColorGun;
 }
 
 // Called when the game starts or when spawned
@@ -44,6 +51,9 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
     PlayerInputComponent->BindAction(TEXT("SwapColorGunBlue"), IE_Pressed, this, &APlayerCharacter::SetColorBlue);
     PlayerInputComponent->BindAction(TEXT("SwapColorGunIndigo"), IE_Pressed, this, &APlayerCharacter::SetColorIndigo);
     PlayerInputComponent->BindAction(TEXT("SwapColorGunPurple"), IE_Pressed, this, &APlayerCharacter::SetColorPurple);
+
+	// Bind the T key to switch tools
+    PlayerInputComponent->BindAction(TEXT("SwitchToBlocks"), IE_Pressed, this, &APlayerCharacter::SwitchToBlocks);
 }
 
 void APlayerCharacter::MoveForward(float AxisValue)
@@ -81,10 +91,12 @@ void APlayerCharacter::Shoot()
 
 void APlayerCharacter::RequestChangeColor(EColor NewColor)
 {
-    if (ColorGun)
-    {
-        ColorGun->ChangeGunColor(NewColor);
-    }
+	if (CurrentState != EPlayerState::HoldingColorGun)
+	{	
+
+	}
+
+	ColorGun->ChangeGunColor(NewColor);
 }
 
 void APlayerCharacter::SetColorRed()    { RequestChangeColor(EColor::Red); }
@@ -94,3 +106,28 @@ void APlayerCharacter::SetColorGreen()  { RequestChangeColor(EColor::Green); }
 void APlayerCharacter::SetColorBlue()   { RequestChangeColor(EColor::Blue); }
 void APlayerCharacter::SetColorIndigo() { RequestChangeColor(EColor::Indigo); }
 void APlayerCharacter::SetColorPurple() { RequestChangeColor(EColor::Purple); }
+
+void APlayerCharacter::SwitchToBlocks()
+{
+    if (CurrentState == EPlayerState::HoldingColorGun)
+    {
+        // Switch to Block
+        CurrentState = EPlayerState::HoldingBlock;
+        ColorGun->SetHiddenInGame(true); 		// Hide Gun
+        BlockPreviewMesh->SetVisibility(true);	// Show Block
+    }
+    else
+    {
+        // Switch to Color Gun
+        CurrentState = EPlayerState::HoldingColorGun;
+        ColorGun->SetHiddenInGame(false);		 // Show Gun
+        BlockPreviewMesh->SetVisibility(false);	 // Hide Block
+    }
+}
+
+void APlayerCharacter::EquipColorGun()
+{
+	CurrentState = EPlayerState::HoldingColorGun;
+	ColorGun->SetHiddenInGame(false);		 // Show Gun
+	BlockPreviewMesh->SetVisibility(false);	 // Hide Block
+}
