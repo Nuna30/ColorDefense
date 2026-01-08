@@ -1,48 +1,48 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
+// ColorGun.h
 #pragma once
 
-#include "Creep.h" // 크립을 터트리기 위해
 #include "CoreMinimal.h"
+#include "Tool.h" // Inherit from Tool instead of SceneComponent
+#include "Creep.h" 
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
 #include "ColorGun.generated.h"
 
-
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class COLORDEFENSE_API UColorGun : public USceneComponent
+UCLASS()
+class COLORDEFENSE_API AColorGun : public ATool
 {
-	GENERATED_BODY()
-
-protected:
-	// Called when the game starts
-	virtual void BeginPlay() override;
+    GENERATED_BODY()
 
 public:
-	// ColorGun 최대 사거리
-	UPROPERTY(EditAnywhere, Category = "Setting")
-	float MaxRange = FLT_MAX;
+    AColorGun();
 
-	// vfx
+    // --- Polymorphic Override ---
+    // This is called when PlayerCharacter calls CurrentTool->Use()
+    virtual void Use() override;
+
+	void Shoot();
+protected:
+    virtual void BeginPlay() override;
+
+public:
+    // --- Color Gun Specifics ---
+    UPROPERTY(EditAnywhere, Category = "Setting")
+    float MaxRange = 5000.0f;
+
     UPROPERTY(EditDefaultsOnly, Category = "Setting")
     TObjectPtr<UNiagaraSystem> SwapVFX;
 
-	// 총의 메쉬 컴포넌트
-	UStaticMeshComponent* GunMeshComponent;
+    // Since this is now an Actor, we use a SceneComponent as the root 
+    // and a MeshComponent to show the gun model.
+    UPROPERTY(VisibleAnywhere, Category = "Mesh")
+    USceneComponent* DefaultRoot;
 
-	// 현재 선택된 총의 색상
-	// 이 색상을 보고 크립을 터트릴지말지 결정됨
-	UPROPERTY(BlueprintReadOnly, Category = "Status")
-	EColor CurrentColor = EColor::Red;
-	
-public:	
-	UColorGun();
+    UPROPERTY(VisibleAnywhere, Category = "Mesh")
+    UStaticMeshComponent* GunMeshComponent;
 
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-	
-	// 색깔 총 발사
-	void Shoot();
+    UPROPERTY(BlueprintReadOnly, Category = "Status")
+    EColor CurrentColor = EColor::Red;
 
-	// 총의 색상을 변경하는 함수 (키보드 입력 1~7로 호출)
-	UFUNCTION(BlueprintCallable, Category = "Action")
-	void ChangeGunColor(EColor NewColor);
+    UFUNCTION(BlueprintCallable, Category = "Action")
+    void ChangeGunColor(EColor NewColor);
 };

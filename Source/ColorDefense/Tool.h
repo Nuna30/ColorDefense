@@ -1,5 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
+// Tool.h
 #pragma once
 
 #include "CoreMinimal.h"
@@ -9,18 +8,20 @@
 UCLASS()
 class COLORDEFENSE_API ATool : public AActor
 {
-	GENERATED_BODY()
-	
-public:	
-	// Sets default values for this actor's properties
-	ATool();
+    GENERATED_BODY()
+
+public:
+    ATool(); // Added declaration
 
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+    virtual void BeginPlay() override; // Added declaration
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+public:
+    virtual void Tick(float DeltaTime) override; // Added declaration
 
+    virtual void Use() {}
+    
+    virtual void Equip() {SetActorHiddenInGame(false);}
+
+    virtual void UnEquip() {SetActorHiddenInGame(true);}
 };

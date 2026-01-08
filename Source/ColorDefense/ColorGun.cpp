@@ -3,47 +3,25 @@
 #include "ColorGun.h"
 
 // Sets default values for this component's properties
-UColorGun::UColorGun()
+AColorGun::AColorGun()
 {
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = true;
+
+	// Create Components for the Actor
+    DefaultRoot = CreateDefaultSubobject<USceneComponent>(TEXT("DefaultRoot"));
+    RootComponent = DefaultRoot;
+
+    GunMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("GunMesh"));
+    GunMeshComponent->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts
-void UColorGun::BeginPlay()
+void AColorGun::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// ColorGun 찾기
-	if (GunMeshComponent == nullptr)
-    {
-        AActor* Owner = GetOwner();
-        if (Owner)
-        {
-            // 방법 C: (추천) Owner가 가진 컴포넌트 중 특정 이름을 가진 녀석 찾기
-			// *(BP_PlayerCharacter / ColorGun 씬컴포넌트 / SM_ColorGun과 연결됨)*
-            TArray<UStaticMeshComponent*> MeshComps;
-            Owner->GetComponents(MeshComps);
-            
-            for (UStaticMeshComponent* Mesh : MeshComps)
-            {
-                // 블루프린트에서 지어준 이름이 "SM_Gun" 이라면
-                if (Mesh->GetName().Contains("SM_ColorGun") || Mesh->ComponentTags.Contains("PlayerGun"))
-                {
-                    GunMeshComponent = Mesh;
-                    break;
-                }
-            }
-        }
-    }
 }
 
-// Called every frame
-void UColorGun::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-}
-
-void UColorGun::Shoot()
+void AColorGun::Use()
 {
 	APawn* OwnerPawn = Cast<APawn>(GetOwner());
 	if (OwnerPawn == nullptr) return;
@@ -81,7 +59,7 @@ void UColorGun::Shoot()
 }
 
 // 번호키 누르면 컬러건 색상 변경 구현
-void UColorGun::ChangeGunColor(EColor NewColor)
+void AColorGun::ChangeGunColor(EColor NewColor)
 {
 	CurrentColor = NewColor;
 
@@ -129,10 +107,9 @@ void UColorGun::ChangeGunColor(EColor NewColor)
 			{
 				// 3. 나이아가라의 "User.Color" 변수에 색상 주입
 				// (나이아가라 에디터에서 만든 변수 이름과 정확히 같아야 함)
-				SpawnedEffect->SetVariableLinearColor(FName("User.ColorGunSwapColor"), TargetColor);
+				// SpawnedEffect->SetVariableLinearColor(FName("User.ColorGunSwapColor"), TargetColor);
+				SpawnedEffect->SetVariableLinearColor(FName("User.Linear Color"), TargetColor);
 			}
 		}
 	}
-
-
 }

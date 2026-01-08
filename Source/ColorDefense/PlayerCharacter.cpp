@@ -5,23 +5,56 @@
 // Sets default values
 APlayerCharacter::APlayerCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+    PrimaryActorTick.bCanEverTick = true;
 
-	// Create the block mesh and attach it to the same place as the gun
-    BlockPreviewMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BlockPreviewMesh"));
-    BlockPreviewMesh->SetupAttachment(RootComponent); // Or your hand socket
-    BlockPreviewMesh->SetVisibility(false); // Hide by default
-    
+    // Create Camera First
+    FPSCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FPSCamera"));
+    FPSCamera->SetupAttachment(RootComponent);
+    FPSCamera->bUsePawnControlRotation = true; // IMPORTANT: Follow mouse look
+
+    // Create the Arm
+    InvisibleArm = CreateDefaultSubobject<USceneComponent>(TEXT("InvisibleArm"));
+    InvisibleArm->SetupAttachment(FPSCamera);
+
+    // Create the Child Actor Components
+    // These will hold the actual Gun and Block actors
+    ColorGunComponent = CreateDefaultSubobject<UChildActorComponent>(TEXT("ColorGunComponent"));
+    ColorGunComponent->SetupAttachment(InvisibleArm);
+
+    PlayerBlockComponent = CreateDefaultSubobject<UChildActorComponent>(TEXT("PlayerBlockComponent"));
+    PlayerBlockComponent->SetupAttachment(InvisibleArm);
+
     CurrentState = EPlayerState::HoldingColorGun;
 }
 
 // Called when the game starts or when spawned
 void APlayerCharacter::BeginPlay()
 {
-	Super::BeginPlay();
+    Super::BeginPlay();
+    // RETRIEVE the actors from the components
+    // The components automatically spawned these actors before BeginPlay ran
+    ColorGun = Cast<AColorGun>(ColorGunComponent->GetChildActor());
+    PlayerBlock = Cast<APlayerBlock>(PlayerBlockComponent->GetChildActor());
 
-	ColorGun = FindComponentByClass<UColorGun>();
+    // Initialize Tools (Safety Check)
+    if (ColorGun) 
+    {
+        // Ensure the gun knows who owns it (important for Shoot logic)
+        ColorGun->SetOwner(this);
+        ColorGun->UnEquip(); 
+    }
+    
+    if (PlayerBlock)
+    {
+        PlayerBlock->SetOwner(this);
+        PlayerBlock->UnEquip();
+    }
+
+    // 5. Set Initial State
+    CurrentState = EPlayerState::HoldingColorGun;
+    CurrentTool = ColorGun;
+
+    if (CurrentTool) CurrentTool->Equip();
 }
 
 // Called every frame
@@ -41,7 +74,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &APlayerCharacter::MoveRight);
 	PlayerInputComponent->BindAxis(TEXT("LookRight"), this, &APlayerCharacter::LookRight);
 	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Pressed, this, &APlayerCharacter::Jump);
-	PlayerInputComponent->BindAction(TEXT("Shoot"), EInputEvent::IE_Pressed, this, &APlayerCharacter::Shoot);
+	PlayerInputComponent->BindAction(TEXT("Use"), EInputEvent::IE_Pressed, this, &APlayerCharacter::Use);
 
 	// 컬러건 색깔 변경 바인딩
 	PlayerInputComponent->BindAction(TEXT("SwapColorGunRed"), IE_Pressed, this, &APlayerCharacter::SetColorRed);
@@ -83,18 +116,9 @@ void APlayerCharacter::Jump()
 	ACharacter::Jump();
 }
 
-void APlayerCharacter::Shoot()
-{
-	ColorGun->Shoot();
-	OnShoot();
-}
-
 void APlayerCharacter::RequestChangeColor(EColor NewColor)
 {
-	if (CurrentState != EPlayerState::HoldingColorGun)
-	{	
-
-	}
+	if (CurrentState != EPlayerState::HoldingColorGun) return;
 
 	ColorGun->ChangeGunColor(NewColor);
 }
@@ -107,27 +131,39 @@ void APlayerCharacter::SetColorBlue()   { RequestChangeColor(EColor::Blue); }
 void APlayerCharacter::SetColorIndigo() { RequestChangeColor(EColor::Indigo); }
 void APlayerCharacter::SetColorPurple() { RequestChangeColor(EColor::Purple); }
 
-void APlayerCharacter::SwitchToBlocks()
+// Inside Use()
+void APlayerCharacter::Use()
 {
+    if (CurrentTool) 
+    {
+        CurrentTool->Use(); // If it's the gun, it shoots. If it's the block, it places.
+    }
+
     if (CurrentState == EPlayerState::HoldingColorGun)
     {
-        // Switch to Block
-        CurrentState = EPlayerState::HoldingBlock;
-        ColorGun->SetHiddenInGame(true); 		// Hide Gun
-        BlockPreviewMesh->SetVisibility(true);	// Show Block
-    }
-    else
-    {
-        // Switch to Color Gun
-        CurrentState = EPlayerState::HoldingColorGun;
-        ColorGun->SetHiddenInGame(false);		 // Show Gun
-        BlockPreviewMesh->SetVisibility(false);	 // Hide Block
+        OnShoot();
     }
 }
 
-void APlayerCharacter::EquipColorGun()
+void APlayerCharacter::SwitchToBlocks()
 {
-	CurrentState = EPlayerState::HoldingColorGun;
-	ColorGun->SetHiddenInGame(false);		 // Show Gun
-	BlockPreviewMesh->SetVisibility(false);	 // Hide Block
+    SwitchTool(); 
+}
+
+void APlayerCharacter::SwitchTool()
+{
+    if (CurrentTool) CurrentTool->UnEquip();
+
+    if (CurrentState == EPlayerState::HoldingColorGun)
+    {
+        CurrentState = EPlayerState::HoldingBlock;
+        CurrentTool = PlayerBlock;
+    }
+    else
+    {
+        CurrentState = EPlayerState::HoldingColorGun;
+        CurrentTool = ColorGun;
+    }
+
+    if (CurrentTool) CurrentTool->Equip();
 }
