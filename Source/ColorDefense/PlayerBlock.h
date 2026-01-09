@@ -13,5 +13,14 @@ UCLASS()
 class COLORDEFENSE_API APlayerBlock : public ATool
 {
 	GENERATED_BODY()
+public:
+	APlayerBlock();
+	virtual void BeginPlay() override;
+
+    virtual void Use() override;
 	
+public:
+    UPROPERTY(VisibleAnywhere, Category = "Mesh")
+    UStaticMeshComponent* BlockMeshComponent;
+
 };

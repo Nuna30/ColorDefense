@@ -23,38 +23,42 @@ APlayerCharacter::APlayerCharacter()
 
     PlayerBlockComponent = CreateDefaultSubobject<UChildActorComponent>(TEXT("PlayerBlockComponent"));
     PlayerBlockComponent->SetupAttachment(InvisibleArm);
-
-    CurrentState = EPlayerState::HoldingColorGun;
 }
 
 // Called when the game starts or when spawned
 void APlayerCharacter::BeginPlay()
 {
     Super::BeginPlay();
+
     // RETRIEVE the actors from the components
     // The components automatically spawned these actors before BeginPlay ran
     ColorGun = Cast<AColorGun>(ColorGunComponent->GetChildActor());
     PlayerBlock = Cast<APlayerBlock>(PlayerBlockComponent->GetChildActor());
 
-    // Initialize Tools (Safety Check)
-    if (ColorGun) 
+    // All set hidden except color gun
+    Tools.Add(ColorGun);
+    Tools.Add(PlayerBlock);
+
+    // Initialize Tools
+    for (ATool* Tool : Tools)
     {
-        // Ensure the gun knows who owns it (important for Shoot logic)
-        ColorGun->SetOwner(this);
-        ColorGun->UnEquip(); 
-    }
-    
-    if (PlayerBlock)
-    {
-        PlayerBlock->SetOwner(this);
-        PlayerBlock->UnEquip();
+        Tool->SetOwner(this);
+        Tool->UnEquip();
     }
 
-    // 5. Set Initial State
+    // Add Input Mapping Context
+    if (APlayerController* PC = Cast<APlayerController>(Controller))
+    {
+        if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer()))
+        {
+            Subsystem->AddMappingContext(DefaultMappingContext, 0);
+        }
+    }
+
+    // Set Initial State
     CurrentState = EPlayerState::HoldingColorGun;
     CurrentTool = ColorGun;
-
-    if (CurrentTool) CurrentTool->Equip();
+    CurrentTool->SwitchToolFrom(CurrentTool);
 }
 
 // Called every frame
@@ -74,25 +78,84 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &APlayerCharacter::MoveRight);
 	PlayerInputComponent->BindAxis(TEXT("LookRight"), this, &APlayerCharacter::LookRight);
 	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Pressed, this, &APlayerCharacter::Jump);
-	PlayerInputComponent->BindAction(TEXT("Use"), EInputEvent::IE_Pressed, this, &APlayerCharacter::Use);
+	PlayerInputComponent->BindAction(TEXT("Use"), EInputEvent::IE_Pressed, this, &APlayerCharacter::HandleUse);
 
-	// 컬러건 색깔 변경 바인딩
-	PlayerInputComponent->BindAction(TEXT("SwapColorGunRed"), IE_Pressed, this, &APlayerCharacter::SetColorRed);
-    PlayerInputComponent->BindAction(TEXT("SwapColorGunOrange"), IE_Pressed, this, &APlayerCharacter::SetColorOrange);
-    PlayerInputComponent->BindAction(TEXT("SwapColorGunYellow"), IE_Pressed, this, &APlayerCharacter::SetColorYellow);
-    PlayerInputComponent->BindAction(TEXT("SwapColorGunGreen"), IE_Pressed, this, &APlayerCharacter::SetColorGreen);
-    PlayerInputComponent->BindAction(TEXT("SwapColorGunBlue"), IE_Pressed, this, &APlayerCharacter::SetColorBlue);
-    PlayerInputComponent->BindAction(TEXT("SwapColorGunIndigo"), IE_Pressed, this, &APlayerCharacter::SetColorIndigo);
-    PlayerInputComponent->BindAction(TEXT("SwapColorGunPurple"), IE_Pressed, this, &APlayerCharacter::SetColorPurple);
+	// Color Gun Input System
+    if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
+    {
+        // Bind the single action
+        EnhancedInputComponent->BindAction(ChangeColorAction, ETriggerEvent::Triggered, this, &APlayerCharacter::HandleChangeColor);
+        EnhancedInputComponent->BindAction(SwitchToolAction, ETriggerEvent::Triggered, this, &APlayerCharacter::HandleSwitchTool);
+    }
+}
 
-	// Bind the T key to switch tools
-    PlayerInputComponent->BindAction(TEXT("SwitchToBlocks"), IE_Pressed, this, &APlayerCharacter::SwitchToBlocks);
+// Inside Use()
+void APlayerCharacter::HandleUse()
+{
+    CurrentTool->Use(); // If it's the gun, it shoots. If it's the block, it places.
+
+    // I had to make another colorgun branch here because the shooting animation is handled in the PlayerCharacter blueprint.
+    // I don't think this is the best way, so I should find a beeter approach.
+    if (CurrentState == EPlayerState::HoldingColorGun) OnShoot();
+}
+
+void APlayerCharacter::HandleChangeColor(const FInputActionValue& Value)
+{
+    // We get a float from the input (1.0 for Key 1, 2.0 for Key 2, etc.)
+    float InputValue = Value.Get<float>();
+    int32 ColorIndex = InputValue;
+    EColor NewColor = EColor::Red;
+
+    // Convert float to our Enum
+    switch (ColorIndex) 
+    {
+        case 1 : NewColor = EColor::Red; break;
+        case 2 : NewColor = EColor::Orange; break;
+        case 3 : NewColor = EColor::Yellow; break;
+        case 4 : NewColor = EColor::Green; break;
+        case 5 : NewColor = EColor::Blue; break;
+        case 6 : NewColor = EColor::Indigo; break;
+        case 7 : NewColor = EColor::Purple; break;
+        default : return;
+    }
+
+    if (CurrentState != EPlayerState::HoldingColorGun)
+    {
+        ColorGun->SwitchToolFrom(CurrentTool);
+        CurrentState = EPlayerState::HoldingColorGun;
+    }
+
+	ColorGun->ChangeGunColor(NewColor);
+}
+
+void APlayerCharacter::HandleSwitchTool(const FInputActionValue& Value)
+{
+    
+    UE_LOG(LogTemp, Warning, TEXT("Enter the HandleSwitchTool!"));
+
+    float InputValue = Value.Get<float>();
+    int32 ToolIndex = InputValue;
+
+    switch (ToolIndex) 
+    {
+        case 1 : 
+        case 2 : 
+        case 3 : 
+        case 4 : 
+        case 5 : 
+        case 6 : 
+        case 7 : this->ColorGun->SwitchToolFrom(CurrentTool); UE_LOG(LogTemp, Warning, TEXT("pressed 7!"));break;
+        case 8 : this->PlayerBlock->SwitchToolFrom(CurrentTool); UE_LOG(LogTemp, Warning, TEXT("pressed 8!")); break;
+        // case 9 : NextTool = this->Turret; break;
+        default : return;
+    }
+
 }
 
 void APlayerCharacter::MoveForward(float AxisValue)
 {
 	// 무브먼트 컴포넌트(Movement Component)에 이동 요청을 추가
-	AddMovementInput(GetActorForwardVector() * AxisValue);
+	AddMovementInput(GetActorForwardVector(), AxisValue);
 }
 
 void APlayerCharacter::LookUp(float AxisValue)
@@ -103,7 +166,7 @@ void APlayerCharacter::LookUp(float AxisValue)
 
 void APlayerCharacter::MoveRight(float AxisValue)
 {
-	AddMovementInput(GetActorRightVector() * AxisValue);
+	AddMovementInput(GetActorRightVector(), AxisValue);
 }
 
 void APlayerCharacter::LookRight(float AxisValue)
@@ -114,56 +177,4 @@ void APlayerCharacter::LookRight(float AxisValue)
 void APlayerCharacter::Jump()
 {
 	ACharacter::Jump();
-}
-
-void APlayerCharacter::RequestChangeColor(EColor NewColor)
-{
-	if (CurrentState != EPlayerState::HoldingColorGun) return;
-
-	ColorGun->ChangeGunColor(NewColor);
-}
-
-void APlayerCharacter::SetColorRed()    { RequestChangeColor(EColor::Red); }
-void APlayerCharacter::SetColorOrange() { RequestChangeColor(EColor::Orange); }
-void APlayerCharacter::SetColorYellow() { RequestChangeColor(EColor::Yellow); }
-void APlayerCharacter::SetColorGreen()  { RequestChangeColor(EColor::Green); }
-void APlayerCharacter::SetColorBlue()   { RequestChangeColor(EColor::Blue); }
-void APlayerCharacter::SetColorIndigo() { RequestChangeColor(EColor::Indigo); }
-void APlayerCharacter::SetColorPurple() { RequestChangeColor(EColor::Purple); }
-
-// Inside Use()
-void APlayerCharacter::Use()
-{
-    if (CurrentTool) 
-    {
-        CurrentTool->Use(); // If it's the gun, it shoots. If it's the block, it places.
-    }
-
-    if (CurrentState == EPlayerState::HoldingColorGun)
-    {
-        OnShoot();
-    }
-}
-
-void APlayerCharacter::SwitchToBlocks()
-{
-    SwitchTool(); 
-}
-
-void APlayerCharacter::SwitchTool()
-{
-    if (CurrentTool) CurrentTool->UnEquip();
-
-    if (CurrentState == EPlayerState::HoldingColorGun)
-    {
-        CurrentState = EPlayerState::HoldingBlock;
-        CurrentTool = PlayerBlock;
-    }
-    else
-    {
-        CurrentState = EPlayerState::HoldingColorGun;
-        CurrentTool = ColorGun;
-    }
-
-    if (CurrentTool) CurrentTool->Equip();
 }

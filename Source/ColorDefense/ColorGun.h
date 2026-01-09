@@ -16,13 +16,14 @@ class COLORDEFENSE_API AColorGun : public ATool
 public:
     AColorGun();
 
+    virtual void BeginPlay() override;
+
     // --- Polymorphic Override ---
     // This is called when PlayerCharacter calls CurrentTool->Use()
     virtual void Use() override;
 
-	void Shoot();
-protected:
-    virtual void BeginPlay() override;
+    UFUNCTION(BlueprintCallable, Category = "Action")
+    void ChangeGunColor(EColor NewColor);
 
 public:
     // --- Color Gun Specifics ---
@@ -42,7 +43,4 @@ public:
 
     UPROPERTY(BlueprintReadOnly, Category = "Status")
     EColor CurrentColor = EColor::Red;
-
-    UFUNCTION(BlueprintCallable, Category = "Action")
-    void ChangeGunColor(EColor NewColor);
 };
