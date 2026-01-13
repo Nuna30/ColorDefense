@@ -1,6 +1,7 @@
 // Tool.h
 #pragma once
 
+#include "GameEnums.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Tool.generated.h"

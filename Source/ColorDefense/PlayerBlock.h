@@ -18,9 +18,19 @@ class COLORDEFENSE_API APlayerBlock : public ATool
 public:
 	APlayerBlock();
 	virtual void BeginPlay() override;
+    virtual void Tick(float DeltaTime) override;
     virtual void LeftClick() override;
     virtual void RightClick() override;
+
+    UFUNCTION()
 	void HandleDestruction();
+
+    UFUNCTION()
+    void ShowPreview(EPlayerState PlayerState);
+
+    UFUNCTION()
+    void SetOpacity(float Percentage);
+
 public:
     UPROPERTY(VisibleAnywhere, Category = "Mesh")
     USceneComponent* DefaultRoot;
@@ -28,8 +38,14 @@ public:
     UPROPERTY(VisibleAnywhere, Category = "Mesh")
     UStaticMeshComponent* BlockMeshComponent;
 
+    UPROPERTY()
+    APlayerBlock* CurrentFocusedBlock; // used in ShowPreview
+
     UPROPERTY(EditAnywhere, Category = "Setting")
     float MaxRange = 5000.0f;
+
+    UPROPERTY()
+    bool Placed = false;
     
     FVoxel Voxel;
 };

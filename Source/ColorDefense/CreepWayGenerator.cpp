@@ -376,11 +376,12 @@ void UCreepWayGenerator::SpawnInvisibleNeighboringPlaceables(const FIntVector& V
 		FVoxel& TargetVoxel = VoxelGrid->GetVoxel(Neighbor);
 		if (TargetVoxel.Property == EVoxelProperty::Empty)
 		{
-			SetVoxelDataInVoxelGrid(Neighbor, 4, EVoxelProperty::Placeable);
+			SetVoxelDataInVoxelGrid(Neighbor, 4, EVoxelProperty::PlayerBlock);
 			AActor* Placeable = SpawnActorFromVoxel(TargetVoxel);
-			Placeable->SetActorHiddenInGame(false);
+			Placeable->SetActorHiddenInGame(true);
 			APlayerBlock* PlayerBlock = Cast<APlayerBlock>(Placeable);
 			PlayerBlock->Voxel = TargetVoxel;
+			PlayerBlock->SetOpacity(0.1);
 		}
 	}
 }

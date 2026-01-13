@@ -6,19 +6,13 @@
 #include "PlayerBlock.h" // Adding feature that player can build block.
 #include "Camera/CameraComponent.h" // Adding the camera because the rest of the hierarchy is defined in C++.
 #include "InputActionValue.h" // Adding Enhance Input System.
+#include "GameEnums.h"
 #include "InputMappingContext.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "PlayerCharacter.generated.h"
-
-UENUM(BlueprintType)
-enum class EPlayerState : uint8
-{
-    HoldingColorGun   UMETA(DisplayName = "Holding ColorGun"),
-    HoldingBlock  UMETA(DisplayName = "Holding Block")
-};
 
 UCLASS()
 class COLORDEFENSE_API APlayerCharacter : public ACharacter

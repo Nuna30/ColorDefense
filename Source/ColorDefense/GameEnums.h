@@ -31,3 +31,10 @@ enum class EChunkProperty
     CreepWay,
     Empty
 };
+
+UENUM(BlueprintType)
+enum class EPlayerState : uint8
+{
+    HoldingColorGun   UMETA(DisplayName = "Holding ColorGun"),
+    HoldingBlock  UMETA(DisplayName = "Holding Block")
+};

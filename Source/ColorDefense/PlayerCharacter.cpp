@@ -59,6 +59,13 @@ void APlayerCharacter::BeginPlay()
     CurrentState = EPlayerState::HoldingColorGun;
     CurrentTool = ColorGun;
     CurrentTool->SwitchToolFrom(CurrentTool);
+
+    // Update 20 times per second (0.05s interval) instead of every frame
+	// Better than Tick
+    FTimerHandle TimerHandle;
+    FTimerDelegate TimerDelegate;
+    TimerDelegate.BindLambda([this](){PlayerBlock->ShowPreview(this->CurrentState);});
+    GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDelegate, 0.05f, true);
 }
 
 // Called every frame
@@ -147,8 +154,18 @@ void APlayerCharacter::HandleSwitchTool(const FInputActionValue& Value)
         case 4 : 
         case 5 : 
         case 6 : 
-        case 7 : this->ColorGun->SwitchToolFrom(CurrentTool); break;
-        case 8 : this->PlayerBlock->SwitchToolFrom(CurrentTool); break;
+        case 7 : 
+        {
+            this->ColorGun->SwitchToolFrom(CurrentTool); 
+            CurrentState = EPlayerState::HoldingColorGun;
+            break;
+        }
+        case 8 : 
+        {
+            this->PlayerBlock->SwitchToolFrom(CurrentTool); 
+            CurrentState = EPlayerState::HoldingBlock;
+            break;   
+        }
         // case 9 : NextTool = this->Turret; break;
      default : return;
     }
