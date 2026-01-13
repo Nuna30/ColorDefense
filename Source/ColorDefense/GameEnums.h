@@ -20,6 +20,8 @@ enum class EVoxelProperty
     CreepCheckPoint,
     CreepEnd,
     CreepGenerator,
+    Placeable,
+    PlayerBlock,
     Empty
 };
 

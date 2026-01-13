@@ -20,18 +20,10 @@ class COLORDEFENSE_API ATool : public AActor
 
 public:
     ATool(); 
-
-
-
-protected:
-    virtual void BeginPlay() override; 
-
-public:
     virtual void Tick(float DeltaTime) override;
-
-    virtual void Use() {}
-    
+    virtual void BeginPlay() override; 
+    virtual void LeftClick() {}
+    virtual void RightClick() {}
     virtual void SwitchToolFrom(ATool*& CurrentTool);
-
     virtual void UnEquip() {SetActorHiddenInGame(true);}
 };

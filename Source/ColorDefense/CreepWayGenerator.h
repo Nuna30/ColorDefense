@@ -5,6 +5,7 @@
 #include "VoxelGenerator.h" // CreepWay Voxel을 생성하기 위해
 #include "ChunkGrid.h" // CreepWay Chunk를 생성하여 ChunkGrid에 담거나 해당 청크에 CreepWay가 존재하는지 파악하기 위해
 #include "CreepCheckPointGenerator.h" // 코너마다 CreepCheckPoint를 설치하기 위해
+#include "PlayerBlock.h" // Spawning Placeable Voxels
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "CreepWayGenerator.generated.h"
@@ -66,4 +67,6 @@ public:
 public:
 	void GoStraightAndUpOrDownAndGoStraight();
 	void GoStraightAndTurnLeftOrRightAndGoStraight();
+public:
+	void SpawnInvisibleNeighboringPlaceables(const FIntVector& VoxelIndex);
 };

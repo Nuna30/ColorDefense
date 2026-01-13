@@ -19,8 +19,8 @@ public:
     virtual void BeginPlay() override;
 
     // --- Polymorphic Override ---
-    // This is called when PlayerCharacter calls CurrentTool->Use()
-    virtual void Use() override;
+    // This is called when PlayerCharacter calls CurrentTool->LeftClick()
+    virtual void LeftClick() override;
 
     UFUNCTION(BlueprintCallable, Category = "Action")
     void ChangeGunColor(EColor NewColor);

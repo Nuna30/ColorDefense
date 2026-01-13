@@ -78,7 +78,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &APlayerCharacter::MoveRight);
 	PlayerInputComponent->BindAxis(TEXT("LookRight"), this, &APlayerCharacter::LookRight);
 	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Pressed, this, &APlayerCharacter::Jump);
-	PlayerInputComponent->BindAction(TEXT("Use"), EInputEvent::IE_Pressed, this, &APlayerCharacter::HandleUse);
+	PlayerInputComponent->BindAction(TEXT("LeftClick"), EInputEvent::IE_Pressed, this, &APlayerCharacter::HandleLeftClick);
+    PlayerInputComponent->BindAction(TEXT("RightClick"), EInputEvent::IE_Pressed, this, &APlayerCharacter::HandleRightClick);
 
 	// Color Gun Input System
     if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
@@ -89,14 +90,19 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
     }
 }
 
-// Inside Use()
-void APlayerCharacter::HandleUse()
+// Inside LeftClick()
+void APlayerCharacter::HandleLeftClick()
 {
-    CurrentTool->Use(); // If it's the gun, it shoots. If it's the block, it places.
+    CurrentTool->LeftClick(); // If it's the gun, it shoots. If it's the block, it places.
 
     // I had to make another colorgun branch here because the shooting animation is handled in the PlayerCharacter blueprint.
-    // I don't think this is the best way, so I should find a beeter approach.
+    // I don't think this is the best way, so I should find a better approach.
     if (CurrentState == EPlayerState::HoldingColorGun) OnShoot();
+}
+
+void APlayerCharacter::HandleRightClick()
+{
+    CurrentTool->RightClick(); 
 }
 
 void APlayerCharacter::HandleChangeColor(const FInputActionValue& Value)
@@ -130,9 +136,6 @@ void APlayerCharacter::HandleChangeColor(const FInputActionValue& Value)
 
 void APlayerCharacter::HandleSwitchTool(const FInputActionValue& Value)
 {
-    
-    UE_LOG(LogTemp, Warning, TEXT("Enter the HandleSwitchTool!"));
-
     float InputValue = Value.Get<float>();
     int32 ToolIndex = InputValue;
 
@@ -144,10 +147,10 @@ void APlayerCharacter::HandleSwitchTool(const FInputActionValue& Value)
         case 4 : 
         case 5 : 
         case 6 : 
-        case 7 : this->ColorGun->SwitchToolFrom(CurrentTool); UE_LOG(LogTemp, Warning, TEXT("pressed 7!"));break;
-        case 8 : this->PlayerBlock->SwitchToolFrom(CurrentTool); UE_LOG(LogTemp, Warning, TEXT("pressed 8!")); break;
+        case 7 : this->ColorGun->SwitchToolFrom(CurrentTool); break;
+        case 8 : this->PlayerBlock->SwitchToolFrom(CurrentTool); break;
         // case 9 : NextTool = this->Turret; break;
-        default : return;
+     default : return;
     }
 
 }

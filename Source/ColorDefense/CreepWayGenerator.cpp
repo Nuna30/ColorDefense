@@ -72,6 +72,7 @@ void UCreepWayGenerator::SpawnActorWithFlushingMainBuffer()
 		FIntVector TargetVoxelIndex = VoxelIndex;
 		FVoxel TargetVoxel = this->VoxelGrid->GetVoxel(VoxelIndex);
 		SpawnActorFromVoxel(TargetVoxel);
+		SpawnInvisibleNeighboringPlaceables(TargetVoxelIndex);
 	}
 }
 
@@ -355,6 +356,31 @@ void UCreepWayGenerator::SpawnAllUsingChunkGrid()
 					);
 				}
 			}
+		}
+	}
+}
+
+void UCreepWayGenerator::SpawnInvisibleNeighboringPlaceables(const FIntVector& VoxelIndex)
+{
+	TArray<FIntVector> Neighbor4 = 
+	{
+		FIntVector(1, 0, 0), FIntVector(-1, 0, 0), FIntVector(0, 1, 0), FIntVector(0, -1, 0)
+	};
+
+	// Set Neighbors to Placeable and spawn as invisible
+	for (FIntVector& Neighbor : Neighbor4)
+	{
+		Neighbor += VoxelIndex;
+		if (!VoxelGrid->IsInsideVoxelGrid(Neighbor)) continue; // Handle the boundary value
+
+		FVoxel& TargetVoxel = VoxelGrid->GetVoxel(Neighbor);
+		if (TargetVoxel.Property == EVoxelProperty::Empty)
+		{
+			SetVoxelDataInVoxelGrid(Neighbor, 4, EVoxelProperty::Placeable);
+			AActor* Placeable = SpawnActorFromVoxel(TargetVoxel);
+			Placeable->SetActorHiddenInGame(false);
+			APlayerBlock* PlayerBlock = Cast<APlayerBlock>(Placeable);
+			PlayerBlock->Voxel = TargetVoxel;
 		}
 	}
 }

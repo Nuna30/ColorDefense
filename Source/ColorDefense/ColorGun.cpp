@@ -21,7 +21,7 @@ void AColorGun::BeginPlay()
 	Super::BeginPlay();
 }
 
-void AColorGun::Use()
+void AColorGun::LeftClick()
 {
 	APawn* OwnerPawn = Cast<APawn>(GetOwner());
 	if (OwnerPawn == nullptr) return;
@@ -56,6 +56,8 @@ void AColorGun::Use()
             }
 		}
 	}
+
+	DrawDebugLine(GetWorld(), Location, End, FColor::Red, false, 2.0f, 0, 1.0f);
 }
 
 // 번호키 누르면 컬러건 색상 변경 구현

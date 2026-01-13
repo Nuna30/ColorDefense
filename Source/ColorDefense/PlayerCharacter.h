@@ -96,7 +96,10 @@ public:
 	void Jump();
 	
 	UFUNCTION(BlueprintCallable)
-	void HandleUse();
+	void HandleLeftClick();
+    
+    UFUNCTION(BlueprintCallable)
+	void HandleRightClick();
 	
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnShoot(); // 간단한 사격 애니메이션, 블루프린트에서 구현 됨 코드 없음

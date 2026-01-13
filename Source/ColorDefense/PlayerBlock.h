@@ -1,9 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
-
-#include "CoreMinimal.h"
+    
 #include "Tool.h"
+#include "Voxel.h"
+#include "DrawDebugHelpers.h"
+#include "CoreMinimal.h"
 #include "PlayerBlock.generated.h"
 
 /**
@@ -16,11 +18,18 @@ class COLORDEFENSE_API APlayerBlock : public ATool
 public:
 	APlayerBlock();
 	virtual void BeginPlay() override;
-
-    virtual void Use() override;
-	
+    virtual void LeftClick() override;
+    virtual void RightClick() override;
+	void HandleDestruction();
 public:
+    UPROPERTY(VisibleAnywhere, Category = "Mesh")
+    USceneComponent* DefaultRoot;
+
     UPROPERTY(VisibleAnywhere, Category = "Mesh")
     UStaticMeshComponent* BlockMeshComponent;
 
+    UPROPERTY(EditAnywhere, Category = "Setting")
+    float MaxRange = 5000.0f;
+    
+    FVoxel Voxel;
 };
