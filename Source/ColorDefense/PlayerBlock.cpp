@@ -25,147 +25,66 @@ void APlayerBlock::Tick(float DeltaTime)
 
 void APlayerBlock::LeftClick()
 {
-    APawn* OwnerPawn = Cast<APawn>(GetOwner());
-	if (OwnerPawn == nullptr) return;
+	APlayerBlock* HitPlayerBlock = GetHitPlayerBlock();
+	if (!HitPlayerBlock) return;
+	if (!Placed) return; // Only the placed block can be destroyed.
 
-	// Calculate the player's reach.
-	FVector Location;
-	FRotator Rotation;
-	AController* OwnerController = OwnerPawn->GetController();
-	if (OwnerController == nullptr) return;
-    
-	OwnerController->GetPlayerViewPoint(Location, Rotation);
-	FVector End = Location + Rotation.Vector() * MaxRange;
-
-	FHitResult Hit;
-	FCollisionQueryParams QueryParams;
-    QueryParams.AddIgnoredActor(this); // Ignore the block in your hand
-    QueryParams.AddIgnoredActor(GetOwner()); // Ignore the player holding it
-	bool bSuccess = GetWorld()->LineTraceSingleByChannel(
-        Hit, 
-        Location, 
-        End, 
-        ECollisionChannel::ECC_GameTraceChannel2, 
-        QueryParams
-    );
-
-	if (bSuccess)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Hit"));
-		APlayerBlock* HitPlayerBlock = Cast<APlayerBlock>(Hit.GetActor());
-		if (Placed) // Only the placed block can be destroyed.
-		{
-			HitPlayerBlock->HandleDestruction();
-		}
-	}
-
-	DrawDebugLine(GetWorld(), Location, End, FColor::Red, false, 2.0f, 0, 1.0f);
+	HitPlayerBlock->SetOpacity(0);
+	HitPlayerBlock->Placed = false;
+	HitPlayerBlock->SetActorEnableCollision(false);
+	HitPlayerBlock->SetActorHiddenInGame(true);
 }
 
 void APlayerBlock::RightClick()
 {
-    APawn* OwnerPawn = Cast<APawn>(GetOwner());
-	if (OwnerPawn == nullptr) return;
+	APlayerBlock* HitPlayerBlock = GetHitPlayerBlock();
+	if (!HitPlayerBlock) return;
+	if (HitPlayerBlock->IsHidden()) return;
 
-	// Calculate the player's reach.
-	FVector Location;
-	FRotator Rotation;
-	AController* OwnerController = OwnerPawn->GetController();
-	if (OwnerController == nullptr) return;
-    
-	OwnerController->GetPlayerViewPoint(Location, Rotation);
-	FVector End = Location + Rotation.Vector() * MaxRange;
-
-	FHitResult Hit;
-	FCollisionQueryParams QueryParams;
-    QueryParams.AddIgnoredActor(this); // Ignore the block in your hand
-    QueryParams.AddIgnoredActor(GetOwner()); // Ignore the player holding it
-	bool bSuccess = GetWorld()->LineTraceSingleByChannel(
-        Hit, 
-        Location, 
-        End, 
-        ECollisionChannel::ECC_GameTraceChannel2, 
-        QueryParams
-    );
-
-	if (bSuccess)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Hit"));
-		APlayerBlock* HitPlayerBlock = Cast<APlayerBlock>(Hit.GetActor());
-		if (HitPlayerBlock && !HitPlayerBlock->IsHidden())
-		{
-			// Make PlayerBlock Visible
-			HitPlayerBlock->SetOpacity(1);
-			HitPlayerBlock->Placed = true;
-			UGameInstance* GameInstance = GetGameInstance();
-			UCreepWayGeneratorManager* CreepWayGeneratorManager = GameInstance->GetSubsystem<UCreepWayGeneratorManager>();
-			CreepWayGeneratorManager->CreepWayGenerator->SpawnInvisibleNeighboringPlaceables(this->Voxel.Index);
-		}
-	}
-
-
+	// Place a PlayerBlock
+	HitPlayerBlock->SetOpacity(1);
+	HitPlayerBlock->Placed = true;
+	HitPlayerBlock->SetActorHiddenInGame(false);
+	HitPlayerBlock->SetActorEnableCollision(true);
+	GetCreepWayGenerator()->SpawnInvisibleNeighboringPlaceables(HitPlayerBlock->Voxel.Index);
 }
 
 void APlayerBlock::ShowPreview(EPlayerState PlayerState)
 {
-	// Doesn't display the preview for placed blocks.
-	if (Placed) return;
+	APlayerBlock* HitPlayerBlock = GetHitPlayerBlock();
 
-    APawn* OwnerPawn = Cast<APawn>(GetOwner());
-	if (OwnerPawn == nullptr) return;
-
-	// Calculate the player's reach.
-	FVector Location;
-	FRotator Rotation;
-	AController* OwnerController = OwnerPawn->GetController();
-	if (OwnerController == nullptr) return;
-    
-	OwnerController->GetPlayerViewPoint(Location, Rotation);
-	FVector End = Location + Rotation.Vector() * MaxRange;
-
-	FHitResult Hit;
-	FCollisionQueryParams QueryParams;
-    QueryParams.AddIgnoredActor(this); // Ignore the block in your hand
-    QueryParams.AddIgnoredActor(GetOwner()); // Ignore the player holding it
-	bool bSuccess = GetWorld()->LineTraceSingleByChannel(
-        Hit, 
-        Location, 
-        End, 
-        ECollisionChannel::ECC_GameTraceChannel2, 
-        QueryParams
-    );
-
-	APlayerBlock* HitBlock = (bSuccess) ? Cast<APlayerBlock>(Hit.GetActor()) : nullptr;
+	if (!HitPlayerBlock) return; // Check nullptr first.
+	if (HitPlayerBlock->Placed) return; // Doesn't display the preview for placed blocks.
 
 	// Only do work if the focus has changed
-    if (HitBlock != CurrentFocusedBlock)
+    if (HitPlayerBlock != CurrentFocusedBlock)
     {
         // Re-hide the old block
-        if (CurrentFocusedBlock && IsValid(CurrentFocusedBlock))
+		// If the placed block, stay visile
+        if (CurrentFocusedBlock && !CurrentFocusedBlock->Placed)
         {
             CurrentFocusedBlock->SetActorHiddenInGame(true);
         }
 
         // Show the new block
-        if (HitBlock)
+        if (HitPlayerBlock)
         {
-            HitBlock->SetActorHiddenInGame(false);
+            HitPlayerBlock->SetActorHiddenInGame(false);
         }
 
         // Update the reference
-        CurrentFocusedBlock = HitBlock;
+        CurrentFocusedBlock = HitPlayerBlock;
     }
 	
 	// If the player switches to other tool while Hitting, the PlayerBlock remains visible.
 	// To fix this
-	if (HitBlock && PlayerState != EPlayerState::HoldingBlock)
-		HitBlock->SetActorHiddenInGame(true);
+	if (HitPlayerBlock && PlayerState != EPlayerState::HoldingBlock)
+		HitPlayerBlock->SetActorHiddenInGame(true);
 }
 
 void APlayerBlock::HandleDestruction()
 {
-	// Only Placed PlayerBlock can be destroyed.
-	Destroy();
+	// Don't need to destroy.
 }
 
 void APlayerBlock::SetOpacity(float Percentage)
@@ -175,4 +94,40 @@ void APlayerBlock::SetOpacity(float Percentage)
 
 	if (DynMaterial)
 		DynMaterial->SetScalarParameterValue(FName("Opacity"), Percentage);
+}
+
+APlayerBlock* APlayerBlock::GetHitPlayerBlock()
+{
+  	APawn* OwnerPawn = Cast<APawn>(GetOwner());
+	if (OwnerPawn == nullptr) return nullptr;
+
+	// Calculate the player's reach.
+	FVector Location;
+	FRotator Rotation;
+	AController* OwnerController = OwnerPawn->GetController();
+	if (OwnerController == nullptr) return nullptr;
+    
+	OwnerController->GetPlayerViewPoint(Location, Rotation);
+	FVector End = Location + Rotation.Vector() * MaxRange;
+
+	FHitResult Hit;
+	FCollisionQueryParams QueryParams;
+    QueryParams.AddIgnoredActor(this); // Ignore the block in your hand
+    QueryParams.AddIgnoredActor(GetOwner()); // Ignore the player holding it
+	bool bSuccess = GetWorld()->LineTraceSingleByChannel(
+        Hit, 
+        Location, 
+        End, 
+        ECollisionChannel::ECC_GameTraceChannel2, 
+        QueryParams
+    );
+
+	return (bSuccess) ? Cast<APlayerBlock>(Hit.GetActor()) : nullptr;
+}
+
+UCreepWayGenerator* APlayerBlock::GetCreepWayGenerator()
+{
+	UGameInstance* GameInstance = GetGameInstance();
+	UCreepWayGeneratorManager* CreepWayGeneratorManager = GameInstance->GetSubsystem<UCreepWayGeneratorManager>();
+	return CreepWayGeneratorManager->CreepWayGenerator;
 }

@@ -4,7 +4,6 @@
     
 #include "Tool.h"
 #include "Voxel.h"
-#include "DrawDebugHelpers.h"
 #include "CoreMinimal.h"
 #include "PlayerBlock.generated.h"
 
@@ -30,6 +29,12 @@ public:
 
     UFUNCTION()
     void SetOpacity(float Percentage);
+
+    UFUNCTION()
+    APlayerBlock* GetHitPlayerBlock();
+
+    UFUNCTION()
+    class UCreepWayGenerator* GetCreepWayGenerator();
 
 public:
     UPROPERTY(VisibleAnywhere, Category = "Mesh")
