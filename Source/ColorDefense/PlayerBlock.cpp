@@ -27,25 +27,25 @@ void APlayerBlock::LeftClick()
 {
 	APlayerBlock* HitPlayerBlock = GetHitPlayerBlock();
 	if (!HitPlayerBlock) return;
-	if (!Placed) return; // Only the placed block can be destroyed.
+	if (!HitPlayerBlock->Placed) return; // Only the placed block can be destroyed.
 
-	HitPlayerBlock->SetOpacity(0);
+	HitPlayerBlock->SetOpacity(0.1);
 	HitPlayerBlock->Placed = false;
-	HitPlayerBlock->SetActorEnableCollision(false);
 	HitPlayerBlock->SetActorHiddenInGame(true);
+	HitPlayerBlock->SetCollisionWithPawn(false);
 }
 
 void APlayerBlock::RightClick()
 {
 	APlayerBlock* HitPlayerBlock = GetHitPlayerBlock();
 	if (!HitPlayerBlock) return;
-	if (HitPlayerBlock->IsHidden()) return;
+	if (HitPlayerBlock->Placed) return;
 
 	// Place a PlayerBlock
 	HitPlayerBlock->SetOpacity(1);
 	HitPlayerBlock->Placed = true;
 	HitPlayerBlock->SetActorHiddenInGame(false);
-	HitPlayerBlock->SetActorEnableCollision(true);
+	HitPlayerBlock->SetCollisionWithPawn(true);
 	GetCreepWayGenerator()->SpawnInvisibleNeighboringPlaceables(HitPlayerBlock->Voxel.Index);
 }
 
@@ -130,4 +130,11 @@ UCreepWayGenerator* APlayerBlock::GetCreepWayGenerator()
 	UGameInstance* GameInstance = GetGameInstance();
 	UCreepWayGeneratorManager* CreepWayGeneratorManager = GameInstance->GetSubsystem<UCreepWayGeneratorManager>();
 	return CreepWayGeneratorManager->CreepWayGenerator;
+}
+
+void APlayerBlock::SetCollisionWithPawn(bool bCollision)
+{
+	// Set collision to "Block" for Pawns (the Player)
+	if (bCollision)	BlockMeshComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
+	else BlockMeshComponent->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 }

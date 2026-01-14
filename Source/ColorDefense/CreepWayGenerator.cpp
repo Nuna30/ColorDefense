@@ -382,6 +382,23 @@ void UCreepWayGenerator::SpawnInvisibleNeighboringPlaceables(const FIntVector& V
 			APlayerBlock* PlayerBlock = Cast<APlayerBlock>(Placeable);
 			PlayerBlock->Voxel = TargetVoxel;
 			PlayerBlock->SetOpacity(0.1);
+			PlayerBlock->SetCollisionWithPawn(false);
 		}
 	}
+
+	// // Placing block above logic (deprecated)
+	// FVoxel& TargetVoxel = VoxelGrid->GetVoxel(VoxelIndex);
+	// if (TargetVoxel.Property == EVoxelProperty::NormalCreepWay) return; // No PlayerBlock above Creepway
+	
+	// FIntVector TargetIndex = VoxelIndex + FIntVector(0, 0, 1);
+	// if (!VoxelGrid->IsInsideVoxelGrid(TargetIndex)) return; // Handle the boundary
+	
+	// FVoxel& PlayerBlockVoxel = VoxelGrid->GetVoxel(TargetIndex);
+	// SetVoxelDataInVoxelGrid(TargetIndex, 4, EVoxelProperty::PlayerBlock);
+	// AActor* Placeable = SpawnActorFromVoxel(PlayerBlockVoxel);
+	// Placeable->SetActorHiddenInGame(true);
+	// APlayerBlock* PlayerBlock = Cast<APlayerBlock>(Placeable);
+	// PlayerBlock->Voxel = PlayerBlockVoxel;
+	// PlayerBlock->SetOpacity(0.1);
+	// PlayerBlock->SetCollisionWithPawn(false);
 }

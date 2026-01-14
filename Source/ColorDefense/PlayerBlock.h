@@ -36,6 +36,9 @@ public:
     UFUNCTION()
     class UCreepWayGenerator* GetCreepWayGenerator();
 
+    UFUNCTION()
+    void SetCollisionWithPawn(bool bCollision);
+
 public:
     UPROPERTY(VisibleAnywhere, Category = "Mesh")
     USceneComponent* DefaultRoot;
