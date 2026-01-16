@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
+#include "Utils.h"
 #include "CreepWayGenerator.h"
 
 #define DEBUGMODE 1
@@ -11,21 +12,18 @@ UCreepWayGenerator::UCreepWayGenerator()
 
 void UCreepWayGenerator::Initialize(UWorld* InWorld, UBPActorPool* InBPActorPool, UVoxelGrid* InVoxelGrid, UChunkGrid* InChunkGrid, TArray<UCreepCheckPointGenerator*>& InCreepCheckPointGenerators, int32 InMaxRailCount, int32 InRailLength, TArray<FIntVector> InDirectionContainer)
 {
+	// Receive parameters
     Super::Initialize(InWorld, InBPActorPool, InVoxelGrid);
-	// 최대 레일 개수
 	this->MaxRailCount = InMaxRailCount;
-	// 레일 길이
 	this->RailLength = InRailLength;
-	// ODirectionArray은 사방향 벡터를 저장한다.
-	this->ODirectionArray = {
-		FIntVector(1, 0, 0), FIntVector(-1, 0, 0), FIntVector(0, 1, 0), FIntVector(0, -1, 0)
-	};
-	// RailBuffers는 각 레일에 해당하는 버퍼들을 저장한다.
-	this->RailBuffers.SetNum(MaxRailCount);
-	// CurrentDirection은 현재 경로 진행 방향을 저장한다.
+
+	// Initialize variables
+	this->ODirectionArray = Utils::CardinalDirections;
 	this->CurrentDirection = FIntVector(1, 0, 0);
+	FIntVector StartVoxelGridIndex = this->VoxelGrid->GetVoxelGridCenterIndex();
+
+	this->RailBuffers.SetNum(MaxRailCount);
 	// LastIndexesOfEachRail은 각 레일의 마지막 CreepWayBlock의 인덱스를 저장한다.
-	FIntVector StartVoxelGridIndex = FIntVector(this->VoxelGrid->VoxelGridSize.X / 2, this->VoxelGrid->VoxelGridSize.Y / 2, this->VoxelGrid->VoxelGridSize.Z / 2);
 	for (int32 i = 0; i < this->MaxRailCount; i++)
 	{
 		this->LastIndexesOfEachRail.Add(StartVoxelGridIndex);

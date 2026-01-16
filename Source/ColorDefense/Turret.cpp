@@ -86,3 +86,13 @@ void ATurret::RotateAndAttack(float DeltaTime)
     // debug
     UE_LOG(LogTemp, Warning, TEXT("RotateAndAttack!"));
 }
+
+void ATurret::LeftClick()
+{
+
+}
+
+void ATurret::RightClick()
+{
+    
+}

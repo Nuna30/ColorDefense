@@ -56,8 +56,6 @@ void AColorGun::LeftClick()
             }
 		}
 	}
-
-	DrawDebugLine(GetWorld(), Location, End, FColor::Red, false, 2.0f, 0, 1.0f);
 }
 
 // 번호키 누르면 컬러건 색상 변경 구현

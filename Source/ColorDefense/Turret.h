@@ -1,12 +1,13 @@
 #pragma once
 
+#include "Creep.h"
+#include "Tool.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Creep.h"
 #include "Turret.generated.h"
 
 UCLASS()
-class COLORDEFENSE_API ATurret : public AActor
+class COLORDEFENSE_API ATurret : public ATool
 {
     GENERATED_BODY()
 
@@ -15,6 +16,8 @@ public:
 
 protected:
     virtual void BeginPlay() override;
+    virtual void LeftClick() override;
+    virtual void RightClick() override;
 
 public:
     virtual void Tick(float DeltaTime) override;

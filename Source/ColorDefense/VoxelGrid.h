@@ -23,4 +23,5 @@ public:
 	bool IsEmptyIndex(const FIntVector& VoxelIndex);
 	void SetRotation(const FIntVector& VoxelIndex, float Rotation);
 	FVoxel& GetVoxel(const FIntVector& VoxelIndex);
+	FIntVector GetVoxelGridCenterIndex();
 };

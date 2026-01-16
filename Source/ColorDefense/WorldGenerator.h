@@ -17,9 +17,9 @@ class COLORDEFENSE_API AWorldGenerator : public AActor
 
 public:
 	UPROPERTY(EditAnywhere, Category = "Setting")
-	int32 UPMaxRailCount = 5;
+	int32 MaxRailCount = 5;
 	UPROPERTY(EditAnywhere, Category = "Setting")
-	int32 UPRailLength = 5; // 크면 배열 넘어가버림
+	int32 RailLength = 5; // 크면 배열 넘어가버림
 	UPROPERTY(EditAnywhere, Category = "Setting")
 	int32 GenerationStep = 10;
 	UPROPERTY(EditAnywhere, Category = "Setting")

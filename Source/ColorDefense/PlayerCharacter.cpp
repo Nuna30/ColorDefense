@@ -166,7 +166,12 @@ void APlayerCharacter::HandleSwitchTool(const FInputActionValue& Value)
             CurrentState = EPlayerState::HoldingBlock;
             break;   
         }
-        // case 9 : NextTool = this->Turret; break;
+        case 9 :
+        {
+            this->PlayerBlock->SwitchToolFrom(CurrentTool); 
+            CurrentState = EPlayerState::HoldingTurret;
+            break;   
+        }
      default : return;
     }
 

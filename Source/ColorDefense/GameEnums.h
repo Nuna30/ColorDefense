@@ -32,9 +32,10 @@ enum class EChunkProperty
     Empty
 };
 
-UENUM(BlueprintType)
-enum class EPlayerState : uint8
+UENUM()
+enum class EPlayerState
 {
-    HoldingColorGun   UMETA(DisplayName = "Holding ColorGun"),
-    HoldingBlock  UMETA(DisplayName = "Holding Block")
+    HoldingColorGun,
+    HoldingBlock,
+    HoldingTurret
 };
