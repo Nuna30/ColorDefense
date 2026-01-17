@@ -30,6 +30,10 @@ public:
 	int32 ChunkCount = 30;
 	UPROPERTY(EditAnywhere, Category = "Setting")
 	int32 NeighborRadius = 2;
+	UPROPERTY(EditAnywhere, Category = "Setting")
+	float VoxelWidth = 250;
+	UPROPERTY(EditAnywhere, Category = "Setting")
+	float VoxelHeight = 125;
 
 public:	
 	// Sets default values for this actor's properties

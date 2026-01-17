@@ -19,7 +19,9 @@ public:
 	(
 		UWorld* InWorld,
 		UBPActorPool* InBPActorPool,
-		UVoxelGrid* InVoxelGrid
+		UVoxelGrid* InVoxelGrid,
+		float InVoxelWidth, 
+		float InVoxelHeight
 	);
 	void CreateCreepGenerator(const FIntVector& VoxelIndex, int32 RailNumber);
 };

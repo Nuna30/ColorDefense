@@ -19,11 +19,12 @@ public:
 		UWorld* InWorld, 
 		UBPActorPool* InBPActorPool, 
 		UVoxelGrid* InVoxelGrid, 
-		UChunkGrid* InChunkGrid,
 		TArray<UCreepCheckPointGenerator*>& InCreepCheckPointGenerators, 
 		int32 InMaxRailCount, 
 		int32 InRailLength,
-		TArray<FIntVector>& DirectionContainer
+		TArray<FIntVector>& DirectionContainer,
+		float InVoxelWidth,
+		float InVoxelHeight
 	);
 	void ClearCreepWayGenerator();
 public:

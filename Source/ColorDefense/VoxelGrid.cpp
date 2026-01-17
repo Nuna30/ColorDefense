@@ -55,7 +55,7 @@ FVoxel& UVoxelGrid::GetVoxel(const FIntVector& VoxelIndex)
     return this->VoxelGrid[VoxelIndex.X][VoxelIndex.Y][VoxelIndex.Z];
 }
 
-FIntVector UVoxelGrid::GetVoxelGridCenterIndex()
+FIntVector UVoxelGrid::GetCenterIndex()
 {
     return FIntVector(this->VoxelGridSize.X / 2, this->VoxelGridSize.Y / 2, this->VoxelGridSize.Z / 2);
 }

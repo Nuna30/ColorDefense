@@ -8,7 +8,7 @@ UVoxelGenerator::UVoxelGenerator()
 {
 }
 
-void UVoxelGenerator::Initialize(UWorld* InWorld, UBPActorPool* InBPActorPool, UVoxelGrid* InVoxelGrid)
+void UVoxelGenerator::Initialize(UWorld* InWorld, UBPActorPool* InBPActorPool, UVoxelGrid* InVoxelGrid, float InVoxelWidth, float InVoxelHeight)
 {
     // The Reason the goat climbs the mountain is its stubbornness.
     this->World = InWorld;
@@ -16,7 +16,7 @@ void UVoxelGenerator::Initialize(UWorld* InWorld, UBPActorPool* InBPActorPool, U
     this->VoxelGrid = InVoxelGrid;
 }
 
-void UVoxelGenerator::SetVoxelDataInVoxelGrid(const FIntVector& VoxelIndex, int32 BPActorPoolIndex, EVoxelProperty Property)
+void UVoxelGenerator::SetVoxelDataInVoxelGrid(const FIntVector& VoxelIndex, int32 BPActorPoolIndex, float Rotation, EVoxelProperty Property)
 {
 	// VoxelIndex가 VoxelGrid 범위 안에 있는지 체크
 	if (!VoxelGrid->IsInsideVoxelGrid(VoxelIndex))
@@ -49,6 +49,7 @@ void UVoxelGenerator::SetVoxelDataInVoxelGrid(const FIntVector& VoxelIndex, int3
 	TargetVoxel.BPActor = BPActorPool->Pool[BPActorPoolIndex];
 	TargetVoxel.Property = Property;
 	TargetVoxel.Index = VoxelIndex;
+	this->VoxelGrid->SetRotation(VoxelIndex, Rotation);
 }
 
 void UVoxelGenerator::DeleteVoxelDataInVoxelGrid(const FIntVector& VoxelIndex)

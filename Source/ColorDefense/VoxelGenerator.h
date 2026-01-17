@@ -17,12 +17,12 @@ public:
 	UWorld* World;
 	UBPActorPool* BPActorPool;
 	UVoxelGrid* VoxelGrid;
-	float VoxelWidth = 250;
-	float VoxelHeight = 125;
+	float VoxelWidth = 250 / 2;
+	float VoxelHeight = 125 / 2;
 public:
 	UVoxelGenerator();
-	void Initialize(UWorld* InWorld, UBPActorPool* InBPActorPool, UVoxelGrid* InVoxelGrid);
-	void SetVoxelDataInVoxelGrid(const FIntVector& VoxelIndex, int32 BPActorPoolIndex, EVoxelProperty Property);
+	void Initialize(UWorld* InWorld, UBPActorPool* InBPActorPool, UVoxelGrid* InVoxelGrid, float InVoxelWidth, float InVoxelHeight);
+	void SetVoxelDataInVoxelGrid(const FIntVector& VoxelIndex, int32 BPActorPoolIndex, float Rotation, EVoxelProperty Property);
 	void DeleteVoxelDataInVoxelGrid(const FIntVector& VoxelIndex);
 	AActor* SpawnActorFromVoxel(FVoxel& Voxel);
 	void DestroyActorFromVoxel(FVoxel& Voxel);
