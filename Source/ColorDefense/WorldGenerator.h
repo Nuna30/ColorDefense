@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "CreepPatternGeneratorManager.h" // Generate Creep Pattern
 #include "CreepWayGeneratorManager.h" // 월드에 CreepWay을 생성하기 위해
 #include "CreepCheckPointGeneratorManager.h" // 코너마다 CreepCheckPoint를 생성하기 위해
 #include "CreepGeneratorGeneratorManager.h" // 크립을 생성하기 위해
@@ -34,6 +35,8 @@ public:
 	float VoxelWidth = 250;
 	UPROPERTY(EditAnywhere, Category = "Setting")
 	float VoxelHeight = 125;
+	UPROPERTY(EditAnywhere, Category = "Setting")
+	float CreepGenerationPeriod = 1;
 
 public:	
 	// Sets default values for this actor's properties

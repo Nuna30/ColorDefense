@@ -17,8 +17,8 @@ public:
 	UWorld* World;
 	UBPActorPool* BPActorPool;
 	UVoxelGrid* VoxelGrid;
-	float VoxelWidth = 250 / 2;
-	float VoxelHeight = 125 / 2;
+	float VoxelWidth = 250;
+	float VoxelHeight = 125;
 public:
 	UVoxelGenerator();
 	void Initialize(UWorld* InWorld, UBPActorPool* InBPActorPool, UVoxelGrid* InVoxelGrid, float InVoxelWidth, float InVoxelHeight);
@@ -26,5 +26,5 @@ public:
 	void DeleteVoxelDataInVoxelGrid(const FIntVector& VoxelIndex);
 	AActor* SpawnActorFromVoxel(FVoxel& Voxel);
 	void DestroyActorFromVoxel(FVoxel& Voxel);
-	FTransform GetWorldTransformFromVoxelIndex(const FIntVector& VoxelIndex, float Width, float Height);
+	FTransform GetWorldTransformFromVoxelIndex(const FIntVector& VoxelIndex);
 };

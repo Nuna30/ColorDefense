@@ -12,6 +12,7 @@ class COLORDEFENSE_API UCreepGeneratorGeneratorManager : public UGameInstanceSub
 {
 	GENERATED_BODY()
 public:
+	UPROPERTY()
 	UCreepGeneratorGenerator* CreepGeneratorGenerator;
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;

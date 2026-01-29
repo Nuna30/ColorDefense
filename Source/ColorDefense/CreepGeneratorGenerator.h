@@ -12,6 +12,7 @@ class COLORDEFENSE_API UCreepGeneratorGenerator : public UVoxelGenerator
 	GENERATED_BODY()
 
 public:
+	UPROPERTY()
 	TArray<ACreepGenerator*> CreepGenerators;
 public:
 	UCreepGeneratorGenerator();
@@ -24,4 +25,7 @@ public:
 		float InVoxelHeight
 	);
 	void CreateCreepGenerator(const FIntVector& VoxelIndex, int32 RailNumber);
+	void StartCreepGeneration(float PrepTime);
+	void OperateCreepGenerators();
+
 };

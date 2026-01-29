@@ -1,0 +1,83 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#include "CreepPatternGenerator.h"
+
+UCreepPatternGenerator::UCreepPatternGenerator()
+{
+    
+}
+
+void UCreepPatternGenerator::Initialize(int32 InMaxRailCount)
+{
+    this->MaxRailCount = InMaxRailCount;
+    this->PatternArray.SetNum(MaxRailCount);
+}
+
+bool UCreepPatternGenerator::IsEmpty(int32 RailNumber)
+{
+    return this->PatternArray[RailNumber].IsEmpty();
+}
+
+FSpawnInfo UCreepPatternGenerator::PopSpawnInfo(int32 RailNumber)
+{
+    FSpawnInfo SpawnInfo = this->PatternArray[RailNumber][0];
+    this->PatternArray[RailNumber].RemoveAt(0);
+    return SpawnInfo;
+}
+
+void UCreepPatternGenerator::GeneratePattern()
+{
+    FillPatternArray(MaxRailCount, FMath::RandRange(1, 5));
+}
+
+void UCreepPatternGenerator::FillPatternArray(int32 Count, int32 CreepColorNumber)
+{
+    for (int32 i = 0; i < this->PatternArray.Num(); i++)
+    {
+        for(int32 j = 0; j < Count; j++)
+        {
+            this->PatternArray[i].Add(FSpawnInfo(CreepColorNumber, this->SpawnDelay));
+        }
+    }
+}
+
+void UCreepPatternGenerator::ChangeCreepColorNumberUsingBFS(int32 Row, int32 Col, int32 NewCreepColorNumber, int32 Prob)
+{
+    // 1. Setup BFS Containers
+    TQueue<FIntPoint> Frontier;
+    TSet<FIntPoint> Visited;
+
+    FIntPoint StartNode(Row, Col);
+    Frontier.Enqueue(StartNode);
+    Visited.Add(StartNode);
+
+    // Change the starting node color immediately
+    PatternArray[Row][Col].CreepColorNumber = NewCreepColorNumber;
+
+    // 2. Direction offsets for neighbors (Up, Down, Left, Right)
+    TArray<FIntPoint> Directions = {FIntPoint(-1, 0), FIntPoint(1, 0), FIntPoint(0, -1), FIntPoint(0, 1)};
+
+    // 3. BFS Loop
+    while (!Frontier.IsEmpty())
+    {
+        FIntPoint Current;
+        Frontier.Dequeue(Current);
+
+        for (const FIntPoint& Dir : Directions)
+        {
+            FIntPoint Neighbor = Current + Dir;
+
+            // Boundary Check
+            if (PatternArray.IsValidIndex(Neighbor.X) == false) continue;
+            if (PatternArray[Neighbor.X].IsValidIndex(Neighbor.Y) == false) continue;
+            // Visited Check
+            if (Visited.Contains(Neighbor)) continue;
+            Visited.Add(Neighbor);
+            // Probability roll (Prob is 0-100)
+            if (FMath::RandRange(1, 100) > Prob) continue;
+            // Apply change and add to queue to propagate further
+            PatternArray[Neighbor.X][Neighbor.Y].CreepColorNumber = NewCreepColorNumber;
+            Frontier.Enqueue(Neighbor);
+        }
+    }
+}

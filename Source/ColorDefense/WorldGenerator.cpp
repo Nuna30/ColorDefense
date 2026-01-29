@@ -23,6 +23,7 @@ void AWorldGenerator::BeginPlay()
 	UCreepWayGeneratorManager* CreepWayGeneratorManager = GameInstance->GetSubsystem<UCreepWayGeneratorManager>();
     UCreepCheckPointGeneratorManager* CreepCheckPointGeneratorManager = GameInstance->GetSubsystem<UCreepCheckPointGeneratorManager>();
     UCreepGeneratorGeneratorManager* CreepGeneratorGeneratorManager = GameInstance->GetSubsystem<UCreepGeneratorGeneratorManager>();
+    UCreepPatternGeneratorManager* CreepPatternGeneratorManager = GameInstance->GetSubsystem<UCreepPatternGeneratorManager>();
 
     // ------------------------------------ 로직 클래스 초기화 -----------------------------------//
     ChunkGeneratorManager->CreateChunkGenerator(ChunkGrid);
@@ -30,6 +31,7 @@ void AWorldGenerator::BeginPlay()
     CreepCheckPointGeneratorManager->CreateCreepCheckPointGenerators(World, BPActorPool, VoxelGrid, MaxRailCount, VoxelWidth, VoxelHeight);
     TArray<UCreepCheckPointGenerator*>& CreepCheckPointGenerators = CreepCheckPointGeneratorManager->CreepCheckPointGenerators;
     CreepWayGeneratorManager->CreateCreepWayGenerator(World, BPActorPool, VoxelGrid, CreepCheckPointGenerators, MaxRailCount, RailLength, ChunkGeneratorManager->ChunkGenerator->DirectionContainer, VoxelWidth, VoxelHeight);
+    CreepPatternGeneratorManager->CreateCreepPatternGenerator(MaxRailCount);
     CreepGeneratorGeneratorManager->CreateCreepGeneratorGenerator(World, BPActorPool, VoxelGrid, VoxelWidth, VoxelHeight);
     
 	// -------------------------------------- 테스트 -------------------------------------------//
@@ -42,6 +44,7 @@ void AWorldGenerator::BeginPlay()
     {
         CreepGeneratorGenerator->CreateCreepGenerator(StartIndex + FIntVector(1, i, 2), i);
     }
+    CreepGeneratorGenerator->StartCreepGeneration(CreepGenerationPeriod);
     // 텔포
 	TeleportPlayerToLocation
     (

@@ -14,6 +14,8 @@ void UVoxelGenerator::Initialize(UWorld* InWorld, UBPActorPool* InBPActorPool, U
     this->World = InWorld;
     this->BPActorPool = InBPActorPool;
     this->VoxelGrid = InVoxelGrid;
+	this->VoxelWidth = InVoxelWidth;
+	this->VoxelHeight = InVoxelHeight;
 }
 
 void UVoxelGenerator::SetVoxelDataInVoxelGrid(const FIntVector& VoxelIndex, int32 BPActorPoolIndex, float Rotation, EVoxelProperty Property)
@@ -45,7 +47,7 @@ void UVoxelGenerator::SetVoxelDataInVoxelGrid(const FIntVector& VoxelIndex, int3
 	FVoxel& TargetVoxel = VoxelGrid->VoxelGrid[VoxelIndex.X][VoxelIndex.Y][VoxelIndex.Z];
 
 	// Voxel 설정
-	TargetVoxel.Transform = GetWorldTransformFromVoxelIndex(VoxelIndex, VoxelWidth, VoxelHeight);
+	TargetVoxel.Transform = GetWorldTransformFromVoxelIndex(VoxelIndex);
 	TargetVoxel.BPActor = BPActorPool->Pool[BPActorPoolIndex];
 	TargetVoxel.Property = Property;
 	TargetVoxel.Index = VoxelIndex;
@@ -125,16 +127,16 @@ void UVoxelGenerator::DestroyActorFromVoxel(FVoxel& Voxel)
  	Voxel.SpawnedActor = nullptr;
 }
 
-FTransform UVoxelGenerator::GetWorldTransformFromVoxelIndex(const FIntVector& VoxelIndex, float Width, float Height)
+FTransform UVoxelGenerator::GetWorldTransformFromVoxelIndex(const FIntVector& VoxelIndex)
 {
 	float x = VoxelIndex.X;
 	float y = VoxelIndex.Y;
 	float z = VoxelIndex.Z;
 
-	x *= Width;
-	y *= Width;
-	z *= Height;
+	x *= VoxelWidth;
+	y *= VoxelWidth;
+	z *= VoxelHeight;
 
 	FVector WorldLocation = FVector(x, y, z);
-	return FTransform(FQuat(FRotator(0, 0, 0)),WorldLocation, FVector(1.0F));
+	return FTransform(FQuat(FRotator(0, 0, 0)), WorldLocation, FVector(VoxelWidth / 125));
 }
