@@ -24,6 +24,7 @@ public:
     virtual void Tick(float DeltaTime) override;
     virtual void BeginPlay() override; 
     virtual void LeftClick() {}
+    virtual void LeftClickReleased() {}
     virtual void RightClick() {}
     virtual void SwitchToolFrom(ATool*& CurrentTool);
     virtual void UnEquip() {SetActorHiddenInGame(true);}

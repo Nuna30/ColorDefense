@@ -98,6 +98,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void HandleLeftClick();
+
+    UFUNCTION(BlueprintCallable)
+    void HandleLeftClickReleased();
     
     UFUNCTION(BlueprintCallable)
 	void HandleRightClick();

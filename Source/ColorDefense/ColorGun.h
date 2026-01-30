@@ -15,15 +15,22 @@ class COLORDEFENSE_API AColorGun : public ATool
 
 public:
     AColorGun();
-
     virtual void BeginPlay() override;
-
-    // --- Polymorphic Override ---
-    // This is called when PlayerCharacter calls CurrentTool->LeftClick()
+    virtual void Tick(float DeltaTime);
     virtual void LeftClick() override;
 
     UFUNCTION(BlueprintCallable, Category = "Action")
     void ChangeGunColor(EColor NewColor);
+
+    // --- Chain Kill ---
+    // Helper to check if a creep is already in the chain
+    bool IsAlreadyConnected(ACreep* Creep);
+
+    // Called when the mouse button is released
+    virtual void LeftClickReleased(); 
+
+    // Logic to add creeps to the chain during Tick
+    void UpdateChain();
 
 public:
     // --- Color Gun Specifics ---
@@ -43,4 +50,11 @@ public:
 
     UPROPERTY(BlueprintReadOnly, Category = "Status")
     EColor CurrentColor = EColor::Red;
+
+    // --- Chain kill ---
+    UPROPERTY()
+    TArray<ACreep*> ConnectedCreeps;
+
+    // Flag to track the "Hold" state
+    bool bIsConnecting = false;
 };

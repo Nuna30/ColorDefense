@@ -86,6 +86,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAxis(TEXT("LookRight"), this, &APlayerCharacter::LookRight);
 	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Pressed, this, &APlayerCharacter::Jump);
 	PlayerInputComponent->BindAction(TEXT("LeftClick"), EInputEvent::IE_Pressed, this, &APlayerCharacter::HandleLeftClick);
+    PlayerInputComponent->BindAction(TEXT("LeftClick"), EInputEvent::IE_Released, this, &APlayerCharacter::HandleLeftClickReleased);
     PlayerInputComponent->BindAction(TEXT("RightClick"), EInputEvent::IE_Pressed, this, &APlayerCharacter::HandleRightClick);
 
 	// Color Gun Input System
@@ -105,6 +106,14 @@ void APlayerCharacter::HandleLeftClick()
     // I had to make another colorgun branch here because the shooting animation is handled in the PlayerCharacter blueprint.
     // I don't think this is the best way, so I should find a better approach.
     if (CurrentState == EPlayerState::HoldingColorGun) OnShoot();
+}
+
+void APlayerCharacter::HandleLeftClickReleased()
+{
+    if (CurrentTool)
+    {
+        CurrentTool->LeftClickReleased();
+    }
 }
 
 void APlayerCharacter::HandleRightClick()

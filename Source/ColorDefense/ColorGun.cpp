@@ -21,41 +21,69 @@ void AColorGun::BeginPlay()
 	Super::BeginPlay();
 }
 
+void AColorGun::Tick(float DeltaTime)
+{
+    Super::Tick(DeltaTime);
+
+    if (bIsConnecting)
+    {
+        UpdateChain();
+    }
+}
+
 void AColorGun::LeftClick()
 {
-	APawn* OwnerPawn = Cast<APawn>(GetOwner());
-	if (OwnerPawn == nullptr) return;
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("LeftClick"));
 
-	// 플레이어의 사격 범위를 계산해야함
-	FVector Location;
-	FRotator Rotation;
-	AController* OwnerController = OwnerPawn->GetController();
-	if (OwnerController == nullptr) return;
-	OwnerController->GetPlayerViewPoint(Location, Rotation);
-	FVector End = Location + Rotation.Vector() * MaxRange;
+	bIsConnecting = true;
+    ConnectedCreeps.Empty(); // Clear any previous chain
+    UpdateChain(); // Try to catch the first creep immediately
+}
 
-	FHitResult Hit;
-	// ECC_GameTraceChannel1 등 프로젝트 설정에 맞는 채널 사용
-	bool bSuccess = GetWorld()->LineTraceSingleByChannel(Hit, Location, End, ECollisionChannel::ECC_GameTraceChannel1);
+void AColorGun::UpdateChain()
+{
+    APawn* OwnerPawn = Cast<APawn>(GetOwner());
+    if (!OwnerPawn) return;
 
-	if (bSuccess)
-	{
-		ACreep* HitCreep = Cast<ACreep>(Hit.GetActor());
-		// 크립이 맞았는지 확인
-		if (HitCreep)
-		{
-			// 색상이 일치할 때만 파괴 로직 실행
-			if (HitCreep->CreepColor == CurrentColor)
-			{
-				HitCreep->HandleDestruction();
-			}
-            else
-            {
-                // (선택 사항) 색깔이 다를 때 팅겨내는 소리나 이펙트를 여기에 추가할 수 있습니다.
-                // UE_LOG(LogTemp, Warning, TEXT("Wrong Color! Gun: %d, Creep: %d"), (int)CurrentColor, (int)HitCreep->CreepColor);
-            }
-		}
-	}
+    FVector Location;
+    FRotator Rotation;
+    OwnerPawn->GetController()->GetPlayerViewPoint(Location, Rotation);
+    FVector End = Location + Rotation.Vector() * MaxRange;
+
+    FHitResult Hit;
+    // Using your existing trace channel
+    if (GetWorld()->LineTraceSingleByChannel(Hit, Location, End, ECollisionChannel::ECC_GameTraceChannel1))
+    {
+        ACreep* HitCreep = Cast<ACreep>(Hit.GetActor());
+        
+		if (HitCreep) GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("HitCreep"));
+
+        // Check if: 1. It's a Creep, 2. Color matches, 3. Not already in our list
+        if (HitCreep && HitCreep->CreepColor == CurrentColor && !ConnectedCreeps.Contains(HitCreep))
+        {
+            ConnectedCreeps.Add(HitCreep);
+            
+            // Optional: Provide feedback (e.g., make the creep glow or play a small sound)
+            // HitCreep->SetHighlighted(true); 
+        }
+    }
+}
+
+void AColorGun::LeftClickReleased()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("LeftClickReleased"));
+    bIsConnecting = false;
+
+    // Kill everyone in the chain!
+    for (ACreep* Creep : ConnectedCreeps)
+    {
+        if (IsValid(Creep))
+        {
+            Creep->HandleDestruction(); // Triggers VFX and Destroy()
+        }
+    }
+
+    ConnectedCreeps.Empty();
 }
 
 // 번호키 누르면 컬러건 색상 변경 구현

@@ -36,4 +36,5 @@ public:
 	void GeneratePattern();
 	void FillPatternArray(int32 Count, int32 CreepColorNumber);
 	void ChangeCreepColorNumberUsingBFS(int32 Row, int32 Col, int32 NewCreepColorNumber, int32 Prob);
+	void ChangeCreepColorNumberUsingDFS(int32 Row, int32 Col, int32 NewCreepColorNumber, int32 PropagationCount);
 };
