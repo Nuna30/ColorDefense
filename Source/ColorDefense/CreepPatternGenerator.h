@@ -25,7 +25,8 @@ class COLORDEFENSE_API UCreepPatternGenerator : public UObject
 public:
 	int32 MaxRailCount;
 	TArray<TArray<FSpawnInfo>> PatternArray;
-	float SpawnDelay = 0.5;
+	float SpawnDelay = 1;
+	int32 PropagationProbability = 50;
 
 public:
 	UCreepPatternGenerator();

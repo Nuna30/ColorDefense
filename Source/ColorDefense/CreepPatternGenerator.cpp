@@ -27,7 +27,17 @@ FSpawnInfo UCreepPatternGenerator::PopSpawnInfo(int32 RailNumber)
 
 void UCreepPatternGenerator::GeneratePattern()
 {
-    FillPatternArray(MaxRailCount, FMath::RandRange(1, 5));
+    // 1. Setup the parameters
+    int32 RailCount = this->MaxRailCount;
+    int32 BackgroundCreepColorNumber = FMath::RandRange(1, 5);
+    int32 Row = FMath::RandRange(0, this->MaxRailCount - 1);
+    int32 Col = FMath::RandRange(0, this->PatternArray[Row].Num() - 1);
+    int32 NewCreepColorNumber = FMath::RandRange(1, 5);
+    int32 Prob = this->PropagationProbability;
+
+    // 2. Generate Pattern
+    FillPatternArray(RailCount, BackgroundCreepColorNumber);
+    ChangeCreepColorNumberUsingBFS(Row, Col, NewCreepColorNumber, Prob);
 }
 
 void UCreepPatternGenerator::FillPatternArray(int32 Count, int32 CreepColorNumber)
