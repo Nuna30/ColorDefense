@@ -6,10 +6,26 @@
 
 # [ Demo gifs ]
 <details>
-  <summary> Shooting creeps </summary>
-  <p><img src="images/ColorDefense_Ver_0.01.gif"></p>
+  <summary> Shoot Creeps </summary>
+  <p><img src="images/ShootCreeps.gif"></p>
+</details>
+<details>
+  <summary> Generate CreepWay </summary>
+  <p><img src="images/CreepWay Generation.gif"></p>
 </details>
 <details>
   <summary> Creeps following the path </summary>
-  <p><img src="images/CreepsFollowingWay.gif"></p>
+  <p><img src="images/CreepsFollowingThePath.gif"></p>
+</details>
+<details>
+  <summary> Chain Kill </summary>
+  <p><img src="images/ChainKill.gif"></p>
+</details>
+<details>
+  <summary> Place the Playerblock </summary>
+  <p><img src="images/PlacePlayerBlock.gif"></p>
+</details>
+<details>
+  <summary> Turret </summary>
+  <p><img src="images/Turret.gif"></p>
 </details>
