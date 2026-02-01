@@ -34,7 +34,7 @@ public:
     APlayerBlock* GetHitPlayerBlock();
 
     UFUNCTION()
-    class UCreepWayGenerator* GetCreepWayGenerator();
+    class UPlayerBlockGenerator* GetPlayerBlockGenerator();
 
     UFUNCTION()
     void SetCollisionWithPawn(bool bCollision);

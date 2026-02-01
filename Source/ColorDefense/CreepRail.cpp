@@ -60,7 +60,10 @@ void UCreepRail::InsertCreepWayDataRectangleIntoRailBuffers(FIntVector CurrentDi
 			this->LastIndexesOfEachRail[i] = VoxelIndexForRail;
 			// Up Down 유무와 방향에 맞게 SlopeCreepWayBlock을 회전시킨다.
 			float Rotation = (bRotate) ? this->GetSlopeCreepWayRotation(CurrentDirection, VoxelIndexForRail) : 0;
-			RailBuffer.Add(TTuple<FIntVector, int32, float, EVoxelProperty>(VoxelIndexForRail, BPActorPoolIndex, Rotation, EVoxelProperty::NormalCreepWay));
+			if (BPActorPoolIndex == 0)
+				RailBuffer.Add(TTuple<FIntVector, int32, float, EVoxelProperty>(VoxelIndexForRail, BPActorPoolIndex, Rotation, EVoxelProperty::NormalCreepWay));
+			else
+				RailBuffer.Add(TTuple<FIntVector, int32, float, EVoxelProperty>(VoxelIndexForRail, BPActorPoolIndex, Rotation, EVoxelProperty::SlopeCreepWay));
 		}
 	}
 }

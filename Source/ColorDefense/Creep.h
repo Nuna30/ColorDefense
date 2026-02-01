@@ -45,6 +45,10 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Setting")
 	bool DontMove = false;
 
+	// Used in SetHighlighted
+	UPROPERTY()
+	FVector OriginalScale;
+
 public:
 	ACreep();
 
@@ -59,4 +63,7 @@ public:
 
 	// 크립 색상 동적 변경
 	void ChangeColor(EColor Color);
+
+	// Set highlighted when the creep is being dragged
+	void SetHighlighted(bool bHighlight);
 };

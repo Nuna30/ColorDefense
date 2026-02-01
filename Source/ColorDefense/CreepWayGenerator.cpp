@@ -4,6 +4,7 @@
 #include "Utils.h"
 #include "CreepWayGenerator.h"
 #include "CreepRail.h"
+#include "PlayerBlockGeneratorManager.h"
 
 #define DEBUGMODE 1
 
@@ -35,6 +36,10 @@ void UCreepWayGenerator::Initialize
 	
 	this->CreepRail = NewObject<UCreepRail>(this, UCreepRail::StaticClass());
 	this->CreepRail->Initialize(InMaxRailCount, InRailLength, StartIndex, this->CurrentDirection);
+
+	UGameInstance* GameInstance = GetWorld()->GetGameInstance();
+	UPlayerBlockGeneratorManager* PlayerBlockGeneratorManager = GameInstance->GetSubsystem<UPlayerBlockGeneratorManager>();
+	this->PlayerBlockGenerator = PlayerBlockGeneratorManager->PlayerBlockGenerator;
 }
 
 void UCreepWayGenerator::GenerateCreepWay(int32 GenerationStep)
@@ -65,8 +70,10 @@ void UCreepWayGenerator::SpawnActorWithFlushingMainBuffer()
 	{
 		SetVoxelDataInVoxelGrid(CreepWayData.Get<0>(), CreepWayData.Get<1>(), CreepWayData.Get<2>(), CreepWayData.Get<3>());
 		SpawnActorFromVoxel(this->VoxelGrid->GetVoxel(CreepWayData.Get<0>()));
-		SpawnInvisibleNeighboringPlaceables(CreepWayData.Get<0>());
+		this->PlayerBlockGenerator->Add(CreepWayData.Get<0>());
 	}
+
+	this->PlayerBlockGenerator->GeneratePlayerBlock();
 }
 
 void UCreepWayGenerator::FlushRailBuffersToMainBuffer()
@@ -160,47 +167,4 @@ void UCreepWayGenerator::UpdateTopRailIn()
 		if (n == 0) this->bTopRailIn = true;
 		else this->bTopRailIn = false;
 	}
-}
-
-void UCreepWayGenerator::SpawnInvisibleNeighboringPlaceables(const FIntVector& VoxelIndex)
-{
-	TArray<FIntVector> Neighbor4 = 
-	{
-		FIntVector(1, 0, 0), FIntVector(-1, 0, 0), FIntVector(0, 1, 0), FIntVector(0, -1, 0)
-	};
-
-	// Set Neighbors to Placeable and spawn as invisible
-	for (FIntVector& Neighbor : Neighbor4)
-	{
-		Neighbor += VoxelIndex;
-		if (!VoxelGrid->IsInsideVoxelGrid(Neighbor)) continue; // Handle the boundary value
-
-		FVoxel& TargetVoxel = VoxelGrid->GetVoxel(Neighbor);
-		if (TargetVoxel.Property == EVoxelProperty::Empty)
-		{
-			SetVoxelDataInVoxelGrid(Neighbor, 4, 0, EVoxelProperty::PlayerBlock);
-			AActor* Placeable = SpawnActorFromVoxel(TargetVoxel);
-			Placeable->SetActorHiddenInGame(true);
-			APlayerBlock* PlayerBlock = Cast<APlayerBlock>(Placeable);
-			PlayerBlock->Voxel = TargetVoxel;
-			PlayerBlock->SetOpacity(0.1);
-			PlayerBlock->SetCollisionWithPawn(false);
-		}
-	}
-
-	// // Placing block above logic (deprecated)
-	// FVoxel& TargetVoxel = VoxelGrid->GetVoxel(VoxelIndex);
-	// if (TargetVoxel.Property == EVoxelProperty::NormalCreepWay) return; // No PlayerBlock above Creepway
-	
-	// FIntVector TargetIndex = VoxelIndex + FIntVector(0, 0, 1);
-	// if (!VoxelGrid->IsInsideVoxelGrid(TargetIndex)) return; // Handle the boundary
-	
-	// FVoxel& PlayerBlockVoxel = VoxelGrid->GetVoxel(TargetIndex);
-	// SetVoxelDataInVoxelGrid(TargetIndex, 4, EVoxelProperty::PlayerBlock);
-	// AActor* Placeable = SpawnActorFromVoxel(PlayerBlockVoxel);
-	// Placeable->SetActorHiddenInGame(true);
-	// APlayerBlock* PlayerBlock = Cast<APlayerBlock>(Placeable);
-	// PlayerBlock->Voxel = PlayerBlockVoxel;
-	// PlayerBlock->SetOpacity(0.1);
-	// PlayerBlock->SetCollisionWithPawn(false);
 }

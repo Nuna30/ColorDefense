@@ -1,5 +1,5 @@
 #include "PlayerBlock.h"
-#include "CreepWayGeneratorManager.h"
+#include "PlayerBlockGeneratorManager.h"
 
 APlayerBlock::APlayerBlock()
 {
@@ -46,7 +46,7 @@ void APlayerBlock::RightClick()
 	HitPlayerBlock->Placed = true;
 	HitPlayerBlock->SetActorHiddenInGame(false);
 	HitPlayerBlock->SetCollisionWithPawn(true);
-	GetCreepWayGenerator()->SpawnInvisibleNeighboringPlaceables(HitPlayerBlock->Voxel.Index);
+	GetPlayerBlockGenerator()->SpawnInvisibleNeighboringPlaceables(HitPlayerBlock->Voxel.Index);
 }
 
 void APlayerBlock::ShowPreview(EPlayerState PlayerState)
@@ -125,11 +125,11 @@ APlayerBlock* APlayerBlock::GetHitPlayerBlock()
 	return (bSuccess) ? Cast<APlayerBlock>(Hit.GetActor()) : nullptr;
 }
 
-UCreepWayGenerator* APlayerBlock::GetCreepWayGenerator()
+UPlayerBlockGenerator* APlayerBlock::GetPlayerBlockGenerator()
 {
 	UGameInstance* GameInstance = GetGameInstance();
-	UCreepWayGeneratorManager* CreepWayGeneratorManager = GameInstance->GetSubsystem<UCreepWayGeneratorManager>();
-	return CreepWayGeneratorManager->CreepWayGenerator;
+	UPlayerBlockGeneratorManager* PlayerBlockGeneratorManager = GameInstance->GetSubsystem<UPlayerBlockGeneratorManager>();
+	return PlayerBlockGeneratorManager->PlayerBlockGenerator;
 }
 
 void APlayerBlock::SetCollisionWithPawn(bool bCollision)

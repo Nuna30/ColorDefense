@@ -62,9 +62,7 @@ void AColorGun::UpdateChain()
         if (HitCreep && HitCreep->CreepColor == CurrentColor && !ConnectedCreeps.Contains(HitCreep))
         {
             ConnectedCreeps.Add(HitCreep);
-            
-            // Optional: Provide feedback (e.g., make the creep glow or play a small sound)
-            // HitCreep->SetHighlighted(true); 
+            HitCreep->SetHighlighted(true); 
         }
     }
 }

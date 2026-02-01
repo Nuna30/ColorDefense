@@ -16,6 +16,7 @@ UENUM()
 enum class EVoxelProperty
 {
     NormalCreepWay,
+    SlopeCreepWay,
     CreepStart,
     CreepCheckPoint,
     CreepEnd,

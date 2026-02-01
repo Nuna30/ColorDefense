@@ -19,6 +19,7 @@ void UVoxelGrid::InitVoxelGrid()
             for(int32 Z = 0; Z < VoxelGridSize.Z; Z++)
             {
                 VoxelGrid[X][Y][Z].Index = FIntVector(X, Y, Z);
+                VoxelGrid[X][Y][Z] = FVoxel();
             }
         }
     }

@@ -27,6 +27,7 @@ void ACreep::BeginPlay()
 {
 	Super::BeginPlay();
 
+    OriginalScale = CreepMesh->GetRelativeScale3D();
 }
 
 void ACreep::PossessedBy(AController* NewController)
@@ -133,4 +134,15 @@ void ACreep::ChangeColor(EColor Color)
             DynMaterial->SetVectorParameterValue(FName("BaseColor"), TargetColor);
         }
     }
+}
+
+void ACreep::SetHighlighted(bool bHighlight)
+{
+    UMaterialInstanceDynamic* DynMaterial = CreepMesh->CreateAndSetMaterialInstanceDynamic(0);
+
+    float TargetOpacity = bHighlight ? 0.75f : 1.0f;
+    DynMaterial->SetScalarParameterValue(FName("Opacity"), TargetOpacity);
+
+    FVector TargetScale = bHighlight ? (OriginalScale * 1.2f) : OriginalScale;
+    CreepMesh->SetRelativeScale3D(TargetScale);
 }

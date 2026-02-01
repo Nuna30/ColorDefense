@@ -6,7 +6,6 @@
 #include "CreepCheckPointGenerator.h" // 코너마다 CreepCheckPoint를 설치하기 위해
 #include "PlayerBlock.h" // Spawning Placeable Voxels
 #include "CoreMinimal.h"
-#include "UObject/NoExportTypes.h"
 #include "CreepWayGenerator.generated.h"
 
 UCLASS()
@@ -16,6 +15,7 @@ class COLORDEFENSE_API UCreepWayGenerator : public UVoxelGenerator // 상속할 
 
 public:
 	class UCreepRail* CreepRail;
+	class UPlayerBlockGenerator* PlayerBlockGenerator;
 	TArray<UCreepCheckPointGenerator*> CreepCheckPointGenerators;
 	TArray<FIntVector> DirectionContainer;
 public:
@@ -47,6 +47,4 @@ public:
 public:
 	void GoStraightAndUpOrDownAndGoStraight();
 	void GoStraightAndTurnLeftOrRightAndGoStraight();
-public:
-	void SpawnInvisibleNeighboringPlaceables(const FIntVector& VoxelIndex);
 };
