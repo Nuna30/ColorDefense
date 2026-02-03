@@ -52,7 +52,7 @@ void USFX::PlayDestroySFX(EColor CreepColor, FVector ActorLocation)
 {
 	UGameplayStatics::PlaySoundAtLocation(
 		this,                    // WorldContextObject
-		DestroySFX,         // Sound
+		DestroySFX,         	 // Sound
 		ActorLocation,           // Location
 		1.0f,                    // Volume
 		ColorToPitch(CreepColor) // Pitch

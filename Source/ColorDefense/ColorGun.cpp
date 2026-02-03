@@ -13,12 +13,27 @@ AColorGun::AColorGun()
 
     GunMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("GunMesh"));
     GunMeshComponent->SetupAttachment(RootComponent);
+
+	ComboAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("ComboAudioComponent"));
+    ComboAudioComponent->SetupAttachment(RootComponent);
+    ComboAudioComponent->bAutoActivate = false; // Don't play immediately
+	
 }
 
 // Called when the game starts
 void AColorGun::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// Combo UI
+    ComboWidgetInstance = CreateWidget<UComboWidget>(GetWorld(), ComboWidgetClass);
+	ComboWidgetInstance->AddToViewport();
+	ComboWidgetInstance->UpdateComboText(0); // Hide initially
+
+	// Money UI
+    MoneyWidgetInstance = CreateWidget<UMoneyWidget>(GetWorld(), MoneyWidgetClass);
+	MoneyWidgetInstance->AddToViewport();
+	MoneyWidgetInstance->UpdateMoneyText(0); // Hide initially
 }
 
 void AColorGun::Tick(float DeltaTime)
@@ -56,21 +71,33 @@ void AColorGun::UpdateChain()
     {
         ACreep* HitCreep = Cast<ACreep>(Hit.GetActor());
         
-		if (HitCreep) GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("HitCreep"));
+		// if (HitCreep) GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("HitCreep"));
 
         // Check if: 1. It's a Creep, 2. Color matches, 3. Not already in our list
         if (HitCreep && HitCreep->CreepColor == CurrentColor && !ConnectedCreeps.Contains(HitCreep))
         {
+			// Creep Highlight
             ConnectedCreeps.Add(HitCreep);
             HitCreep->SetHighlighted(true); 
+
+			// Combo
+			TotalCombo++;
+			ComboCount++;
+			PlayComboSound();
+
+			// Combo UI
+			ComboWidgetInstance->UpdateComboText(TotalCombo);
         }
     }
 }
 
 void AColorGun::LeftClickReleased()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("LeftClickReleased"));
+	// GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("LeftClickReleased"));
     bIsConnecting = false;
+
+	// Money is honey
+	AColorDefenseGameState* GS = GetWorld()->GetGameState<AColorDefenseGameState>();
 
     // Kill everyone in the chain!
     for (ACreep* Creep : ConnectedCreeps)
@@ -78,10 +105,20 @@ void AColorGun::LeftClickReleased()
         if (IsValid(Creep))
         {
             Creep->HandleDestruction(); // Triggers VFX and Destroy()
+
+			// Add money
+			GS->AddMoney(1); 
+
+			// Update money widget
+			MoneyWidgetInstance->UpdateMoneyText(GS->GetCurrentMoney());
         }
     }
 
+	// Reset Creep Highlight
     ConnectedCreeps.Empty();
+
+	// Reset ComboCount
+	ComboCount = 0;
 }
 
 // 번호키 누르면 컬러건 색상 변경 구현
@@ -137,5 +174,27 @@ void AColorGun::ChangeGunColor(EColor NewColor)
 				SpawnedEffect->SetVariableLinearColor(FName("User.Linear Color"), TargetColor);
 			}
 		}
+	}
+}
+
+// --- Combo --- //
+
+void AColorGun::PlayComboSound()
+{
+	if (ComboSound && ComboAudioComponent)
+	{
+		// If it's the first hit, set the sound and play
+		// if (!ComboAudioComponent->IsPlaying())
+		// {
+		// 	ComboAudioComponent->SetSound(ComboSound);
+		// 	ComboAudioComponent->Play();
+		// }
+		ComboAudioComponent->SetSound(ComboSound);
+		ComboAudioComponent->Play();
+
+		// Increase pitch based on ComboCount
+		// Base pitch (1.0) + (ComboCount * Multiplier)
+		float NewPitch = 1.0f + (ComboCount * PitchMultiplier);
+		ComboAudioComponent->SetPitchMultiplier(NewPitch);
 	}
 }

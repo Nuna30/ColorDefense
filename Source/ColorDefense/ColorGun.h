@@ -1,9 +1,13 @@
 // ColorGun.h
 #pragma once
 
-#include "CoreMinimal.h"
-#include "Tool.h" // Inherit from Tool instead of SceneComponent
+#include "Tool.h" 
 #include "Creep.h" 
+#include "ColorDefenseGameState.h"
+#include "ComboWidget.h"
+#include "MoneyWidget.h"
+#include "Components/AudioComponent.h"
+#include "CoreMinimal.h"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
 #include "ColorGun.generated.h"
@@ -32,6 +36,9 @@ public:
     // Logic to add creeps to the chain during Tick
     void UpdateChain();
 
+    // --- Combo ---
+    void PlayComboSound();
+
 public:
     // --- Color Gun Specifics ---
     UPROPERTY(EditAnywhere, Category = "Setting")
@@ -57,4 +64,33 @@ public:
 
     // Flag to track the "Hold" state
     bool bIsConnecting = false;
+
+    // --- Combo ---
+    int32 TotalCombo = 0;
+    int32 ComboCount = 0;
+
+    UPROPERTY(EditAnywhere, Category = "Setting")
+    USoundBase* ComboSound;
+
+    // The component that manages the active sound
+    UPROPERTY(EditAnywhere, Category = "Setting")
+    UAudioComponent* ComboAudioComponent;
+
+    // Control how much the pitch increases per combo
+    UPROPERTY(EditAnywhere, Category = "Setting")
+    float PitchMultiplier = 0.1f;
+
+    // --- Combo UI ---
+    UPROPERTY(EditAnywhere, Category = "Setting")
+    TSubclassOf<UComboWidget> ComboWidgetClass;
+
+    UPROPERTY()
+    UComboWidget* ComboWidgetInstance;
+
+        // --- Money UI ---
+    UPROPERTY(EditAnywhere, Category = "Setting")
+    TSubclassOf<UMoneyWidget> MoneyWidgetClass;
+
+    UPROPERTY()
+    UMoneyWidget* MoneyWidgetInstance;
 };
