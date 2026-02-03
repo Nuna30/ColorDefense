@@ -30,6 +30,17 @@ void APlayerCharacter::BeginPlay()
 {
     Super::BeginPlay();
 
+    // Reset Controller
+    if (APlayerController* PC = Cast<APlayerController>(GetController()))
+    {
+        // 1. Switch back to Game Only
+        FInputModeGameOnly InputModeData;
+        PC->SetInputMode(InputModeData);
+
+        // 2. Hide the mouse
+        PC->bShowMouseCursor = false;
+    }
+
     // RETRIEVE the actors from the components
     // The components automatically spawned these actors before BeginPlay ran
     ColorGun = Cast<AColorGun>(ColorGunComponent->GetChildActor());
