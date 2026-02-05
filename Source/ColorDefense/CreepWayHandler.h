@@ -20,5 +20,5 @@ private:
 	class UCreepWayGenerator* CreepWayGenerator;
 public:
 	void BuildCreepWay();
-	
+	void DestructCreepWay();
 };

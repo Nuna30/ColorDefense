@@ -80,28 +80,6 @@ void UVoxelGenerator::DeleteVoxelDataInVoxelGrid(const FIntVector& VoxelIndex)
 
 AActor* UVoxelGenerator::SpawnActorFromVoxel(FVoxel& Voxel)
 {
-	if (!Voxel.BPActor)
-	{
-		if (DEBUGMODE) 
-		{
-			FString DebugMessage = FString::Printf(TEXT("UVoxelGenerator::SpawnActorFromVoxel {No Voxel.BPActor}"));
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, DebugMessage);
-			UE_LOG(LogTemp, Error, TEXT("%s"), *DebugMessage);
-		}
-		return nullptr;
-	}
-
-	if (!World)
-	{
-		if (DEBUGMODE) 
-		{
-			FString DebugMessage = FString::Printf(TEXT("UVoxelGenerator::SpawnActorFromVoxel {No World}"));
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, DebugMessage);
-			UE_LOG(LogTemp, Error, TEXT("%s"), *DebugMessage);
-		}
-		return nullptr;
-	}
-
 	// 레벨에 복셀 기반 액터 소환
 	AActor* NewActor = World -> SpawnActor<AActor> (
 		Voxel.BPActor,
@@ -125,6 +103,8 @@ void UVoxelGenerator::DestroyActorFromVoxel(FVoxel& Voxel)
  	}
     
  	Voxel.SpawnedActor = nullptr;
+	Voxel.Property = EVoxelProperty::Empty;
+	Voxel.BPActor = nullptr;
 }
 
 FTransform UVoxelGenerator::GetWorldTransformFromVoxelIndex(const FIntVector& VoxelIndex)

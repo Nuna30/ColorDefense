@@ -23,7 +23,21 @@ void UCreepWayHandler::Initialize()
 
 void UCreepWayHandler::BuildCreepWay()
 {
-	this->ChunkGenerator->GenerateNextChunk();
+	bool bBlocked;
+	this->ChunkGenerator->GenerateNextChunk(bBlocked);
+
+	if (bBlocked) 
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::Printf(TEXT("Nowhere to go...")));
+		return;
+	}
+
 	this->CreepWayGenerator->DirectionContainer = this->ChunkGenerator->DirectionContainer;
 	this->CreepWayGenerator->GenerateNextCreepWay();
+}
+
+void UCreepWayHandler::DestructCreepWay()
+{
+	this->ChunkGenerator->DeleteCurrentChunk();
+	this->CreepWayGenerator->DeleteCurrentCreepWay();
 }

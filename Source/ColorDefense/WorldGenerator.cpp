@@ -30,7 +30,8 @@ void AWorldGenerator::BeginPlay()
     ChunkGeneratorManager->CreateChunkGenerator(ChunkGrid, NeighborRadius);
     // ChunkGeneratorManager->ChunkGenerator->GenerateCreepWayChunk(this->ChunkCount, NeighborRadius);
     ChunkGeneratorManager->ChunkGenerator->GenerateStartLocation();
-    ChunkGeneratorManager->ChunkGenerator->GenerateNextChunk();
+    bool bBlocked;
+    ChunkGeneratorManager->ChunkGenerator->GenerateNextChunk(bBlocked);
     CreepCheckPointGeneratorManager->CreateCreepCheckPointGenerators(World, BPActorPool, VoxelGrid, MaxRailCount, VoxelWidth, VoxelHeight);
     TArray<UCreepCheckPointGenerator*>& CreepCheckPointGenerators = CreepCheckPointGeneratorManager->CreepCheckPointGenerators;
     PlayerBlockGeneratorManager->CreatePlayerBlockGenerator(World, BPActorPool, VoxelGrid, VoxelWidth, VoxelHeight);

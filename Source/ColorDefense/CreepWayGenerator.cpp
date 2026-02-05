@@ -42,25 +42,75 @@ void UCreepWayGenerator::Initialize
 	this->PlayerBlockGenerator = PlayerBlockGeneratorManager->PlayerBlockGenerator;
 }
 
+void UCreepWayGenerator::DeleteCurrentCreepWay()
+{
+	if (StepHistoryStack.Num() == 0) return;
+
+    // Pop the last history entry.
+    FCreepWayStepHistory LastStep = StepHistoryStack.Pop();
+
+	// 1. Clean up Voxels and Actors.
+    for (const FIntVector& Index : LastStep.VoxelIndices)
+    {
+		// Delete actor.
+        FVoxel& Voxel = VoxelGrid->GetVoxel(Index);
+		DestroyActorFromVoxel(Voxel);
+    }
+
+	// 2. Restore the previous last indices.
+    this->CreepRail->LastIndicesOfEachRail = LastStep.PreviousRailLastIndices;
+
+	// 3. Restore the previous direction.
+	this->CurrentDirection = LastStep.PreviousDirection;
+
+	// 4. Delete checkpoint actors.
+	for (AActor* CP : LastStep.SpawnedCheckPoints) CP->Destroy();
+
+	// 5. Clean up the locations array in each checkpoint geneator.
+	for (int32 i = 0; i < this->CreepCheckPointGenerators.Num(); i++)
+    {
+		this->CreepCheckPointGenerators[i]->PopLocations(LastStep.CheckPointCountsPerGenerator[i]);
+    }
+
+	// 6. Clean up the main buffer
+    this->CreepRail->MainBuffer.Empty();
+}
+
 void UCreepWayGenerator::GenerateNextCreepWay()
 {
-	// Insert next creepWay data into buffer.
-	this->NextDirection = this->DirectionContainer.Last();
-	if (this->NextDirection.Z == 0) GoStraightAndTurnLeftOrRightAndGoStraight();
-	else GoStraightAndUpOrDownAndGoStraight();
+	// Prepare history entry.
+    FCreepWayStepHistory NewStep;
+    NewStep.PreviousRailLastIndices = this->CreepRail->LastIndicesOfEachRail;
+    NewStep.PreviousDirection = this->CurrentDirection;
+	StepHistoryStack.Push(NewStep);
 
-	// Spawn next creepways.
-	FlushRailBuffersToMainBuffer();
-	SpawnActorWithFlushingMainBuffer(); 
+	// Clean up the current buffer in advance.
+	CurrentCreepWayIndices.Empty();
+	CurrentCheckPoints.Empty();
+	CurrentCheckPointCounts.Init(0, this->CreepRail->MaxRailCount);
+
+    // Spawn CheckPoints and Insert CreepWay voxel data.
+    this->NextDirection = this->DirectionContainer.Last();
+    if (this->NextDirection.Z == 0) GoStraightAndTurnLeftOrRightAndGoStraight();
+    else GoStraightAndUpOrDownAndGoStraight();
+
+    // Spawn CreepWays.
+    FlushRailBuffersToMainBuffer(); 
+    SpawnActorWithFlushingMainBuffer(); // Update CurrentSegmentIndices.
+
+    // Update the history entry with results
+    StepHistoryStack.Last().VoxelIndices = CurrentCreepWayIndices;
+	StepHistoryStack.Last().SpawnedCheckPoints = CurrentCheckPoints;
+	StepHistoryStack.Last().CheckPointCountsPerGenerator = CurrentCheckPointCounts;
 }
 
 void UCreepWayGenerator::GenerateStartLocation()
 {
 	// Advance the path by two blocks.
 	this->CreepRail->InsertCreepWayDataRectangleIntoRailBuffers(this->CurrentDirection, 0, false);
-	this->CreepRail->UpdateLastIndexesOfEachRail();
+	this->CreepRail->UpdateLastIndicesOfEachRail();
 	this->CreepRail->InsertCreepWayDataRectangleIntoRailBuffers(this->CurrentDirection, 0, false);
-	this->CreepRail->UpdateLastIndexesOfEachRail();
+	this->CreepRail->UpdateLastIndicesOfEachRail();
 
 	// And another one, but patterned.
 	GenerateNextCreepWay();
@@ -70,9 +120,9 @@ void UCreepWayGenerator::GenerateCreepWay()
 {
 	// 일단 두 칸 가고
 	this->CreepRail->InsertCreepWayDataRectangleIntoRailBuffers(this->CurrentDirection, 0, false);
-	this->CreepRail->UpdateLastIndexesOfEachRail();
+	this->CreepRail->UpdateLastIndicesOfEachRail();
 	this->CreepRail->InsertCreepWayDataRectangleIntoRailBuffers(this->CurrentDirection, 0, false);
-	this->CreepRail->UpdateLastIndexesOfEachRail();
+	this->CreepRail->UpdateLastIndicesOfEachRail();
 
 	// 이후 DirectionContainer를 보고 CreepWay 생성
 	// 근데 첫 번째 Direction은 ChunkGenerator에서만 쓰이는 원소였어서 여기서는 무시해야함
@@ -84,34 +134,34 @@ void UCreepWayGenerator::GenerateCreepWay()
 	}
 
 	FlushRailBuffersToMainBuffer();
-	SpawnActorWithFlushingMainBuffer(); // 나중에는 이 부분을 크립 삭제 마다 버퍼 하나 비우는 식으로 구현해야 한다.
+	SpawnActorWithFlushingMainBuffer();
 }
 
 void UCreepWayGenerator::SpawnActorWithFlushingMainBuffer()
 {
+	// Spawn all CreepWays flushing the main buffer. 
 	for (const TTuple<FIntVector, int32, float, EVoxelProperty>& CreepWayData : this->CreepRail->MainBuffer)
 	{
+		// Spawn the CreepWay.
 		SetVoxelDataInVoxelGrid(CreepWayData.Get<0>(), CreepWayData.Get<1>(), CreepWayData.Get<2>(), CreepWayData.Get<3>());
 		SpawnActorFromVoxel(this->VoxelGrid->GetVoxel(CreepWayData.Get<0>()));
+
+		// Record the CreepWay index.
+		this->CurrentCreepWayIndices.Add(CreepWayData.Get<0>());
+
+		// The PlayerBlock might be placed around this CreepWay later.
 		this->PlayerBlockGenerator->Add(CreepWayData.Get<0>());
 	}
 
+	// Generate the PlayerBlocks.
 	this->PlayerBlockGenerator->GeneratePlayerBlock();
 }
 
 void UCreepWayGenerator::FlushRailBuffersToMainBuffer()
 {
-	// 1번 레일부터 차례로 버퍼 속 복셀들을 메인 버퍼로 옮긴다.
+	// Flush rail buffers to main buffer.
 	for (int32 i = 0; i < this->CreepRail->RailBuffers.Num(); i++)
 	{
-		for (TTuple<FIntVector, int32, float, EVoxelProperty>& RailElement : this->CreepRail->RailBuffers[i])
-		{
-			FVoxel& TargetVoxel = this->VoxelGrid->GetVoxel(RailElement.Get<0>());
-			if (TargetVoxel.Property == EVoxelProperty::CreepCheckPoint)
-			{
-				this->CreepCheckPointGenerators[i]->CreateCreepCheckPointByVoxelIndex(RailElement.Get<0>() + FIntVector(0, 0, 1));
-			}
-		}
 		this->CreepRail->MainBuffer.Append(MoveTemp(this->CreepRail->RailBuffers[i]));
 	}
 }
@@ -124,7 +174,7 @@ void UCreepWayGenerator::GoStraightAndTurnLeftOrRightAndGoStraight()
 	UpdateTopRailIn();
 	// 코너 구간 생성
 	this->CreepRail->InsertCreepWayDataTriangleIntoRailBuffers(this->bTopRailIn, CurrentDirection, 1);
-	SetLastIndexesOfEachRailToCreepCheckPoint();
+	SpawnCheckPointsAtLastIndices();
 	this->CreepRail->InsertCreepWayDataTriangleIntoRailBuffers(this->bTopRailIn, NextDirection, 0);
 	// 다시 직진
 	this->CurrentDirection = this->NextDirection;
@@ -135,33 +185,40 @@ void UCreepWayGenerator::GoStraightAndUpOrDownAndGoStraight()
 {
 	// 앞으로 직진
 	this->CreepRail->InsertCreepWayDataRectangleIntoRailBuffers(this->CurrentDirection, 0, false);
-	this->CreepRail->UpdateLastIndexesOfEachRail();
+	this->CreepRail->UpdateLastIndicesOfEachRail();
 	// 위아래 이동 + 경사면 진입 전과 후에 CreepCheckPoint 심기
 	this->CurrentDirection.Z = this->NextDirection.Z;
-	SetLastIndexesOfEachRailToCreepCheckPoint();
+	SpawnCheckPointsAtLastIndices();
 	this->CreepRail->InsertCreepWayDataRectangleIntoRailBuffers(this->CurrentDirection, 1, true);
-	SetLastIndexesOfEachRailToCreepCheckPoint();
-	this->CreepRail->UpdateLastIndexesOfEachRail();
-	// 위로 향하는 경사면이었으면 다음 평면 블록 설치 시 한칸 더 올려서 설치해야하기 때문에 로직에 LastIndexes들을 한칸 올린다.
+	SpawnCheckPointsAtLastIndices();
+	this->CreepRail->UpdateLastIndicesOfEachRail();
+	// 위로 향하는 경사면이었으면 다음 평면 블록 설치 시 한칸 더 올려서 설치해야하기 때문에 로직에 LastIndices들을 한칸 올린다.
 	if (this->CurrentDirection.Z == 1)
 	{
-		for (int i = 0; i < this->CreepRail->LastIndexesOfEachRail.Num(); i++)
-			this->CreepRail->LastIndexesOfEachRail[i] += FIntVector(0, 0, 1);
+		for (int i = 0; i < this->CreepRail->LastIndicesOfEachRail.Num(); i++)
+			this->CreepRail->LastIndicesOfEachRail[i] += FIntVector(0, 0, 1);
 	}
 	// 평면화 해주고 다시 직진
 	this->CurrentDirection.Z = 0;
 	this->CreepRail->InsertCreepWayDataRectangleIntoRailBuffers(this->CurrentDirection, 0, false);
-	this->CreepRail->UpdateLastIndexesOfEachRail();
+	this->CreepRail->UpdateLastIndicesOfEachRail();
 	// 현재 방향과 다음 방향이 같으니 갱신 작업은 안 해줘도 됨
 }
 
-void UCreepWayGenerator::SetLastIndexesOfEachRailToCreepCheckPoint()
+void UCreepWayGenerator::SpawnCheckPointsAtLastIndices()
 {
-	// 각 레일의 마지막 인덱스들에 해당하는 복셀의 속성을 CreepCheckPoint로 설정
+	// Spawn CheckPoints at last indices.
 	for (int32 i = 0; i < this->CreepRail->MaxRailCount; i++)
 	{
-		FIntVector LastVoxelIndex = this->CreepRail->LastIndexesOfEachRail[i];
-		this->VoxelGrid->VoxelGrid[LastVoxelIndex.X][LastVoxelIndex.Y][LastVoxelIndex.Z].Property = EVoxelProperty::CreepCheckPoint;
+		// Calculate check point location.
+		FIntVector LastVoxelIndex = this->CreepRail->LastIndicesOfEachRail[i] + FIntVector(0, 0, 1);
+
+		// Spawn and capture the CheckPoint.
+		AActor* NewCP = this->CreepCheckPointGenerators[i]->CreateCreepCheckPointByVoxelIndex(LastVoxelIndex);
+		CurrentCheckPoints.Add(NewCP);
+
+		// Record CheckPoint Count.
+		CurrentCheckPointCounts[i]++;
 	}
 }
 

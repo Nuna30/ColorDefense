@@ -16,7 +16,7 @@ public:
 	UCreepRail();
     void Initialize(int32 InMaxRailCount, int32 InRailLength, FIntVector StartIndex, FIntVector CurrentDirection);
 	float GetSlopeCreepWayRotation(const FIntVector& CurrentDirection, const FIntVector& VoxelIndex);
-	void UpdateLastIndexesOfEachRail();
+	void UpdateLastIndicesOfEachRail();
 	void InsertCreepWayDataRectangleIntoRailBuffers(FIntVector CurrentDirection, int32 BPActorPoolIndex, bool bRotate);
 	void InsertCreepWayDataTriangleIntoRailBuffers(bool bTopRailIn, const FIntVector& Direction, int32 Offset);
 public:
@@ -24,5 +24,5 @@ public:
 	int32 MaxRailCount;
 	TArray<TTuple<FIntVector, int32, float, EVoxelProperty>> MainBuffer;
 	TArray<TArray<TTuple<FIntVector, int32, float, EVoxelProperty>>> RailBuffers;
-	TArray<FIntVector> LastIndexesOfEachRail;
+	TArray<FIntVector> LastIndicesOfEachRail;
 };

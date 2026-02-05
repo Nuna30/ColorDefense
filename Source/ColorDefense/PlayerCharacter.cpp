@@ -135,6 +135,7 @@ void APlayerCharacter::HandleLeftClickReleased()
 void APlayerCharacter::HandleRightClick()
 {
     CurrentTool->RightClick(); 
+    this->CreepWayHandler->DestructCreepWay();
 }
 
 void APlayerCharacter::HandleChangeColor(const FInputActionValue& Value)

@@ -25,13 +25,17 @@ void UCreepGuide::TickComponent(float DeltaTime, ELevelTick TickType, FActorComp
 // I will guide you.
 void UCreepGuide::GuideCreep(AAIController* InAIController, bool DontMove, int32 InRailNumber) {
 	this->RailNumber = InRailNumber;
-
 	this->AIController = InAIController;
 
     if (AIController)
     {
 		// 목적지에 도착했을 경우를 처리하는 OnMoveCompleted 콜백함수 연결
 		AIController->ReceiveMoveCompleted.AddDynamic(this, &UCreepGuide::OnMoveCompleted);
+
+		// Get CreepCheckPointGenerator
+		UCreepCheckPointGeneratorManager* CreepCheckPointGeneratorManager = GetWorld()->GetGameInstance()->GetSubsystem<UCreepCheckPointGeneratorManager>();
+		TArray<UCreepCheckPointGenerator*> CreepCheckPointGenerators = CreepCheckPointGeneratorManager->CreepCheckPointGenerators;
+		this->CreepCheckPointGenerator = CreepCheckPointGenerators[this->RailNumber];
 
 		// 출발
 		if (DontMove == false)
@@ -42,24 +46,12 @@ void UCreepGuide::GuideCreep(AAIController* InAIController, bool DontMove, int32
     }
 }
 
-// 모든 CreepCheckPoint들 얻어서 CreepCheckPoints 배열에 저장
-void UCreepGuide::GetAllCreepCheckPointLocations()
-{
-	// CreepCheckPointGenerators 가져오기
-	UCreepCheckPointGeneratorManager* CreepCheckPointGeneratorManager = GetWorld()->GetGameInstance()->GetSubsystem<UCreepCheckPointGeneratorManager>();
-	TArray<UCreepCheckPointGenerator*>& CreepCheckPointGenerators = CreepCheckPointGeneratorManager->CreepCheckPointGenerators;
-	// 현재 크립이 속한 레일에 설치된 CreepCheckPoint들의 좌표 가져오기
-	this->CreepCheckPointLocations = CreepCheckPointGenerators[this->RailNumber]->CreepCheckPointLocations;
-}
-
 // Wapoint 차례대로 이동
 void UCreepGuide::MoveAlong()
 {
-	GetAllCreepCheckPointLocations();
-
-    if (CreepCheckPointLocations.Num() > 0)
+    if (this->CreepCheckPointGenerator->CreepCheckPointLocations.Num() > 0)
 	{
-		FVector StartLocation = this->CreepCheckPointLocations[0];
+		FVector StartLocation = this->CreepCheckPointGenerator->CreepCheckPointLocations[0];
 		MoveTo(StartLocation.X, StartLocation.Y, StartLocation.Z);
 	}
 }
@@ -94,9 +86,9 @@ void UCreepGuide::MoveTo(float x, float y, float z)
 void UCreepGuide::OnMoveCompleted(FAIRequestID RequestID, EPathFollowingResult::Type Result)
 {
     CurrentCreepCheckPointIndex++;
-    if (CreepCheckPointLocations.IsValidIndex(CurrentCreepCheckPointIndex))
+    if (this->CreepCheckPointGenerator->CreepCheckPointLocations.IsValidIndex(CurrentCreepCheckPointIndex))
     {
-        FVector NextLocation = CreepCheckPointLocations[CurrentCreepCheckPointIndex];
+        FVector NextLocation = this->CreepCheckPointGenerator->CreepCheckPointLocations[CurrentCreepCheckPointIndex];
         MoveTo(NextLocation.X, NextLocation.Y, NextLocation.Z);
     }
 }

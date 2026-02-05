@@ -8,6 +8,32 @@
 #include "CoreMinimal.h"
 #include "CreepWayGenerator.generated.h"
 
+USTRUCT()
+struct FCreepWayStepHistory
+{
+    GENERATED_BODY()
+
+    // The voxels spawned in this specific segment
+    UPROPERTY()
+    TArray<FIntVector> VoxelIndices;
+
+    // The LastIndicesOfEachRail state BEFORE this segment was added
+    UPROPERTY()
+    TArray<FIntVector> PreviousRailLastIndices;
+
+    // The CurrentDirection BEFORE this segment was added
+    UPROPERTY()
+    FIntVector PreviousDirection;
+
+	// Track Checkpoints spawned in this segment.
+	UPROPERTY()
+    TArray<AActor*> SpawnedCheckPoints;
+
+	// The CheckPoint counts spawned in each rail.
+	UPROPERTY()
+    TArray<int32> CheckPointCountsPerGenerator;
+};
+
 UCLASS()
 class COLORDEFENSE_API UCreepWayGenerator : public UVoxelGenerator // 상속할 땐 전방 선언 불가
 {
@@ -22,6 +48,12 @@ public:
 	bool bTopRailIn;
 	FIntVector NextDirection;
 	FIntVector CurrentDirection;
+public:
+	// History
+	TArray<FCreepWayStepHistory> StepHistoryStack;
+    TArray<FIntVector> CurrentCreepWayIndices;
+	TArray<AActor*> CurrentCheckPoints;
+	TArray<int32> CurrentCheckPointCounts;
 public:
 	UCreepWayGenerator();
 	void Initialize
@@ -40,9 +72,10 @@ public:
 	void GenerateStartLocation();
 	void GenerateNextCreepWay();
 	void GenerateCreepWay();
+	void DeleteCurrentCreepWay();
 public:
 	void UpdateTopRailIn();
-	void SetLastIndexesOfEachRailToCreepCheckPoint();
+	void SpawnCheckPointsAtLastIndices();
 public:
 	void SpawnActorWithFlushingMainBuffer();
 	void FlushRailBuffersToMainBuffer();

@@ -16,7 +16,7 @@ void UCreepRail::Initialize(int32 InMaxRailCount, int32 InRailLength, FIntVector
 
 	for (int32 i = 0; i < InMaxRailCount; i++)
 	{
-		this->LastIndexesOfEachRail.Add(StartIndex);
+		this->LastIndicesOfEachRail.Add(StartIndex);
 		StartIndex = StartIndex + Utils::GetPerpendicularDirection(CurrentDirection);
 	}
 }
@@ -34,12 +34,12 @@ float UCreepRail::GetSlopeCreepWayRotation(const FIntVector& CurrentDirection, c
     return 0;
 }
 
-void UCreepRail::UpdateLastIndexesOfEachRail()
+void UCreepRail::UpdateLastIndicesOfEachRail()
 {
-	// Update the LastIndexesOfEachRail
+	// Update the LastIndicesOfEachRail
 	for (int32 i = 0; i < this->MaxRailCount; i++)
 	{
-		this->LastIndexesOfEachRail[i] = this->RailBuffers[i].Last().Get<0>();
+		this->LastIndicesOfEachRail[i] = this->RailBuffers[i].Last().Get<0>();
 	}
 }
 
@@ -51,13 +51,13 @@ void UCreepRail::InsertCreepWayDataRectangleIntoRailBuffers(FIntVector CurrentDi
 	// CurrentDirection 방향으로 직사각형 영역의 VoxelIndex를 버퍼에 로딩
 	for (int32 i = 0; i < this->MaxRailCount; i++)
 	{
-		FIntVector VoxelIndexForRail = this->LastIndexesOfEachRail[i] + DownOffset;
+		FIntVector VoxelIndexForRail = this->LastIndicesOfEachRail[i] + DownOffset;
 		TArray<TTuple<FIntVector, int32, float, EVoxelProperty>>& RailBuffer = this->RailBuffers[i];					
 		for (int32 j = 0; j < this->RailLength; j++)
 		{
 			// 다음 칸으로 이동 (이 코드가 맨 앞으로 와야 LastIndex 앞에 설치함)
 			VoxelIndexForRail = VoxelIndexForRail + CurrentDirection;
-			this->LastIndexesOfEachRail[i] = VoxelIndexForRail;
+			this->LastIndicesOfEachRail[i] = VoxelIndexForRail;
 			// Up Down 유무와 방향에 맞게 SlopeCreepWayBlock을 회전시킨다.
 			float Rotation = (bRotate) ? this->GetSlopeCreepWayRotation(CurrentDirection, VoxelIndexForRail) : 0;
 			if (BPActorPoolIndex == 0)
@@ -74,9 +74,9 @@ void UCreepRail::InsertCreepWayDataTriangleIntoRailBuffers(bool bTopRailIn, cons
 	// bTopRailIn 변수를 고려해서 CurrentDirection 방향으로 직각삼각형 영역의 VoxelIndex를 버퍼에 로딩
 	for (int32 i = 0; i < this->MaxRailCount; i++)
 	{
-		FIntVector VoxelIndexForRailFromBottom = this->LastIndexesOfEachRail[i];
+		FIntVector VoxelIndexForRailFromBottom = this->LastIndicesOfEachRail[i];
 		TArray<TTuple<FIntVector, int32, float, EVoxelProperty>>& RailBufferFromBottom = this->RailBuffers[i];
-		FIntVector VoxelIndexForRailFromTop = this->LastIndexesOfEachRail[this->MaxRailCount - i - 1];
+		FIntVector VoxelIndexForRailFromTop = this->LastIndicesOfEachRail[this->MaxRailCount - i - 1];
 		TArray<TTuple<FIntVector, int32, float, EVoxelProperty>>& RailBufferFromTop = this->RailBuffers[this->MaxRailCount - i - 1];
 		for (int32 j = 0; j < i + Offset; j++)
 		{
@@ -86,13 +86,13 @@ void UCreepRail::InsertCreepWayDataTriangleIntoRailBuffers(bool bTopRailIn, cons
 				// 다음 칸으로 이동 (이 코드가 맨 앞으로 와야 LastIndex 앞에 설치함)
 				VoxelIndexForRailFromTop = VoxelIndexForRailFromTop + Direction;
 				RailBufferFromTop.Add(TTuple<FIntVector, int32, float, EVoxelProperty>(VoxelIndexForRailFromTop, 0, 0, EVoxelProperty::NormalCreepWay));
-				this->LastIndexesOfEachRail[this->MaxRailCount - i - 1] = VoxelIndexForRailFromTop;
+				this->LastIndicesOfEachRail[this->MaxRailCount - i - 1] = VoxelIndexForRailFromTop;
 			}
 			else
 			{
 				// 다음 칸으로 이동 (이 코드가 맨 앞으로 와야 LastIndex 앞에 설치함)
 				VoxelIndexForRailFromBottom = VoxelIndexForRailFromBottom + Direction;
-				this->LastIndexesOfEachRail[i] = VoxelIndexForRailFromBottom;
+				this->LastIndicesOfEachRail[i] = VoxelIndexForRailFromBottom;
 				RailBufferFromBottom.Add(TTuple<FIntVector, int32, float, EVoxelProperty>(VoxelIndexForRailFromBottom, 0, 0, EVoxelProperty::NormalCreepWay));
 			}
 		}

@@ -22,9 +22,11 @@ private:
 public:
 	UChunkGenerator();
 	void Initialize(UChunkGrid* InChunkGrid, int32 NeighborRadius);
+public:
     void GenerateCreepWayChunk(int32 ChunkCount);
-	void GenerateNextChunk();
+	void GenerateNextChunk(bool& bBlocked);
 	void GenerateStartLocation();
+	void DeleteCurrentChunk();
 private:
     TArray<TArray<FIntVector>> GetPatternsUsingDirection(FIntVector Forward);
 	FIntVector GetDirectionUsingPattern(TArray<FIntVector> Pattern);

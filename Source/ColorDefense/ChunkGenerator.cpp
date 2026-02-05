@@ -65,7 +65,20 @@ void UChunkGenerator::GenerateStartLocation()
     this->DirectionContainer.Add(StartDirection);
 }
 
-void UChunkGenerator::GenerateNextChunk()
+void UChunkGenerator::DeleteCurrentChunk()
+{
+    // Remove exactly 3 chunks
+    for (int32 i = 0; i < 3; i++)
+    {
+        FIntVector RemovePos = ChunkIndexContainer.Pop();
+        Visited[GetVisitedIndex(RemovePos)] = 0;
+        this->ChunkGrid->InsertChunk(RemovePos, EChunkProperty::Empty);
+    }
+
+    DirectionContainer.Pop();
+}
+
+void UChunkGenerator::GenerateNextChunk(bool& bBlocked)
 {
     // Generate a Pattern.
     FIntVector LastDirection = this->DirectionContainer.Last();
@@ -81,6 +94,8 @@ void UChunkGenerator::GenerateNextChunk()
 
     // Find a safe pattern.
     int32 SafePatternIdx = -1;
+    bool bInsideChunkGrid = false;
+    bool bSafeToPlace = false;
     for (int32 i = 0; i < Patterns.Num(); i++)
     {
         // Simulate the pattern to validate it.
@@ -90,8 +105,8 @@ void UChunkGenerator::GenerateNextChunk()
         for (const FIntVector& Step : Pattern)
         {
             CheckPos += Step;
-            bool bInsideChunkGrid = this->ChunkGrid->IsInsideChunkGrid(CheckPos);
-            bool bSafeToPlace = IsSafeToPlace(CheckPos, TempStep++, NeighborRadius);
+            bInsideChunkGrid = this->ChunkGrid->IsInsideChunkGrid(CheckPos);
+            bSafeToPlace = IsSafeToPlace(CheckPos, TempStep++, NeighborRadius);
             if (bInsideChunkGrid && bSafeToPlace) 
             {
                 SafePatternIdx = i;
@@ -103,6 +118,8 @@ void UChunkGenerator::GenerateNextChunk()
     // Apply Pattern to generate next chunk.
     if (SafePatternIdx > -1)
     {
+        bBlocked = false;
+
         FIntVector CurrentPos = ChunkIndexContainer.Last();
         TArray<FIntVector> Pattern = Patterns[SafePatternIdx];
         for (const FIntVector& Step : Pattern)
@@ -112,6 +129,11 @@ void UChunkGenerator::GenerateNextChunk()
             ChunkIndexContainer.Push(CurrentPos);
         }
         this->DirectionContainer.Add(GetDirectionUsingPattern(Pattern));
+    }
+    // Nowhere to go...
+    else
+    {
+        bBlocked = true;
     }
 }
 
