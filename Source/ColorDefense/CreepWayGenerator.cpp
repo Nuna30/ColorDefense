@@ -42,9 +42,13 @@ void UCreepWayGenerator::Initialize
 	this->PlayerBlockGenerator = PlayerBlockGeneratorManager->PlayerBlockGenerator;
 }
 
-void UCreepWayGenerator::DeleteCurrentCreepWay()
+void UCreepWayGenerator::DeleteCurrentCreepWay(bool& bNoMoreDestruction)
 {
-	if (StepHistoryStack.Num() == 0) return;
+	if (StepHistoryStack.Num() == 1)
+	{
+		bNoMoreDestruction = true;
+		return;
+	}
 
     // Pop the last history entry.
     FCreepWayStepHistory LastStep = StepHistoryStack.Pop();
@@ -76,6 +80,7 @@ void UCreepWayGenerator::DeleteCurrentCreepWay()
     this->CreepRail->MainBuffer.Empty();
 }
 
+
 void UCreepWayGenerator::GenerateNextCreepWay()
 {
 	// Prepare history entry.
@@ -84,9 +89,10 @@ void UCreepWayGenerator::GenerateNextCreepWay()
     NewStep.PreviousDirection = this->CurrentDirection;
 	StepHistoryStack.Push(NewStep);
 
-	// Clean up the current buffer in advance.
+	// Clean up the buffers in advance.
 	CurrentCreepWayIndices.Empty();
 	CurrentCheckPoints.Empty();
+	this->CreepRail->MainBuffer.Empty();
 	CurrentCheckPointCounts.Init(0, this->CreepRail->MaxRailCount);
 
     // Spawn CheckPoints and Insert CreepWay voxel data.

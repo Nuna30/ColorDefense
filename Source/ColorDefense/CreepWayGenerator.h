@@ -72,7 +72,7 @@ public:
 	void GenerateStartLocation();
 	void GenerateNextCreepWay();
 	void GenerateCreepWay();
-	void DeleteCurrentCreepWay();
+	void DeleteCurrentCreepWay(bool& bNoMoreDestruction);
 public:
 	void UpdateTopRailIn();
 	void SpawnCheckPointsAtLastIndices();

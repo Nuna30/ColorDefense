@@ -118,8 +118,6 @@ void UChunkGenerator::GenerateNextChunk(bool& bBlocked)
     // Apply Pattern to generate next chunk.
     if (SafePatternIdx > -1)
     {
-        bBlocked = false;
-
         FIntVector CurrentPos = ChunkIndexContainer.Last();
         TArray<FIntVector> Pattern = Patterns[SafePatternIdx];
         for (const FIntVector& Step : Pattern)

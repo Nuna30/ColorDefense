@@ -23,7 +23,7 @@ void UCreepWayHandler::Initialize()
 
 void UCreepWayHandler::BuildCreepWay()
 {
-	bool bBlocked;
+	bool bBlocked = false;
 	this->ChunkGenerator->GenerateNextChunk(bBlocked);
 
 	if (bBlocked) 
@@ -38,6 +38,10 @@ void UCreepWayHandler::BuildCreepWay()
 
 void UCreepWayHandler::DestructCreepWay()
 {
+	bool bNoMoreDestruction = false;
+	CreepWayGenerator->DeleteCurrentCreepWay(bNoMoreDestruction);
+
+	if (bNoMoreDestruction) return;
+
 	this->ChunkGenerator->DeleteCurrentChunk();
-	this->CreepWayGenerator->DeleteCurrentCreepWay();
 }
