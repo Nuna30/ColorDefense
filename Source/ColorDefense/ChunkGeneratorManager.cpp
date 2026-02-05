@@ -15,7 +15,7 @@ void UChunkGeneratorManager::Deinitialize()
     Super::Deinitialize();
 }
 
-void UChunkGeneratorManager::CreateChunkGenerator(UChunkGrid* InChunkGrid)
+void UChunkGeneratorManager::CreateChunkGenerator(UChunkGrid* InChunkGrid, int32 InNeiborRadius)
 {
     // 1. 기존 생성기가 있다면 정리 (GC가 나중에 수거해가도록 참조 해제)
     ClearChunkGenerator();
@@ -25,7 +25,7 @@ void UChunkGeneratorManager::CreateChunkGenerator(UChunkGrid* InChunkGrid)
     UChunkGenerator* NewChunkGenerator = NewObject<UChunkGenerator>(this, UChunkGenerator::StaticClass());
 
     // 3. 데이터 주입 및 초기화
-    NewChunkGenerator->Initialize(InChunkGrid);
+    NewChunkGenerator->Initialize(InChunkGrid, InNeiborRadius);
     this->ChunkGenerator = NewChunkGenerator; // 멤버 변수에 저장하여 GC 방지
 }
 

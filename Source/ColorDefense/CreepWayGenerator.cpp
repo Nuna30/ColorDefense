@@ -42,7 +42,31 @@ void UCreepWayGenerator::Initialize
 	this->PlayerBlockGenerator = PlayerBlockGeneratorManager->PlayerBlockGenerator;
 }
 
-void UCreepWayGenerator::GenerateCreepWay(int32 GenerationStep)
+void UCreepWayGenerator::GenerateNextCreepWay()
+{
+	// Insert next creepWay data into buffer.
+	this->NextDirection = this->DirectionContainer.Last();
+	if (this->NextDirection.Z == 0) GoStraightAndTurnLeftOrRightAndGoStraight();
+	else GoStraightAndUpOrDownAndGoStraight();
+
+	// Spawn next creepways.
+	FlushRailBuffersToMainBuffer();
+	SpawnActorWithFlushingMainBuffer(); 
+}
+
+void UCreepWayGenerator::GenerateStartLocation()
+{
+	// Advance the path by two blocks.
+	this->CreepRail->InsertCreepWayDataRectangleIntoRailBuffers(this->CurrentDirection, 0, false);
+	this->CreepRail->UpdateLastIndexesOfEachRail();
+	this->CreepRail->InsertCreepWayDataRectangleIntoRailBuffers(this->CurrentDirection, 0, false);
+	this->CreepRail->UpdateLastIndexesOfEachRail();
+
+	// And another one, but patterned.
+	GenerateNextCreepWay();
+}
+
+void UCreepWayGenerator::GenerateCreepWay()
 {
 	// 일단 두 칸 가고
 	this->CreepRail->InsertCreepWayDataRectangleIntoRailBuffers(this->CurrentDirection, 0, false);
@@ -52,7 +76,6 @@ void UCreepWayGenerator::GenerateCreepWay(int32 GenerationStep)
 
 	// 이후 DirectionContainer를 보고 CreepWay 생성
 	// 근데 첫 번째 Direction은 ChunkGenerator에서만 쓰이는 원소였어서 여기서는 무시해야함
-
 	for (int i = 1; i < this->DirectionContainer.Num(); i++)
 	{
 		this->NextDirection = this->DirectionContainer[i];

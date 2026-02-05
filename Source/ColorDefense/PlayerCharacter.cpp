@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "PlayerCharacter.h"
+#include "CreepWayHandler.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -77,6 +78,9 @@ void APlayerCharacter::BeginPlay()
     FTimerDelegate TimerDelegate;
     TimerDelegate.BindLambda([this](){PlayerBlock->ShowPreview(this->CurrentState);});
     GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDelegate, 0.05f, true);
+
+    this->CreepWayHandler = NewObject<UCreepWayHandler>(this, UCreepWayHandler::StaticClass());
+	this->CreepWayHandler->Initialize();
 }
 
 // Called every frame
@@ -124,6 +128,7 @@ void APlayerCharacter::HandleLeftClickReleased()
     if (CurrentTool)
     {
         CurrentTool->LeftClickReleased();
+        this->CreepWayHandler->BuildCreepWay();
     }
 }
 

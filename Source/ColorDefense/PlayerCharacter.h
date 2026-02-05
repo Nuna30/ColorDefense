@@ -76,6 +76,10 @@ protected:
     UPROPERTY()
     ATurret* Turret;
 
+public: // --- CreepWayHandler Test --- //
+    UPROPERTY()
+    class UCreepWayHandler* CreepWayHandler;
+
 public:
 	// Sets default values for this character's properties
 	APlayerCharacter();

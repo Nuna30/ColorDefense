@@ -37,7 +37,9 @@ public:
 		float InVoxelHeight
 	);
 public:
-	void GenerateCreepWay(int32 GenerationStep);
+	void GenerateStartLocation();
+	void GenerateNextCreepWay();
+	void GenerateCreepWay();
 public:
 	void UpdateTopRailIn();
 	void SetLastIndexesOfEachRailToCreepCheckPoint();

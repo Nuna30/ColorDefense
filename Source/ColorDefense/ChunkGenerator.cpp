@@ -8,33 +8,19 @@ UChunkGenerator::UChunkGenerator()
 {
 }
 
-void UChunkGenerator::Initialize(UChunkGrid* InChunkGrid)
+void UChunkGenerator::Initialize(UChunkGrid* InChunkGrid, int32 InNeighborRadius)
 {
     // The Reason the goat climbs the mountain is its stubbornness.
     this->ChunkGrid = InChunkGrid;
+    this->NeighborRadius = InNeighborRadius;
 }
 
 TArray<TArray<FIntVector>> UChunkGenerator::GetPatternsUsingDirection(FIntVector Direction)
 {
     // 1. 기준이 되는 '위쪽(Up)'과 '오른쪽(Right)' 벡터 구하기
     FVector FwdVec = FVector(Direction.X, Direction.Y, Direction.Z);
-    FVector UpVec;
-    FVector RightVec;
-
-    // 만약 수직 이동 중(위/아래)이라면 -> 기준 Up을 월드 X축으로 설정 (임의 설정)
-    if (Direction.Z != 0) 
-    {
-        UpVec = FVector(1, 0, 0); 
-    }
-    // 수평 이동 중이라면 -> 기준 Up은 월드 Z축 (0, 0, 1)
-    else 
-    {
-        UpVec = FVector(0, 0, 1);
-    }
-
-    // 외적(Cross Product)을 이용해 '오른쪽' 벡터 자동 계산
-    // Right = Up x Direction (순서는 좌표계에 따라 다를 수 있으니 테스트 필요)
-    RightVec = FVector::CrossProduct(UpVec, FwdVec);
+    FVector UpVec = FVector(0, 0, 1);
+    FVector RightVec = FVector::CrossProduct(UpVec, FwdVec);
 
     // 다시 FIntVector로 변환 (정수 좌표계이므로 반올림 안전장치)
     FIntVector Up = FIntVector(FMath::RoundToInt(UpVec.X), FMath::RoundToInt(UpVec.Y), FMath::RoundToInt(UpVec.Z));
@@ -57,18 +43,13 @@ FIntVector UChunkGenerator::GetDirectionUsingPattern(TArray<FIntVector> Pattern)
     else return Pattern[1];
 }
 
-void UChunkGenerator::GenerateCreepWayChunk(int32 ChunkCount, int32 NeighborRadius)
+void UChunkGenerator::GenerateStartLocation()
 {
     int p = this->ChunkGrid->ChunkGrid.Num();
     int q = this->ChunkGrid->ChunkGrid[0].Num();
     int r = this->ChunkGrid->ChunkGrid[0][0].Num();
 
-    TArray<int32> Visited;
     Visited.Init(0, p * q * r);
-
-    // Track the path and the directions
-    TArray<FIntVector> ChunkIndexContainer;
-    this->DirectionContainer.Empty();
 
     // Start setup
     FIntVector StartDirection = FIntVector(1, 0, 0);
@@ -82,6 +63,61 @@ void UChunkGenerator::GenerateCreepWayChunk(int32 ChunkCount, int32 NeighborRadi
     Visited[GetVisitedIndex(StartIndex)] = 2;
     ChunkIndexContainer.Push(StartIndex);
     this->DirectionContainer.Add(StartDirection);
+}
+
+void UChunkGenerator::GenerateNextChunk()
+{
+    // Generate a Pattern.
+    FIntVector LastDirection = this->DirectionContainer.Last();
+    LastDirection.Z = 0;
+    TArray<TArray<FIntVector>> Patterns = GetPatternsUsingDirection(LastDirection);
+
+    // Fisher-Yates Shuffle
+    for (int32 i = Patterns.Num() - 1; i > 0; i--)
+    {
+        int32 j = FMath::RandRange(0, i);
+        Patterns.Swap(i, j);
+    }
+
+    // Find a safe pattern.
+    int32 SafePatternIdx = -1;
+    for (int32 i = 0; i < Patterns.Num(); i++)
+    {
+        // Simulate the pattern to validate it.
+        FIntVector CheckPos = ChunkIndexContainer.Last();
+        int32 TempStep = ChunkIndexContainer.Num() + 1;
+        TArray<FIntVector> Pattern = Patterns[i];
+        for (const FIntVector& Step : Pattern)
+        {
+            CheckPos += Step;
+            bool bInsideChunkGrid = this->ChunkGrid->IsInsideChunkGrid(CheckPos);
+            bool bSafeToPlace = IsSafeToPlace(CheckPos, TempStep++, NeighborRadius);
+            if (bInsideChunkGrid && bSafeToPlace) 
+            {
+                SafePatternIdx = i;
+                break;
+            }
+        }
+    }
+
+    // Apply Pattern to generate next chunk.
+    if (SafePatternIdx > -1)
+    {
+        FIntVector CurrentPos = ChunkIndexContainer.Last();
+        TArray<FIntVector> Pattern = Patterns[SafePatternIdx];
+        for (const FIntVector& Step : Pattern)
+        {
+            CurrentPos += Step;
+            Visited[GetVisitedIndex(CurrentPos)] = ChunkIndexContainer.Num() + 1;
+            ChunkIndexContainer.Push(CurrentPos);
+        }
+        this->DirectionContainer.Add(GetDirectionUsingPattern(Pattern));
+    }
+}
+
+void UChunkGenerator::GenerateCreepWayChunk(int32 ChunkCount)
+{
+    GenerateStartLocation();
 
     // --- NEW LOGIC: Pattern Stack ---
     // This stores a list of available patterns for EACH step.
@@ -116,36 +152,41 @@ void UChunkGenerator::GenerateCreepWayChunk(int32 ChunkCount, int32 NeighborRadi
         {
             TArray<FIntVector> Pattern = CurrentLevelPatterns.Pop();
             
+            // Check for overlaps after applying the pattern.
             bool GoodPattern = true;
             FIntVector CheckPos = ChunkIndexContainer.Last();
             int32 TempStep = ChunkIndexContainer.Num() + 1;
-
             for (const FIntVector& Step : Pattern)
             {
                 CheckPos += Step;
-                if (!this->ChunkGrid->IsInsideChunkGrid(CheckPos) || 
-                    !IsSafeToPlace(Visited, CheckPos, TempStep++, NeighborRadius))
+                if (!this->ChunkGrid->IsInsideChunkGrid(CheckPos)) 
+                {
+                    GoodPattern = false;
+                    break;
+                }
+                if (!IsSafeToPlace(CheckPos, TempStep++, NeighborRadius))
                 {
                     GoodPattern = false;
                     break;
                 }
             }
 
+            // Apply Pattern
             if (GoodPattern)
             {
-                // Apply Pattern
                 FIntVector CurrentPos = ChunkIndexContainer.Last();
                 for (const FIntVector& Step : Pattern)
                 {
                     CurrentPos += Step;
                     Visited[GetVisitedIndex(CurrentPos)] = ChunkIndexContainer.Num() + 1;
                     ChunkIndexContainer.Push(CurrentPos);
+                    this->ChunkGrid->InsertChunk(CurrentPos, EChunkProperty::CreepWay);
                 }
                 this->DirectionContainer.Add(GetDirectionUsingPattern(Pattern));
                 
                 ChunkCount--;
                 FoundValidPattern = true;
-                break; // Move to next depth
+                break;
             }
         }
 
@@ -176,7 +217,7 @@ void UChunkGenerator::GenerateCreepWayChunk(int32 ChunkCount, int32 NeighborRadi
     if (InfCount >= MaxCount) UE_LOG(LogTemp, Warning, TEXT("Generation Timed Out (MaxCount reached)"));
 }
 
-bool UChunkGenerator::IsSafeToPlace(TArray<int32>& Visited, const FIntVector& TargetPos, int32 CurrentStep, int32 Radius)
+bool UChunkGenerator::IsSafeToPlace(const FIntVector& TargetPos, int32 CurrentStep, int32 Radius)
 {
     // 1. 이미 자리가 차 있으면 당연히 안됨
     if (Visited[GetVisitedIndex(TargetPos)] != 0) return false;
@@ -207,7 +248,7 @@ bool UChunkGenerator::IsSafeToPlace(TArray<int32>& Visited, const FIntVector& Ta
                 // 하지만 3스텝 이상 차이나는 녀석이 반경 안에 있다면? 그건 꼬인 거임.
                 
                 // (조금 여유 있게 Radius + 3 정도의 차이는 허용)
-                if (FMath::Abs(CurrentStep - NeighborStep) > Radius + 5)
+                if (FMath::Abs(CurrentStep - NeighborStep) > Radius + 3)
                 {
                     return false; // 지금 이웃은 이전에 생성된 청크임!
                 }
