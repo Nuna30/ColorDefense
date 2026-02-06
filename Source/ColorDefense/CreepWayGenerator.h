@@ -48,8 +48,7 @@ public:
 	bool bTopRailIn;
 	FIntVector NextDirection;
 	FIntVector CurrentDirection;
-public:
-	// History
+public: // History
 	TArray<FCreepWayStepHistory> StepHistoryStack;
     TArray<FIntVector> CurrentCreepWayIndices;
 	TArray<AActor*> CurrentCheckPoints;

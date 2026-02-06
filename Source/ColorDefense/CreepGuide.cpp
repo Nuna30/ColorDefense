@@ -41,12 +41,12 @@ void UCreepGuide::GuideCreep(AAIController* InAIController, bool DontMove, int32
 		if (DontMove == false)
 		{
 			FTimerHandle TimerHandle; // navmesh 계산 기다리기
-			GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UCreepGuide::MoveAlong, 0.1f, false); // ActorComponent는 GetTimerManager를 못 씀
+			GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UCreepGuide::MoveAlong, 0.1f, false);
 		}
     }
 }
 
-// Wapoint 차례대로 이동
+// Waypoint 차례대로 이동
 void UCreepGuide::MoveAlong()
 {
     if (this->CreepCheckPointGenerator->CreepCheckPointLocations.Num() > 0)

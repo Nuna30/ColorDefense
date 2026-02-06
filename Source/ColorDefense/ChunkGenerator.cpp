@@ -51,14 +51,13 @@ void UChunkGenerator::GenerateStartLocation()
 
     Visited.Init(0, p * q * r);
 
-    // Start setup
+    // Start setup.
     FIntVector StartDirection = FIntVector(1, 0, 0);
     FIntVector StartIndex = FIntVector(p / 2, q / 2, r / 2);
 
-    // Initial Chunks
+    // Generate the start location.
     Visited[GetVisitedIndex(StartIndex)] = 1;
     ChunkIndexContainer.Push(StartIndex);
-    
     StartIndex += StartDirection;
     Visited[GetVisitedIndex(StartIndex)] = 2;
     ChunkIndexContainer.Push(StartIndex);
@@ -72,6 +71,11 @@ void UChunkGenerator::DeleteCurrentChunk()
     {
         FIntVector RemovePos = ChunkIndexContainer.Pop();
         Visited[GetVisitedIndex(RemovePos)] = 0;
+        if (!this->ChunkGrid->IsInsideChunkGrid(RemovePos)) 
+        {
+            GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("Remove Pos not inside the chunk grid"));
+            break;
+        }
         this->ChunkGrid->InsertChunk(RemovePos, EChunkProperty::Empty);
     }
 
