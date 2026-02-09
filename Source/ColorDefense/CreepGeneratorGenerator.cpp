@@ -16,6 +16,13 @@ void UCreepGeneratorGenerator::CreateCreepGenerator(const FIntVector& VoxelIndex
     SetVoxelDataInVoxelGrid(VoxelIndex, 3, 0, EVoxelProperty::CreepGenerator);
     AActor* NewActor = SpawnActorFromVoxel(this->VoxelGrid->GetVoxel(VoxelIndex));
 
+    // I've decided to add null checks to all actor spawning code.
+    if (!NewActor)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("The NewCreepActor is NULL in UCreepGeneratorGenerator::CreateCreepGenerator."));
+        return;
+    }
+
     ACreepGenerator* CreepGenerator = Cast<ACreepGenerator>(NewActor);
     CreepGenerator->SetRailNumber(RailNumber);
     CreepGenerators.Add(CreepGenerator);

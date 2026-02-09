@@ -62,6 +62,13 @@ void UPlayerBlockGenerator::SpawnInvisibleNeighboringPlaceables(const FIntVector
 		SetVoxelDataInVoxelGrid(Neighbor, 4, 0, EVoxelProperty::PlayerBlock);
 		AActor* Placeable = SpawnActorFromVoxel(TargetVoxel);
 
+		// I've decided to add null checks to all actor spawning code.
+		if (!Placeable)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("The Placeable is NULL in UPlayerBlockGenerator::SpawnInvisibleNeighboringPlaceables."));
+			return;
+		}
+
 		// Configure the PlayerBlock
 		Placeable->SetActorHiddenInGame(true);
 		APlayerBlock* PlayerBlock = Cast<APlayerBlock>(Placeable);

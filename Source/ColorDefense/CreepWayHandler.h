@@ -11,7 +11,6 @@ UCLASS()
 class COLORDEFENSE_API UCreepWayHandler : public UObject
 {
 	GENERATED_BODY()
-
 public:
 	UCreepWayHandler();
     void Initialize();

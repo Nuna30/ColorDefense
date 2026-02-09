@@ -23,10 +23,11 @@ void UCreepWayHandler::Initialize()
 
 void UCreepWayHandler::BuildCreepWay()
 {
-	bool bBlocked = false;
-	this->ChunkGenerator->GenerateNextChunk(bBlocked);
+	UE_LOG(LogTemp, Warning, TEXT(" "));
+	UE_LOG(LogTemp, Warning, TEXT("Build CreepWay"));
+	UE_LOG(LogTemp, Warning, TEXT(" "));
 
-	if (bBlocked) 
+	if (!this->ChunkGenerator->GenerateNextChunk()) 
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::Printf(TEXT("Nowhere to go...")));
 		return;
@@ -38,10 +39,14 @@ void UCreepWayHandler::BuildCreepWay()
 
 void UCreepWayHandler::DestructCreepWay()
 {
-	bool bNoMoreDestruction = false;
-	CreepWayGenerator->DeleteCurrentCreepWay(bNoMoreDestruction);
-
-	if (bNoMoreDestruction) return;
-
+	UE_LOG(LogTemp, Warning, TEXT(" "));
+	UE_LOG(LogTemp, Warning, TEXT("Destruct CreepWay"));
+	UE_LOG(LogTemp, Warning, TEXT(" "));
+	
+	if (!this->CreepWayGenerator->DeleteCurrentCreepWay()) 
+	{
+		return;
+	}
+	
 	this->ChunkGenerator->DeleteCurrentChunk();
 }

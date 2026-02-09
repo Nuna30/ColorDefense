@@ -15,7 +15,7 @@ void AWorldGenerator::BeginPlay()
 
 	// ------------------------------------ 클래스 초기화 ---------------------------------------//
 	UWorld* World = GetWorld(); // 액터를 스폰하기 위해선 UWorld 객체가 필요하다.
-	UVoxelGrid* VoxelGrid = World->GetSubsystem<UVoxelGrid>(); VoxelGrid->VoxelGridSize = this->VoxelGridSize; VoxelGrid->InitVoxelGrid();
+	UVoxelGrid* VoxelGrid = World->GetSubsystem<UVoxelGrid>(); VoxelGrid->VoxelGridSize = FIntVector(ChunkGridSize.X * (MaxRailCount + 2), ChunkGridSize.Y * (MaxRailCount + 2), ChunkGridSize.Z * (MaxRailCount + 2)); VoxelGrid->InitVoxelGrid();
     UChunkGrid* ChunkGrid = World->GetSubsystem<UChunkGrid>(); ChunkGrid->ChunkGridSize = this->ChunkGridSize; ChunkGrid->InitChunkGrid();
 	UGameInstance* GameInstance = GetGameInstance();
 	UBPActorPool* BPActorPool = GameInstance->GetSubsystem<UBPActorPool>();
@@ -30,8 +30,7 @@ void AWorldGenerator::BeginPlay()
     ChunkGeneratorManager->CreateChunkGenerator(ChunkGrid, NeighborRadius);
     // ChunkGeneratorManager->ChunkGenerator->GenerateCreepWayChunk(this->ChunkCount, NeighborRadius);
     ChunkGeneratorManager->ChunkGenerator->GenerateStartLocation();
-    bool bBlocked;
-    ChunkGeneratorManager->ChunkGenerator->GenerateNextChunk(bBlocked);
+
     CreepCheckPointGeneratorManager->CreateCreepCheckPointGenerators(World, BPActorPool, VoxelGrid, MaxRailCount, VoxelWidth, VoxelHeight);
     TArray<UCreepCheckPointGenerator*>& CreepCheckPointGenerators = CreepCheckPointGeneratorManager->CreepCheckPointGenerators;
     PlayerBlockGeneratorManager->CreatePlayerBlockGenerator(World, BPActorPool, VoxelGrid, VoxelWidth, VoxelHeight);

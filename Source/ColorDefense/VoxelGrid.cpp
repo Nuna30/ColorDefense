@@ -53,6 +53,12 @@ void UVoxelGrid::SetRotation(const FIntVector& VoxelIndex, float Rotation)
 
 FVoxel& UVoxelGrid::GetVoxel(const FIntVector& VoxelIndex)
 {
+    if (!IsInsideVoxelGrid(VoxelIndex))
+    {
+        UE_LOG(LogTemp, Warning, TEXT("You tried to get a Voxel outside the VoxelGrid."));
+        return this->VoxelGrid[0][0][0];
+    }
+
     return this->VoxelGrid[VoxelIndex.X][VoxelIndex.Y][VoxelIndex.Z];
 }
 

@@ -13,11 +13,26 @@ void UCreepCheckPointGenerator::Initialize(UWorld* InWorld, UBPActorPool* InBPAc
 
 AActor* UCreepCheckPointGenerator::CreateCreepCheckPointByVoxelIndex(const FIntVector& VoxelIndex)
 {
+    if (!this->VoxelGrid->IsInsideVoxelGrid(VoxelIndex))
+    {
+        UE_LOG(LogTemp, Warning, TEXT("The CreepCheckPoint tried to accessed to the outside voxel grid."));
+        UE_LOG(LogTemp, Warning, TEXT("The CreepCheckPoint index : %d %d %d."), VoxelIndex.X, VoxelIndex.Y, VoxelIndex.Z);
+        return nullptr;
+    }
+
     // Set CreepCheckPoint voxel.
     SetVoxelDataInVoxelGrid(VoxelIndex, 2, 0, EVoxelProperty::CreepCheckPoint);
 
     // Capture and return the spawned actor
     AActor* SpawnedCP = SpawnActorFromVoxel(this->VoxelGrid->GetVoxel(VoxelIndex));
+
+    // I've decided to add null checks to all actor spawning code.
+    if (!SpawnedCP)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("The SpawnedCP is NULL in  UCreepCheckPointGenerator::CreateCreepCheckPointByVoxelIndex."));
+        return nullptr;
+    }
+
     InsertLocation(VoxelIndex);
     return SpawnedCP;
 }

@@ -21,6 +21,16 @@ void UCreepRail::Initialize(int32 InMaxRailCount, int32 InRailLength, FIntVector
 	}
 }
 
+void UCreepRail::PrintLastIndicesOfEachRail()
+{
+	int32 i = 0;
+	for (FIntVector LastIndex : LastIndicesOfEachRail)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Print LastIndex[%d] : %d %d %d"), i, LastIndex.X, LastIndex.Y, LastIndex.Z);
+		i++;
+	}
+}
+
 float UCreepRail::GetSlopeCreepWayRotation(const FIntVector& CurrentDirection, const FIntVector& VoxelIndex)
 {
 	if (CurrentDirection == FIntVector(1, 0, 1)) return 270;
@@ -34,14 +44,15 @@ float UCreepRail::GetSlopeCreepWayRotation(const FIntVector& CurrentDirection, c
     return 0;
 }
 
-void UCreepRail::UpdateLastIndicesOfEachRail()
-{
-	// Update the LastIndicesOfEachRail
-	for (int32 i = 0; i < this->MaxRailCount; i++)
-	{
-		this->LastIndicesOfEachRail[i] = this->RailBuffers[i].Last().Get<0>();
-	}
-}
+// void UCreepRail::UpdateLastIndicesOfEachRail() // deprecated
+// {
+// 	// Update the LastIndicesOfEachRail
+// 	for (int32 i = 0; i < this->MaxRailCount; i++)
+// 	{
+// 		this->LastIndicesOfEachRail[i] = this->RailBuffers[i].Last().Get<0>();
+// 		UE_LOG(LogTemp, Warning, TEXT("Update LastIndex[%d] : %d %d %d"), i, LastIndicesOfEachRail[i].X, LastIndicesOfEachRail[i].Y, LastIndicesOfEachRail[i].Z);
+// 	}
+// }
 
 void UCreepRail::InsertCreepWayDataRectangleIntoRailBuffers(FIntVector CurrentDirection, int32 BPActorPoolIndex, bool bRotate)
 {

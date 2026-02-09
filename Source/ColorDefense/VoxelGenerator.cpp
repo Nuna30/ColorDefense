@@ -80,6 +80,13 @@ void UVoxelGenerator::DeleteVoxelDataInVoxelGrid(const FIntVector& VoxelIndex)
 
 AActor* UVoxelGenerator::SpawnActorFromVoxel(FVoxel& Voxel)
 {
+	// The BPActor might be nullptr sometimes.
+	if (!Voxel.BPActor) 
+    {
+        UE_LOG(LogTemp, Warning, TEXT("BPActor is NULL"));
+        return nullptr;
+    }
+
 	// 레벨에 복셀 기반 액터 소환
 	AActor* NewActor = World -> SpawnActor<AActor> (
 		Voxel.BPActor,

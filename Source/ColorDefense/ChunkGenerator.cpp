@@ -11,6 +11,7 @@ UChunkGenerator::UChunkGenerator()
 void UChunkGenerator::Initialize(UChunkGrid* InChunkGrid, int32 InNeighborRadius)
 {
     // The Reason the goat climbs the mountain is its stubbornness.
+    this->ChunkCount = 2;
     this->ChunkGrid = InChunkGrid;
     this->NeighborRadius = InNeighborRadius;
 }
@@ -62,14 +63,21 @@ void UChunkGenerator::GenerateStartLocation()
     Visited[GetVisitedIndex(StartIndex)] = 2;
     ChunkIndexContainer.Push(StartIndex);
     this->DirectionContainer.Add(StartDirection);
+
+    GenerateNextChunk();
 }
 
 void UChunkGenerator::DeleteCurrentChunk()
 {
+    // Decrement ChunkCount
+    if (ChunkCount <= 2) return;
+    ChunkCount -= 3; 
+
     // Remove exactly 3 chunks
     for (int32 i = 0; i < 3; i++)
     {
         FIntVector RemovePos = ChunkIndexContainer.Pop();
+        UE_LOG(LogTemp, Warning, TEXT("Pop Chunk : %d %d %d"), RemovePos.X, RemovePos.Y, RemovePos.Z);
         Visited[GetVisitedIndex(RemovePos)] = 0;
         if (!this->ChunkGrid->IsInsideChunkGrid(RemovePos)) 
         {
@@ -79,10 +87,11 @@ void UChunkGenerator::DeleteCurrentChunk()
         this->ChunkGrid->InsertChunk(RemovePos, EChunkProperty::Empty);
     }
 
+    UE_LOG(LogTemp, Warning, TEXT(" "));
     DirectionContainer.Pop();
 }
 
-void UChunkGenerator::GenerateNextChunk(bool& bBlocked)
+bool UChunkGenerator::GenerateNextChunk()
 {
     // Generate a Pattern.
     FIntVector LastDirection = this->DirectionContainer.Last();
@@ -106,17 +115,15 @@ void UChunkGenerator::GenerateNextChunk(bool& bBlocked)
         FIntVector CheckPos = ChunkIndexContainer.Last();
         int32 TempStep = ChunkIndexContainer.Num() + 1;
         TArray<FIntVector> Pattern = Patterns[i];
+        int32 StepCount = 0;
         for (const FIntVector& Step : Pattern)
         {
             CheckPos += Step;
-            bInsideChunkGrid = this->ChunkGrid->IsInsideChunkGrid(CheckPos);
-            bSafeToPlace = IsSafeToPlace(CheckPos, TempStep++, NeighborRadius);
-            if (bInsideChunkGrid && bSafeToPlace) 
-            {
-                SafePatternIdx = i;
-                break;
-            }
+            if (!this->ChunkGrid->IsInsideChunkGrid(CheckPos)) break;
+            if (!IsSafeToPlace(CheckPos, TempStep++, NeighborRadius)) break;
+            StepCount++;
         }
+        if (StepCount == Pattern.Num()) SafePatternIdx = i;
     }
 
     // Apply Pattern to generate next chunk.
@@ -128,117 +135,20 @@ void UChunkGenerator::GenerateNextChunk(bool& bBlocked)
         {
             CurrentPos += Step;
             Visited[GetVisitedIndex(CurrentPos)] = ChunkIndexContainer.Num() + 1;
+            UE_LOG(LogTemp, Warning, TEXT("Push Chunk : %d %d %d"), CurrentPos.X, CurrentPos.Y, CurrentPos.Z);
             ChunkIndexContainer.Push(CurrentPos);
         }
         this->DirectionContainer.Add(GetDirectionUsingPattern(Pattern));
+        UE_LOG(LogTemp, Warning, TEXT(" "));
+
+
+        // Increment ChunkCount
+        ChunkCount += 3;
+        return true;
     }
+
     // Nowhere to go...
-    else
-    {
-        bBlocked = true;
-    }
-}
-
-void UChunkGenerator::GenerateCreepWayChunk(int32 ChunkCount)
-{
-    GenerateStartLocation();
-
-    // --- NEW LOGIC: Pattern Stack ---
-    // This stores a list of available patterns for EACH step.
-    TArray<TArray<TArray<FIntVector>>> PatternStack;
-
-    int InfCount = 0;
-    int MaxCount = 5000000;
-
-    while (ChunkCount > 0 && InfCount++ < MaxCount)
-    {
-        // 1. If we don't have patterns for the current step, generate them
-        if (PatternStack.Num() < DirectionContainer.Num())
-        {
-            FIntVector LastDirection = this->DirectionContainer.Last();
-            LastDirection.Z = 0;
-            TArray<TArray<FIntVector>> NewPatterns = GetPatternsUsingDirection(LastDirection);
-
-            // Fisher-Yates Shuffle
-            for (int32 i = NewPatterns.Num() - 1; i > 0; i--)
-            {
-                int32 j = FMath::RandRange(0, i);
-                NewPatterns.Swap(i, j);
-            }
-            PatternStack.Push(NewPatterns);
-        }
-
-        // 2. Try the next available pattern at the current level
-        bool FoundValidPattern = false;
-        TArray<TArray<FIntVector>>& CurrentLevelPatterns = PatternStack.Last();
-
-        while (CurrentLevelPatterns.Num() > 0)
-        {
-            TArray<FIntVector> Pattern = CurrentLevelPatterns.Pop();
-            
-            // Check for overlaps after applying the pattern.
-            bool GoodPattern = true;
-            FIntVector CheckPos = ChunkIndexContainer.Last();
-            int32 TempStep = ChunkIndexContainer.Num() + 1;
-            for (const FIntVector& Step : Pattern)
-            {
-                CheckPos += Step;
-                if (!this->ChunkGrid->IsInsideChunkGrid(CheckPos)) 
-                {
-                    GoodPattern = false;
-                    break;
-                }
-                if (!IsSafeToPlace(CheckPos, TempStep++, NeighborRadius))
-                {
-                    GoodPattern = false;
-                    break;
-                }
-            }
-
-            // Apply Pattern
-            if (GoodPattern)
-            {
-                FIntVector CurrentPos = ChunkIndexContainer.Last();
-                for (const FIntVector& Step : Pattern)
-                {
-                    CurrentPos += Step;
-                    Visited[GetVisitedIndex(CurrentPos)] = ChunkIndexContainer.Num() + 1;
-                    ChunkIndexContainer.Push(CurrentPos);
-                    this->ChunkGrid->InsertChunk(CurrentPos, EChunkProperty::CreepWay);
-                }
-                this->DirectionContainer.Add(GetDirectionUsingPattern(Pattern));
-                
-                ChunkCount--;
-                FoundValidPattern = true;
-                break;
-            }
-        }
-
-        // 3. Backtracking: If no patterns worked at this level
-        if (!FoundValidPattern)
-        {
-            if (DirectionContainer.Num() <= 1) break; // Cannot backtrack further
-
-            // Remove the 3 chunks added by the previous pattern
-            for (int i = 0; i < 3; i++)
-            {
-                FIntVector RemovePos = ChunkIndexContainer.Pop();
-                Visited[GetVisitedIndex(RemovePos)] = 0;
-            }
-
-            this->DirectionContainer.Pop();
-            PatternStack.Pop(); // Remove the exhausted pattern list
-            ChunkCount++;
-        }
-    }
-
-    // Finalize: Insert into actual grid
-    for (const FIntVector& Pos : ChunkIndexContainer)
-    {
-        this->ChunkGrid->InsertChunk(Pos, EChunkProperty::CreepWay);
-    }
-
-    if (InfCount >= MaxCount) UE_LOG(LogTemp, Warning, TEXT("Generation Timed Out (MaxCount reached)"));
+    return false;
 }
 
 bool UChunkGenerator::IsSafeToPlace(const FIntVector& TargetPos, int32 CurrentStep, int32 Radius)

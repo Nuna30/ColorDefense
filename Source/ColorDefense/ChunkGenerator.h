@@ -13,6 +13,7 @@ class COLORDEFENSE_API UChunkGenerator : public UObject
 	GENERATED_BODY()
 
 public:
+	int32 ChunkCount;
 	UChunkGrid* ChunkGrid;
 	TArray<FIntVector> DirectionContainer;
 private:
@@ -23,8 +24,7 @@ public:
 	UChunkGenerator();
 	void Initialize(UChunkGrid* InChunkGrid, int32 NeighborRadius);
 public:
-    void GenerateCreepWayChunk(int32 ChunkCount);
-	void GenerateNextChunk(bool& bBlocked);
+	bool GenerateNextChunk();
 	void GenerateStartLocation();
 	void DeleteCurrentChunk();
 private:

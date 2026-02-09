@@ -40,18 +40,32 @@ class COLORDEFENSE_API UCreepWayGenerator : public UVoxelGenerator // 상속할 
 	GENERATED_BODY()
 
 public:
+	UPROPERTY()
 	class UCreepRail* CreepRail;
+
+	UPROPERTY()
 	class UPlayerBlockGenerator* PlayerBlockGenerator;
+
+	UPROPERTY()
 	TArray<UCreepCheckPointGenerator*> CreepCheckPointGenerators;
+
+	UPROPERTY()
 	TArray<FIntVector> DirectionContainer;
 public:
 	bool bTopRailIn;
 	FIntVector NextDirection;
 	FIntVector CurrentDirection;
 public: // History
+	UPROPERTY()
 	TArray<FCreepWayStepHistory> StepHistoryStack;
+
+	UPROPERTY()
     TArray<FIntVector> CurrentCreepWayIndices;
+
+	UPROPERTY()
 	TArray<AActor*> CurrentCheckPoints;
+
+	UPROPERTY()
 	TArray<int32> CurrentCheckPointCounts;
 public:
 	UCreepWayGenerator();
@@ -71,7 +85,7 @@ public:
 	void GenerateStartLocation();
 	void GenerateNextCreepWay();
 	void GenerateCreepWay();
-	void DeleteCurrentCreepWay(bool& bNoMoreDestruction);
+	bool DeleteCurrentCreepWay();
 public:
 	void UpdateTopRailIn();
 	void SpawnCheckPointsAtLastIndices();
