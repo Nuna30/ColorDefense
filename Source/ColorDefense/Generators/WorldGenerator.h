@@ -2,12 +2,12 @@
 
 #pragma once
 
-#include "CreepPatternGeneratorManager.h" // Generate Creep Pattern
-#include "CreepWayGeneratorManager.h" // 월드에 CreepWay을 생성하기 위해
-#include "CreepCheckPointGeneratorManager.h" // 코너마다 CreepCheckPoint를 생성하기 위해
-#include "CreepGeneratorGeneratorManager.h" // 크립을 생성하기 위해
-#include "ChunkGeneratorManager.h"
-#include "PlayerBlockGeneratorManager.h"
+#include "GeneratorManagers/CreepPatternGeneratorManager.h" // Generate Creep Pattern
+#include "GeneratorManagers/CreepWayGeneratorManager.h" // 월드에 CreepWay을 생성하기 위해
+#include "GeneratorManagers/CreepCheckPointGeneratorManager.h" // 코너마다 CreepCheckPoint를 생성하기 위해
+#include "GeneratorManagers/CreepGeneratorGeneratorManager.h" // 크립을 생성하기 위해
+#include "GeneratorManagers/ChunkGeneratorManager.h"
+#include "GeneratorManagers/PlayerBlockGeneratorManager.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "WorldGenerator.generated.h"

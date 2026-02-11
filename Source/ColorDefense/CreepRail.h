@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "GameEnums.h"
+#include "Utils/GameEnums.h"
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "CreepRail.generated.h"

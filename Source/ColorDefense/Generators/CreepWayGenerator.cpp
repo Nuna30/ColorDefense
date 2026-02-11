@@ -1,10 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Utils.h"
+#include "Utils/Utils.h"
 #include "CreepWayGenerator.h"
 #include "CreepRail.h"
-#include "PlayerBlockGeneratorManager.h"
+#include "GeneratorManagers/PlayerBlockGeneratorManager.h"
 
 #define DEBUGMODE 1
 

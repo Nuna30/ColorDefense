@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "GameEnums.h" // EChunkProperty 사용하기 위해
+#include "Utils/GameEnums.h" // EChunkProperty 사용하기 위해
 #include "CoreMinimal.h"
 #include "Chunk.generated.h"
 

@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "CreepGenerator.h"
-#include "CreepPatternGeneratorManager.h"
+#include "Generators/CreepGenerator.h"
+#include "GeneratorManagers/CreepPatternGeneratorManager.h"
 #include "CreepPatternGenerator.h"
 
 ACreepGenerator::ACreepGenerator()

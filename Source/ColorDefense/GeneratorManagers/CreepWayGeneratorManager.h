@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "CreepWayGenerator.h" // CreepWayGenerator를 관리하기 위해
+#include "Generators/CreepWayGenerator.h" // CreepWayGenerator를 관리하기 위해
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "CreepWayGeneratorManager.generated.h"

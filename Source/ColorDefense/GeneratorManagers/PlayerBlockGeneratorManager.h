@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "PlayerBlockGenerator.h" // PlayerBlockGenerator를 관리하기 위해
+#include "Generators/PlayerBlockGenerator.h" // PlayerBlockGenerator를 관리하기 위해
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "PlayerBlockGeneratorManager.generated.h"

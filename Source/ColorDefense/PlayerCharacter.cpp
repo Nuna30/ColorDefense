@@ -2,6 +2,9 @@
 
 #include "PlayerCharacter.h"
 #include "CreepWayHandler.h"
+#include "Components/CanvasPanel.h"
+#include "Blueprint/UserWidget.h"
+#include "Widgets/ShopWidget.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -79,8 +82,23 @@ void APlayerCharacter::BeginPlay()
     TimerDelegate.BindLambda([this](){PlayerBlock->ShowPreview(this->CurrentState);});
     GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDelegate, 0.05f, true);
 
+    // Dynamic Creep Path Generation Test
     this->CreepWayHandler = NewObject<UCreepWayHandler>(this, UCreepWayHandler::StaticClass());
 	this->CreepWayHandler->Initialize();
+
+    // Shopping
+    if (APlayerController* PC = Cast<APlayerController>(GetController()))
+    {
+        if (ShopWidgetClass)
+        {
+            ShopWidgetInstance = CreateWidget<UShopWidget>(PC, ShopWidgetClass);
+            if (ShopWidgetInstance)
+            {
+                ShopWidgetInstance->AddToViewport(10);
+                ShopWidgetInstance->SetVisibility(ESlateVisibility::Collapsed);
+            }
+        }
+    }
 }
 
 // Called every frame
@@ -104,12 +122,14 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
     PlayerInputComponent->BindAction(TEXT("LeftClick"), EInputEvent::IE_Released, this, &APlayerCharacter::HandleLeftClickReleased);
     PlayerInputComponent->BindAction(TEXT("RightClick"), EInputEvent::IE_Pressed, this, &APlayerCharacter::HandleRightClick);
 
-	// Color Gun Input System
+    // EnhancedInputComponent
     if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
     {
-        // Bind the single action
+        // ColorGun
         EnhancedInputComponent->BindAction(ChangeColorAction, ETriggerEvent::Triggered, this, &APlayerCharacter::HandleChangeColor);
         EnhancedInputComponent->BindAction(SwitchToolAction, ETriggerEvent::Triggered, this, &APlayerCharacter::HandleSwitchTool);
+        // Shopping
+        EnhancedInputComponent->BindAction(ToggleShopAction, ETriggerEvent::Started, this, &APlayerCharacter::ToggleShop);
     }
 }
 
@@ -228,4 +248,41 @@ void APlayerCharacter::LookRight(float AxisValue)
 void APlayerCharacter::Jump()
 {
 	ACharacter::Jump();
+}
+
+// --- Shopping --- //
+
+void APlayerCharacter::ToggleShop()
+{
+    if (!ShopWidgetInstance) return;
+
+    APlayerController* PC = Cast<APlayerController>(GetController());
+    if (!PC) return;
+
+    if (ShopWidgetInstance->GetVisibility() == ESlateVisibility::Visible)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Close the Shop"));
+        ShopWidgetInstance->SetVisibility(ESlateVisibility::Collapsed);
+        PC->bShowMouseCursor = false;
+        FInputModeGameOnly InputMode;
+        PC->SetInputMode(InputMode);
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Open the Shop"));
+        
+        // Force the root widget to visible
+        ShopWidgetInstance->SetVisibility(ESlateVisibility::Visible);
+        
+        // Force the CanvasPanel to visible just in case
+        if (ShopWidgetInstance->ShopCanvasPanel)
+        {
+            ShopWidgetInstance->ShopCanvasPanel->SetVisibility(ESlateVisibility::Visible);
+        }
+
+        PC->bShowMouseCursor = true;
+        FInputModeGameAndUI InputMode;
+        InputMode.SetWidgetToFocus(ShopWidgetInstance->TakeWidget());
+        PC->SetInputMode(InputMode);
+    }
 }

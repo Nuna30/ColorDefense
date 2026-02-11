@@ -4,7 +4,7 @@
 
 #include "VoxelGenerator.h" // CreepWay Voxel을 생성하기 위해
 #include "CreepCheckPointGenerator.h" // 코너마다 CreepCheckPoint를 설치하기 위해
-#include "PlayerBlock.h" // Spawning Placeable Voxels
+#include "Tools/PlayerBlock.h" // Spawning Placeable Voxels
 #include "CoreMinimal.h"
 #include "CreepWayGenerator.generated.h"
 

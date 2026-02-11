@@ -1,8 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "CreepWayHandler.h"
-#include "ChunkGeneratorManager.h"
-#include "CreepWayGeneratorManager.h"
+#include "GeneratorManagers/ChunkGeneratorManager.h"
+#include "GeneratorManagers/CreepWayGeneratorManager.h"
 
 UCreepWayHandler::UCreepWayHandler()
 {

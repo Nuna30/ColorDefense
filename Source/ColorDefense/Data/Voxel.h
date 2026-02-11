@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "GameEnums.h" // EVoxelProperty 사용하기 위해
+#include "Utils/GameEnums.h" // EVoxelProperty 사용하기 위해
 #include "CoreMinimal.h"
 #include "Voxel.generated.h"
 

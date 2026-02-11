@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "ChunkGrid.h" // 청크 안에 복셀을 생성하기 위해
+#include "Data/DataGrid/ChunkGrid.h" // 청크 안에 복셀을 생성하기 위해
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "ChunkGenerator.generated.h"

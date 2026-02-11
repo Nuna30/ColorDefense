@@ -2,12 +2,12 @@
 
 #pragma once
 
-#include "ColorGun.h" // ColorGun에게 캐릭터가 총을 쐈다는 신호를 전달하기 위해
-#include "PlayerBlock.h" // Using PlayerBlock
-#include "Turret.h" // Using Turret
+#include "Tools/ColorGun.h" // ColorGun에게 캐릭터가 총을 쐈다는 신호를 전달하기 위해
+#include "Tools/PlayerBlock.h" // Using PlayerBlock
+#include "Tools/Turret.h" // Using Turret
 #include "Camera/CameraComponent.h" // Adding the camera because the rest of the hierarchy is defined in C++.
 #include "InputActionValue.h" // Adding Enhance Input System.
-#include "GameEnums.h"
+#include "Utils/GameEnums.h"
 #include "InputMappingContext.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
@@ -79,6 +79,18 @@ protected:
 public: // --- CreepWayHandler Test --- //
     UPROPERTY()
     class UCreepWayHandler* CreepWayHandler;
+
+public: // Shopping
+    UPROPERTY(EditAnywhere, Category = "Input")
+    class UInputAction* ToggleShopAction;
+
+    UPROPERTY(EditAnywhere, Category = "Widget")
+    TSubclassOf<class UShopWidget> ShopWidgetClass;
+
+    UPROPERTY()
+    class UShopWidget* ShopWidgetInstance;
+
+    void ToggleShop();
 
 public:
 	// Sets default values for this character's properties

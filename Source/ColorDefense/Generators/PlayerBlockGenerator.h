@@ -3,7 +3,7 @@
 #pragma once
 
 #include "VoxelGenerator.h" // CreepWay Voxel을 생성하기 위해
-#include "PlayerBlock.h" // Spawning Placeable Voxels
+#include "Tools/PlayerBlock.h" // Spawning Placeable Voxels
 #include "CoreMinimal.h"
 #include "PlayerBlockGenerator.generated.h"
 

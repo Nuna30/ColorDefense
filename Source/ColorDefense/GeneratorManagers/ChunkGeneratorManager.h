@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "ChunkGenerator.h" // ChunkGenerator를 관리하기 위해
+#include "Generators/ChunkGenerator.h" // ChunkGenerator를 관리하기 위해
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "ChunkGeneratorManager.generated.h"

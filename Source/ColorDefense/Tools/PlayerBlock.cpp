@@ -1,5 +1,5 @@
 #include "PlayerBlock.h"
-#include "PlayerBlockGeneratorManager.h"
+#include "GeneratorManagers/PlayerBlockGeneratorManager.h"
 
 APlayerBlock::APlayerBlock()
 {

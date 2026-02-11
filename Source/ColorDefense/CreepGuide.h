@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "CreepCheckPointGeneratorManager.h" // CreepCheckPointGeneratorManager한테서 CreepCheckPoint들의 좌표를 얻기 위해
+#include "GeneratorManagers/CreepCheckPointGeneratorManager.h" // CreepCheckPointGeneratorManager한테서 CreepCheckPoint들의 좌표를 얻기 위해
 #include "AIController.h" // 빙의한 Creep의 AIController로 Creep을 주어진 좌표로 이동시키기 위해
 #include "Navigation/PathFollowingComponent.h" // Creep이 주어진 좌표에 도착했다는 결과를 사용하기 위해
 #include "CoreMinimal.h"
