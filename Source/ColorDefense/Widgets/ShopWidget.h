@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Blueprint/UserWidget.h"
-#include "Components/Button.h"
 #include "ShopWidget.generated.h"
 
 UCLASS()
@@ -20,7 +19,14 @@ public:
     class UCanvasPanel* ShopCanvasPanel;
 
     virtual void NativeConstruct() override;
+public:
+    UPROPERTY(EditAnywhere, Category = "Widget")
+    TSubclassOf<class UCreepPathWidget> CreepPathWidgetClass;
 
+    UPROPERTY()
+    class UCreepPathWidget* CreepPathWidgetInstance;
+
+public:
     UFUNCTION()
     void OnCreepPathClicked();
 

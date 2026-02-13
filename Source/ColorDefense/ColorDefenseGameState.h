@@ -4,16 +4,25 @@
 #include "GameFramework/GameStateBase.h"
 #include "ColorDefenseGameState.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMoneyChanged, int32, NewMoney);
+
 UCLASS()
 class COLORDEFENSE_API AColorDefenseGameState : public AGameStateBase
 {
     GENERATED_BODY()
 
-public:
-    UPROPERTY(EditAnywhere, Category = "Economy")
-    int32 CurrentMoney = 0;
+    virtual void BeginPlay() override;
 
-public:
+public: // --- Money --- //
+
+    UPROPERTY(EditAnywhere, Category = "Economy")
+    int32 CurrentMoney = 1000;
+
+    UPROPERTY()
+    FOnMoneyChanged OnMoneyChanged;
+
+    void BroadcastInitialMoney(); // Run only once when the game starts.
+
     int32 GetCurrentMoney() const;
 
     // Adds money and broadcasts the change

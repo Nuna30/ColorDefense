@@ -95,7 +95,7 @@ bool UCreepWayGenerator::DeleteCurrentCreepWay()
 
 void UCreepWayGenerator::GenerateNextCreepWay()
 {
-	// Prepare history entry.
+	// Prep the history entry.
     FCreepWayStepHistory NewStep;
     NewStep.PreviousRailLastIndices = this->CreepRail->LastIndicesOfEachRail;
     NewStep.PreviousDirection = this->CurrentDirection;
@@ -111,6 +111,7 @@ void UCreepWayGenerator::GenerateNextCreepWay()
     this->NextDirection = this->DirectionContainer.Last();
     if (this->NextDirection.Z == 0) GoStraightAndTurnLeftOrRightAndGoStraight();
     else GoStraightAndUpOrDownAndGoStraight();
+	SpawnCheckPointsAtLastIndices();
 
     // Spawn CreepWays.
     FlushRailBuffersToMainBuffer(); 

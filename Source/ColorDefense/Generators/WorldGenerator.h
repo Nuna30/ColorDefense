@@ -8,6 +8,7 @@
 #include "GeneratorManagers/CreepGeneratorGeneratorManager.h" // 크립을 생성하기 위해
 #include "GeneratorManagers/ChunkGeneratorManager.h"
 #include "GeneratorManagers/PlayerBlockGeneratorManager.h"
+#include "GeneratorManagers/CreepEndGeneratorManager.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "WorldGenerator.generated.h"

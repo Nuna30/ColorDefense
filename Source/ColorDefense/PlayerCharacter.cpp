@@ -5,6 +5,7 @@
 #include "Components/CanvasPanel.h"
 #include "Blueprint/UserWidget.h"
 #include "Widgets/ShopWidget.h"
+#include "Widgets/CreepPathWidget.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -94,7 +95,7 @@ void APlayerCharacter::BeginPlay()
             ShopWidgetInstance = CreateWidget<UShopWidget>(PC, ShopWidgetClass);
             if (ShopWidgetInstance)
             {
-                ShopWidgetInstance->AddToViewport(10);
+                ShopWidgetInstance->AddToViewport(0);
                 ShopWidgetInstance->SetVisibility(ESlateVisibility::Collapsed);
             }
         }
@@ -148,14 +149,14 @@ void APlayerCharacter::HandleLeftClickReleased()
     if (CurrentTool)
     {
         CurrentTool->LeftClickReleased();
-        this->CreepWayHandler->BuildCreepWay();
+        // this->CreepWayHandler->BuildCreepWay();
     }
 }
 
 void APlayerCharacter::HandleRightClick()
 {
     CurrentTool->RightClick(); 
-    this->CreepWayHandler->DestructCreepWay();
+    // this->CreepWayHandler->DestructCreepWay();
 }
 
 void APlayerCharacter::HandleChangeColor(const FInputActionValue& Value)
@@ -259,22 +260,31 @@ void APlayerCharacter::ToggleShop()
     APlayerController* PC = Cast<APlayerController>(GetController());
     if (!PC) return;
 
-    if (ShopWidgetInstance->GetVisibility() == ESlateVisibility::Visible)
+    // Check if ANY widget is currently on screen
+    // As you add more widgets (Inventory, etc.), add them to this boolean check
+    bool bIsAnyUIOpen = ShopWidgetInstance->IsVisible(); 
+    bIsAnyUIOpen = ShopWidgetInstance->CreepPathWidgetInstance->IsVisible();
+
+    if (bIsAnyUIOpen)
     {
-        UE_LOG(LogTemp, Warning, TEXT("Close the Shop"));
+        UE_LOG(LogTemp, Log, TEXT("Closing all widgets."));
+        
+        // Close all specific widgets
         ShopWidgetInstance->SetVisibility(ESlateVisibility::Collapsed);
+        ShopWidgetInstance->CreepPathWidgetInstance->SetVisibility(ESlateVisibility::Collapsed);
+
+        // Reset Input Mode to Game Only
         PC->bShowMouseCursor = false;
         FInputModeGameOnly InputMode;
         PC->SetInputMode(InputMode);
     }
     else
     {
-        UE_LOG(LogTemp, Warning, TEXT("Open the Shop"));
+        // 4. Open the primary widget (Shop)
+        UE_LOG(LogTemp, Log, TEXT("Opening the Shop."));
         
-        // Force the root widget to visible
         ShopWidgetInstance->SetVisibility(ESlateVisibility::Visible);
         
-        // Force the CanvasPanel to visible just in case
         if (ShopWidgetInstance->ShopCanvasPanel)
         {
             ShopWidgetInstance->ShopCanvasPanel->SetVisibility(ESlateVisibility::Visible);

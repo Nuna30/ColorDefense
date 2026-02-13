@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "CreepRail.h"
+#include "GeneratorManagers/CreepEndGeneratorManager.h"
 #include "Utils/Utils.h"
 
 UCreepRail::UCreepRail()
@@ -19,6 +20,11 @@ void UCreepRail::Initialize(int32 InMaxRailCount, int32 InRailLength, FIntVector
 		this->LastIndicesOfEachRail.Add(StartIndex);
 		StartIndex = StartIndex + Utils::GetPerpendicularDirection(CurrentDirection);
 	}
+
+	// Get CreepEndGenerator manager.
+	UGameInstance* GameInstance = GetWorld()->GetGameInstance();
+	this->CreepEndGeneratorManager = GameInstance->GetSubsystem<UCreepEndGeneratorManager>();
+	this->CreepEndGeneratorManager->CreepEndGenerator->CreateCreepEnds(this->LastIndicesOfEachRail);
 }
 
 void UCreepRail::PrintLastIndicesOfEachRail()
@@ -77,6 +83,7 @@ void UCreepRail::InsertCreepWayDataRectangleIntoRailBuffers(FIntVector CurrentDi
 				RailBuffer.Add(TTuple<FIntVector, int32, float, EVoxelProperty>(VoxelIndexForRail, BPActorPoolIndex, Rotation, EVoxelProperty::SlopeCreepWay));
 		}
 	}
+	this->CreepEndGeneratorManager->CreepEndGenerator->MoveCreepEnds(this->LastIndicesOfEachRail);
 }
 
 
@@ -108,4 +115,5 @@ void UCreepRail::InsertCreepWayDataTriangleIntoRailBuffers(bool bTopRailIn, cons
 			}
 		}
 	}
+	this->CreepEndGeneratorManager->CreepEndGenerator->MoveCreepEnds(this->LastIndicesOfEachRail);
 }

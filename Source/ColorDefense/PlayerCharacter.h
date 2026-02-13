@@ -80,7 +80,7 @@ public: // --- CreepWayHandler Test --- //
     UPROPERTY()
     class UCreepWayHandler* CreepWayHandler;
 
-public: // Shopping
+public: // --- Shopping --- //
     UPROPERTY(EditAnywhere, Category = "Input")
     class UInputAction* ToggleShopAction;
 

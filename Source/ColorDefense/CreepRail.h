@@ -29,4 +29,7 @@ public:
 
 	UPROPERTY()
 	TArray<FIntVector> LastIndicesOfEachRail;
+
+	UPROPERTY()
+	class UCreepEndGeneratorManager* CreepEndGeneratorManager;
 };
