@@ -79,18 +79,4 @@ public:
     // Control how much the pitch increases per combo
     UPROPERTY(EditAnywhere, Category = "Setting")
     float PitchMultiplier = 0.1f;
-
-    // --- Combo UI ---
-    UPROPERTY(EditAnywhere, Category = "Setting")
-    TSubclassOf<UComboWidget> ComboWidgetClass;
-
-    UPROPERTY()
-    UComboWidget* ComboWidgetInstance;
-
-        // --- Money UI ---
-    UPROPERTY(EditAnywhere, Category = "Setting")
-    TSubclassOf<UMoneyWidget> MoneyWidgetClass;
-
-    UPROPERTY()
-    UMoneyWidget* MoneyWidgetInstance;
 };

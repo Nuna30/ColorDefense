@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "ColorGun.h"
+#include "Widgets/ColorDefenseHUD.h"
 
 // Sets default values for this component's properties
 AColorGun::AColorGun()
@@ -24,16 +25,6 @@ AColorGun::AColorGun()
 void AColorGun::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// Combo UI
-    ComboWidgetInstance = CreateWidget<UComboWidget>(GetWorld(), ComboWidgetClass);
-	ComboWidgetInstance->AddToViewport();
-	ComboWidgetInstance->UpdateComboText(0); // Hide initially
-
-	// Money UI
-    MoneyWidgetInstance = CreateWidget<UMoneyWidget>(GetWorld(), MoneyWidgetClass);
-	MoneyWidgetInstance->AddToViewport();
-	MoneyWidgetInstance->UpdateMoneyText(0); // Hide initially
 }
 
 void AColorGun::Tick(float DeltaTime)
@@ -48,8 +39,6 @@ void AColorGun::Tick(float DeltaTime)
 
 void AColorGun::LeftClick()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("LeftClick"));
-
 	bIsConnecting = true;
     ConnectedCreeps.Empty(); // Clear any previous chain
     UpdateChain(); // Try to catch the first creep immediately
@@ -70,24 +59,29 @@ void AColorGun::UpdateChain()
     if (GetWorld()->LineTraceSingleByChannel(Hit, Location, End, ECollisionChannel::ECC_GameTraceChannel1))
     {
         ACreep* HitCreep = Cast<ACreep>(Hit.GetActor());
-        
-		// if (HitCreep) GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("HitCreep"));
-
+    
         // Check if: 1. It's a Creep, 2. Color matches, 3. Not already in our list
-        if (HitCreep && HitCreep->CreepColor == CurrentColor && !ConnectedCreeps.Contains(HitCreep))
-        {
+		if (HitCreep && HitCreep->CreepColor == CurrentColor && !ConnectedCreeps.Contains(HitCreep))
+		{
 			// Creep Highlight
             ConnectedCreeps.Add(HitCreep);
-            HitCreep->SetHighlighted(true); 
+            HitCreep->SetHighlighted(true);
 
 			// Combo
 			TotalCombo++;
 			ComboCount++;
 			PlayComboSound();
-
-			// Combo UI
-			ComboWidgetInstance->UpdateComboText(TotalCombo);
-        }
+			
+			// Send combo data to the Central HUD
+			if (APlayerController* PC = GetWorld()->GetFirstPlayerController())
+			{
+				if (AColorDefenseHUD* HUD = PC->GetHUD<AColorDefenseHUD>())
+				{
+					HUD->UpdateCombo(TotalCombo);
+				}
+			}
+			
+		}
     }
 }
 
@@ -109,8 +103,14 @@ void AColorGun::LeftClickReleased()
 			// Add money
 			GS->AddMoney(1); 
 
-			// Update money widget
-			MoneyWidgetInstance->UpdateMoneyText(GS->GetCurrentMoney());
+			// Send money data to the Central HUD
+            if (APlayerController* PC = Cast<APlayerController>(GetWorld()->GetFirstPlayerController()))
+            {
+                if (AColorDefenseHUD* HUD = PC->GetHUD<AColorDefenseHUD>())
+                {
+                    HUD->UpdateMoney(GS->GetCurrentMoney());
+                }
+            }
         }
     }
 

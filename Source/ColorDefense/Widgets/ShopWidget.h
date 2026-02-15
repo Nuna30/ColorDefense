@@ -3,10 +3,21 @@
 #include "Blueprint/UserWidget.h"
 #include "ShopWidget.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnShopRequestCreepPath);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnShopQuitRequest);
+
 UCLASS()
 class COLORDEFENSE_API UShopWidget : public UUserWidget
 {
     GENERATED_BODY()
+    virtual void NativeConstruct() override;
+    
+public:
+    UPROPERTY()
+    FOnShopRequestCreepPath OnRequestCreepPath;
+
+    UPROPERTY()
+    FOnShopQuitRequest OnRequestQuit;
 
 public:
     UPROPERTY(meta = (BindWidget))
@@ -14,17 +25,6 @@ public:
 
     UPROPERTY(meta = (BindWidget))
     class UButton* QuitButton;
-
-    UPROPERTY(meta = (BindWidget))
-    class UCanvasPanel* ShopCanvasPanel;
-
-    virtual void NativeConstruct() override;
-public:
-    UPROPERTY(EditAnywhere, Category = "Widget")
-    TSubclassOf<class UCreepPathWidget> CreepPathWidgetClass;
-
-    UPROPERTY()
-    class UCreepPathWidget* CreepPathWidgetInstance;
 
 public:
     UFUNCTION()

@@ -2,10 +2,7 @@
 
 #include "PlayerCharacter.h"
 #include "CreepWayHandler.h"
-#include "Components/CanvasPanel.h"
-#include "Blueprint/UserWidget.h"
-#include "Widgets/ShopWidget.h"
-#include "Widgets/CreepPathWidget.h"
+#include "Widgets/ColorDefenseHUD.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -86,20 +83,6 @@ void APlayerCharacter::BeginPlay()
     // Dynamic Creep Path Generation Test
     this->CreepWayHandler = NewObject<UCreepWayHandler>(this, UCreepWayHandler::StaticClass());
 	this->CreepWayHandler->Initialize();
-
-    // Shopping
-    if (APlayerController* PC = Cast<APlayerController>(GetController()))
-    {
-        if (ShopWidgetClass)
-        {
-            ShopWidgetInstance = CreateWidget<UShopWidget>(PC, ShopWidgetClass);
-            if (ShopWidgetInstance)
-            {
-                ShopWidgetInstance->AddToViewport(0);
-                ShopWidgetInstance->SetVisibility(ESlateVisibility::Collapsed);
-            }
-        }
-    }
 }
 
 // Called every frame
@@ -255,44 +238,14 @@ void APlayerCharacter::Jump()
 
 void APlayerCharacter::ToggleShop()
 {
-    if (!ShopWidgetInstance) return;
-
-    APlayerController* PC = Cast<APlayerController>(GetController());
-    if (!PC) return;
-
-    // Check if ANY widget is currently on screen
-    // As you add more widgets (Inventory, etc.), add them to this boolean check
-    bool bIsAnyUIOpen = ShopWidgetInstance->IsVisible(); 
-    bIsAnyUIOpen = ShopWidgetInstance->CreepPathWidgetInstance->IsVisible();
-
-    if (bIsAnyUIOpen)
+    // The Character no longer handles "how" to open the shop.
+    // It just tells the HUD: "The player wants to toggle the UI."
+    if (APlayerController* PC = Cast<APlayerController>(GetController()))
     {
-        UE_LOG(LogTemp, Log, TEXT("Closing all widgets."));
-        
-        // Close all specific widgets
-        ShopWidgetInstance->SetVisibility(ESlateVisibility::Collapsed);
-        ShopWidgetInstance->CreepPathWidgetInstance->SetVisibility(ESlateVisibility::Collapsed);
-
-        // Reset Input Mode to Game Only
-        PC->bShowMouseCursor = false;
-        FInputModeGameOnly InputMode;
-        PC->SetInputMode(InputMode);
-    }
-    else
-    {
-        // 4. Open the primary widget (Shop)
-        UE_LOG(LogTemp, Log, TEXT("Opening the Shop."));
-        
-        ShopWidgetInstance->SetVisibility(ESlateVisibility::Visible);
-        
-        if (ShopWidgetInstance->ShopCanvasPanel)
+        if (AColorDefenseHUD* HUD = PC->GetHUD<AColorDefenseHUD>())
         {
-            ShopWidgetInstance->ShopCanvasPanel->SetVisibility(ESlateVisibility::Visible);
+            // We will create this function in the HUD next
+            HUD->ToggleMainHUD(); 
         }
-
-        PC->bShowMouseCursor = true;
-        FInputModeGameAndUI InputMode;
-        InputMode.SetWidgetToFocus(ShopWidgetInstance->TakeWidget());
-        PC->SetInputMode(InputMode);
     }
 }

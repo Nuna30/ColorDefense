@@ -84,12 +84,6 @@ public: // --- Shopping --- //
     UPROPERTY(EditAnywhere, Category = "Input")
     class UInputAction* ToggleShopAction;
 
-    UPROPERTY(EditAnywhere, Category = "Widget")
-    TSubclassOf<class UShopWidget> ShopWidgetClass;
-
-    UPROPERTY()
-    class UShopWidget* ShopWidgetInstance;
-
     void ToggleShop();
 
 public:
