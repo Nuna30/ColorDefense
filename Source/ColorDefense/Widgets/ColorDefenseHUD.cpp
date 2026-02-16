@@ -2,8 +2,6 @@
 #include "MainHUDWidget.h"
 #include "ShopWidget.h"
 #include "CreepPathWidget.h"
-#include "MoneyWidget.h"
-#include "ComboWidget.h"
 
 void AColorDefenseHUD::BeginPlay()
 {
@@ -45,18 +43,6 @@ void AColorDefenseHUD::ToggleMainHUD()
         FInputModeGameOnly InputMode;
         PC->SetInputMode(InputMode);
     }
-}
-
-void AColorDefenseHUD::UpdateMoney(int32 NewAmount)
-{
-    if (MainHUDInstance && MainHUDInstance->MoneyWidget)
-        MainHUDInstance->MoneyWidget->UpdateMoneyText(NewAmount);
-}
-
-void AColorDefenseHUD::UpdateCombo(int32 NewCombo)
-{
-    if (MainHUDInstance && MainHUDInstance->ComboWidget)
-        MainHUDInstance->ComboWidget->UpdateComboText(NewCombo);
 }
 
 // Navigation Logic

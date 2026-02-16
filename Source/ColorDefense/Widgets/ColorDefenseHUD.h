@@ -10,10 +10,6 @@ class COLORDEFENSE_API AColorDefenseHUD : public AHUD
     virtual void BeginPlay() override;
 
 public:
-    void UpdateMoney(int32 NewAmount);
-    void UpdateCombo(int32 NewCombo);
-
-public:
     UPROPERTY(EditAnywhere, Category = "Setting")
     TSubclassOf<class UMainHUDWidget> MainHUDClass;
 

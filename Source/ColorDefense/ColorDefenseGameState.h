@@ -5,6 +5,7 @@
 #include "ColorDefenseGameState.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMoneyChanged, int32, NewMoney);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnComboChanged, int32, NewCombo);
 
 UCLASS()
 class COLORDEFENSE_API AColorDefenseGameState : public AGameStateBase
@@ -14,8 +15,7 @@ class COLORDEFENSE_API AColorDefenseGameState : public AGameStateBase
     virtual void BeginPlay() override;
 
 public: // --- Money --- //
-
-    UPROPERTY(EditAnywhere, Category = "Economy")
+    UPROPERTY(EditAnywhere, Category = "Setting")
     int32 CurrentMoney = 1000;
 
     UPROPERTY()
@@ -30,4 +30,15 @@ public: // --- Money --- //
 
     // Returns true if purchase is successful
     bool TrySpendMoney(int32 Cost);
+
+public: // --- Combo --- //
+    UPROPERTY(EditAnywhere, Category = "Setting")
+    int32 CurrentCombo = 0;
+
+    UPROPERTY()
+    FOnComboChanged OnComboChanged;
+
+    int32 GetCurrentCombo() const;
+    void AddCombo(int32 Amount);
+    void SetCombo(int32 NewCombo);
 };

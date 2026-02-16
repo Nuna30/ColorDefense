@@ -67,19 +67,10 @@ void AColorGun::UpdateChain()
             ConnectedCreeps.Add(HitCreep);
             HitCreep->SetHighlighted(true);
 
-			// Combo
-			TotalCombo++;
+			// Update Combo
 			ComboCount++;
 			PlayComboSound();
-			
-			// Send combo data to the Central HUD
-			if (APlayerController* PC = GetWorld()->GetFirstPlayerController())
-			{
-				if (AColorDefenseHUD* HUD = PC->GetHUD<AColorDefenseHUD>())
-				{
-					HUD->UpdateCombo(TotalCombo);
-				}
-			}
+			if (AColorDefenseGameState* GS = GetWorld()->GetGameState<AColorDefenseGameState>()) GS->AddCombo(1);
 			
 		}
     }
@@ -102,15 +93,6 @@ void AColorGun::LeftClickReleased()
 
 			// Add money
 			GS->AddMoney(1); 
-
-			// Send money data to the Central HUD
-            if (APlayerController* PC = Cast<APlayerController>(GetWorld()->GetFirstPlayerController()))
-            {
-                if (AColorDefenseHUD* HUD = PC->GetHUD<AColorDefenseHUD>())
-                {
-                    HUD->UpdateMoney(GS->GetCurrentMoney());
-                }
-            }
         }
     }
 

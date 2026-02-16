@@ -17,6 +17,8 @@ void AColorDefenseGameState::BeginPlay()
     );
 }
 
+// --- Money --- //
+
 void AColorDefenseGameState::BroadcastInitialMoney()
 {
     OnMoneyChanged.Broadcast(CurrentMoney);
@@ -43,4 +45,24 @@ bool AColorDefenseGameState::TrySpendMoney(int32 Cost)
         return true;
     }
     return false;
+}
+
+// --- Combo --- //
+
+int32 AColorDefenseGameState::GetCurrentCombo() const
+{
+    return CurrentCombo; 
+}
+
+void AColorDefenseGameState::AddCombo(int32 Amount)
+{
+    CurrentCombo += Amount;
+
+    OnComboChanged.Broadcast(CurrentCombo);
+}
+
+void AColorDefenseGameState::SetCombo(int32 NewCombo)
+{
+    CurrentCombo = NewCombo;
+    OnComboChanged.Broadcast(NewCombo);
 }

@@ -66,7 +66,6 @@ public:
     bool bIsConnecting = false;
 
     // --- Combo ---
-    int32 TotalCombo = 0;
     int32 ComboCount = 0;
 
     UPROPERTY(EditAnywhere, Category = "Setting")

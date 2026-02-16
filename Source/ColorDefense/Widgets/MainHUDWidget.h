@@ -16,12 +16,6 @@ public:
     UPROPERTY(meta = (BindWidget))
     class UCreepPathWidget* CreepPathWidget;
 
-    UPROPERTY(meta = (BindWidget))
-    class UMoneyWidget* MoneyWidget;
-
-    UPROPERTY(meta = (BindWidget))
-    class UComboWidget* ComboWidget;
-
     // A Canvas or Switcher to manage visibility
     UPROPERTY(meta = (BindWidget))
     class UWidgetSwitcher* UISwitcher;

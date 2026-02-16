@@ -12,6 +12,9 @@ class COLORDEFENSE_API UMoneyWidget : public UUserWidget
     virtual void NativeConstruct() override;
 
 public:
+    UFUNCTION()
+    void BindDelegate();
+
     // Update the text from ColorGun
     UFUNCTION() // For subscribing the delegate
     void UpdateMoneyText(int32 NewMoney);
