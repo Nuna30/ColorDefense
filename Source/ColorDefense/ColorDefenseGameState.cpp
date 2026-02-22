@@ -66,3 +66,28 @@ void AColorDefenseGameState::SetCombo(int32 NewCombo)
     CurrentCombo = NewCombo;
     OnComboChanged.Broadcast(NewCombo);
 }
+
+// --- HP --- //
+
+int32 AColorDefenseGameState::GetCurrentHP() const
+{
+    return CurrentHP; 
+}
+
+void AColorDefenseGameState::AddHP(int32 Amount)
+{
+    CurrentHP += Amount;
+
+    OnHPChanged.Broadcast(CurrentHP);
+
+    if (CurrentHP <= 0)
+    {
+        OnHPZero.Broadcast();
+    }
+}
+
+void AColorDefenseGameState::SetHP(int32 NewHP)
+{
+    CurrentHP = NewHP;
+    OnHPChanged.Broadcast(NewHP);
+}

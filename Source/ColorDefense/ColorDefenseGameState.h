@@ -6,6 +6,9 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMoneyChanged, int32, NewMoney);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnComboChanged, int32, NewCombo);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHPChanged, int32, NewHP);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnHPZero);
 
 UCLASS()
 class COLORDEFENSE_API AColorDefenseGameState : public AGameStateBase
@@ -16,7 +19,7 @@ class COLORDEFENSE_API AColorDefenseGameState : public AGameStateBase
 
 public: // --- Money --- //
     UPROPERTY(EditAnywhere, Category = "Setting")
-    int32 CurrentMoney = 1000;
+    int32 CurrentMoney = 100000;
 
     UPROPERTY()
     FOnMoneyChanged OnMoneyChanged;
@@ -41,4 +44,18 @@ public: // --- Combo --- //
     int32 GetCurrentCombo() const;
     void AddCombo(int32 Amount);
     void SetCombo(int32 NewCombo);
+
+public: // --- HP --- //
+    UPROPERTY(EditAnywhere, Category = "Setting")
+    int32 CurrentHP = 10;
+
+    UPROPERTY()
+    FOnHPChanged OnHPChanged;
+
+    UPROPERTY()
+    FOnHPZero OnHPZero;
+
+    int32 GetCurrentHP() const;
+    void AddHP(int32 Amount);
+    void SetHP(int32 NewHP);
 };

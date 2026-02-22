@@ -44,10 +44,12 @@ void UCreepEndGenerator::MoveCreepEnds(TArray<FIntVector>& NewLastIndicesOfEachR
     }
 
     // Iterate through each CreepEnd to update to its new rail-end position
+    TArray<FIntVector> NewCreepEndIndices;
     for (int32 i = 0; i < CreepEnds.Num(); ++i)
     {
         ACreepEnd* TargetActor = CreepEnds[i];
-        FIntVector NewVoxelIndex = NewLastIndicesOfEachRail[i] + FIntVector(0, 0, 1);
+        FIntVector NewVoxelIndex = NewLastIndicesOfEachRail[i] + FIntVector(0, 0, 2);
+        NewCreepEndIndices.Add(NewVoxelIndex);
 
         // Set all new index data in the VoxelGrid
         SetVoxelDataInVoxelGrid(NewVoxelIndex, 5, 0.0f, EVoxelProperty::CreepEnd);
@@ -62,5 +64,5 @@ void UCreepEndGenerator::MoveCreepEnds(TArray<FIntVector>& NewLastIndicesOfEachR
     }
 
     // Finally, update our tracking list so the next move knows where the "old" positions are
-    CurrentCreepEndIndices = NewLastIndicesOfEachRail;
+    CurrentCreepEndIndices = NewCreepEndIndices;
 }

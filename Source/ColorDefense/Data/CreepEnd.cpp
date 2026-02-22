@@ -2,6 +2,7 @@
 
 #include "CreepEnd.h"
 #include "Creep.h"
+#include "ColorDefenseGameState.h"
 #include "Components/StaticMeshComponent.h"
 
 ACreepEnd::ACreepEnd()
@@ -45,9 +46,11 @@ void ACreepEnd::OnOverlapBegin
         ACreep* IncomingCreep = Cast<ACreep>(OtherActor);
         if (IncomingCreep)
         {
-            // The creep's mesh has hit your CreepEnd's mesh
+            // Destroy the collided creep.
             IncomingCreep->HandleDestruction();
-            UE_LOG(LogTemp, Log, TEXT("Creep reached the exact mesh boundary!"));
+
+            // Decrease the HP.
+            if (AColorDefenseGameState* GS = GetWorld()->GetGameState<AColorDefenseGameState>()) GS->AddHP(-1);
         }
     }
 }

@@ -19,6 +19,8 @@ public:
 	void UpdateLastIndicesOfEachRail();
 	void InsertCreepWayDataRectangleIntoRailBuffers(FIntVector CurrentDirection, int32 BPActorPoolIndex, bool bRotate);
 	void InsertCreepWayDataTriangleIntoRailBuffers(bool bTopRailIn, const FIntVector& Direction, int32 Offset);
+	void UpdateCreepEnds();
+
 public:
 	void PrintLastIndicesOfEachRail();
 public:

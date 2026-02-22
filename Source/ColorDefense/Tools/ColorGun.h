@@ -4,8 +4,6 @@
 #include "Tool.h" 
 #include "Creep.h" 
 #include "ColorDefenseGameState.h"
-#include "Widgets/ComboWidget.h"
-#include "Widgets/MoneyWidget.h"
 #include "Components/AudioComponent.h"
 #include "CoreMinimal.h"
 #include "NiagaraFunctionLibrary.h"

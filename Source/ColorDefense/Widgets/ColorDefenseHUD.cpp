@@ -2,6 +2,7 @@
 #include "MainHUDWidget.h"
 #include "ShopWidget.h"
 #include "CreepPathWidget.h"
+#include "GameOverWidget.h"
 
 void AColorDefenseHUD::BeginPlay()
 {
@@ -49,3 +50,4 @@ void AColorDefenseHUD::ToggleMainHUD()
 void AColorDefenseHUD::HandleShopToCreepPath() { MainHUDInstance->ShowCreepPath(); }
 void AColorDefenseHUD::HandleBackToShop()      { MainHUDInstance->ShowShop(); }
 void AColorDefenseHUD::HandleQuitToGame()      { MainHUDInstance->ShowGameplayUI(); }
+void AColorDefenseHUD::HandleGameOver()        { MainHUDInstance->ShowGameOver(); }

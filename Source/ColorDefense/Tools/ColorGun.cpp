@@ -1,7 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "ColorGun.h"
-#include "Widgets/ColorDefenseHUD.h"
 
 // Sets default values for this component's properties
 AColorGun::AColorGun()

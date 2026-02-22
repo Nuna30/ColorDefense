@@ -104,11 +104,13 @@ void UVoxelGenerator::DestroyActorFromVoxel(FVoxel& Voxel)
 {
 	AActor* ActorToDestroy = Voxel.SpawnedActor.Get();
 
- 	if (IsValid(ActorToDestroy))
- 	{
- 		ActorToDestroy->Destroy();
- 	}
+ 	if (!IsValid(ActorToDestroy)) 
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Invalid actor from VoxelGenerator::DestroyActorFromVoxel"));
+		return;
+	}
     
+	ActorToDestroy->Destroy();
  	Voxel.SpawnedActor = nullptr;
 	Voxel.Property = EVoxelProperty::Empty;
 	Voxel.BPActor = nullptr;

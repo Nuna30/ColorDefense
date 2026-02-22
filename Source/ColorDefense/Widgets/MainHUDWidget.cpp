@@ -2,6 +2,7 @@
 #include "Components/WidgetSwitcher.h"
 #include "ShopWidget.h"
 #include "CreepPathWidget.h"
+#include "GameOverWidget.h"
 
 void UMainHUDWidget::ShowGameplayUI()
 {
@@ -26,5 +27,13 @@ void UMainHUDWidget::ShowCreepPath()
     if (UISwitcher && CreepPathWidget)
     {
         UISwitcher->SetActiveWidget(CreepPathWidget);
+    }
+}
+
+void UMainHUDWidget::ShowGameOver()
+{
+    if (UISwitcher && GameOverWidget)
+    {
+        UISwitcher->SetActiveWidget(GameOverWidget);
     }
 }

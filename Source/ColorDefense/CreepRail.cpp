@@ -83,7 +83,7 @@ void UCreepRail::InsertCreepWayDataRectangleIntoRailBuffers(FIntVector CurrentDi
 				RailBuffer.Add(TTuple<FIntVector, int32, float, EVoxelProperty>(VoxelIndexForRail, BPActorPoolIndex, Rotation, EVoxelProperty::SlopeCreepWay));
 		}
 	}
-	this->CreepEndGeneratorManager->CreepEndGenerator->MoveCreepEnds(this->LastIndicesOfEachRail);
+	UpdateCreepEnds();
 }
 
 
@@ -115,5 +115,10 @@ void UCreepRail::InsertCreepWayDataTriangleIntoRailBuffers(bool bTopRailIn, cons
 			}
 		}
 	}
+	UpdateCreepEnds();
+}
+
+void UCreepRail::UpdateCreepEnds()
+{
 	this->CreepEndGeneratorManager->CreepEndGenerator->MoveCreepEnds(this->LastIndicesOfEachRail);
 }

@@ -49,43 +49,34 @@ bool UCreepWayGenerator::DeleteCurrentCreepWay()
     // Pop the last history entry.
     FCreepWayStepHistory LastStep = StepHistoryStack.Pop();
 
-	// 1. Clean up Voxels and Actors.
-    for (const FIntVector& Index : LastStep.VoxelIndices)
+	// Restore the previous last indices and the previous direction.
+    this->CreepRail->LastIndicesOfEachRail = LastStep.PreviousRailLastIndices;
+	this->CurrentDirection = LastStep.PreviousDirection;
+
+	// Update the CreepEnds.
+	this->CreepRail->UpdateCreepEnds();
+
+	// Clean up Voxels and Actors.
+	int32 DeleteCount = 0;
+	for (const FIntVector& Index : LastStep.VoxelIndices)
     {
 		// Delete actor.
         FVoxel& Voxel = VoxelGrid->GetVoxel(Index);
-
-		// Tell the NavMesh to stop looking at this BEFORE destroying it
-		// See the dev log Feb 7th for more detail.
-        if (AActor* RawActor = Voxel.SpawnedActor.Get()) 
-		{
-			// Actors themselves don't always have a direct "SetCanEver..." 
-			// You often have to tell the Root Component to stop affecting navigation
-			if (UPrimitiveComponent* RootPrim = Cast<UPrimitiveComponent>(RawActor->GetRootComponent()))
-			{
-				RootPrim->SetCanEverAffectNavigation(false);
-			}
-		}
-
 		DestroyActorFromVoxel(Voxel);
+		DeleteCount++;
     }
+	UE_LOG(LogTemp, Warning, TEXT("DeleteCount : %d"), DeleteCount);
 
-	// 2. Restore the previous last indices.
-    this->CreepRail->LastIndicesOfEachRail = LastStep.PreviousRailLastIndices;
-
-	// 3. Restore the previous direction.
-	this->CurrentDirection = LastStep.PreviousDirection;
-
-	// 4. Delete checkpoint actors.
+	// Delete checkpoint actors.
 	for (AActor* CP : LastStep.SpawnedCheckPoints) CP->Destroy();
 
-	// 5. Clean up the locations array in each checkpoint geneator.
+	// Clean up the locations array in each checkpoint geneator.
 	for (int32 i = 0; i < this->CreepCheckPointGenerators.Num(); i++)
     {
 		this->CreepCheckPointGenerators[i]->PopLocations(LastStep.CheckPointCountsPerGenerator[i]);
     }
 
-	// 6. Clean up the main buffer
+	// Clean up the main buffer
     this->CreepRail->MainBuffer.Empty();
 
 	// Deletion successfully completed.
@@ -121,6 +112,9 @@ void UCreepWayGenerator::GenerateNextCreepWay()
     StepHistoryStack.Last().VoxelIndices = CurrentCreepWayIndices;
 	StepHistoryStack.Last().SpawnedCheckPoints = CurrentCheckPoints;
 	StepHistoryStack.Last().CheckPointCountsPerGenerator = CurrentCheckPointCounts;
+
+	// Debugging
+	UE_LOG(LogTemp, Warning, TEXT("SpawnCount : %d"), StepHistoryStack.Last().VoxelIndices.Num());
 }
 
 void UCreepWayGenerator::GenerateStartLocation() // deprecated.

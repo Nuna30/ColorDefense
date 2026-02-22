@@ -25,4 +25,5 @@ public:
     UFUNCTION() void HandleShopToCreepPath();
     UFUNCTION() void HandleBackToShop();
     UFUNCTION() void HandleQuitToGame();
+    UFUNCTION() void HandleGameOver();
 };

@@ -16,6 +16,9 @@ public:
     UPROPERTY(meta = (BindWidget))
     class UCreepPathWidget* CreepPathWidget;
 
+    UPROPERTY(meta = (BindWidget))
+    class UGameOverWidget* GameOverWidget;
+
     // A Canvas or Switcher to manage visibility
     UPROPERTY(meta = (BindWidget))
     class UWidgetSwitcher* UISwitcher;
@@ -24,4 +27,5 @@ public:
     void ShowGameplayUI();
     void ShowShop();
     void ShowCreepPath();
+    void ShowGameOver();
 };
