@@ -17,15 +17,14 @@ void AWorldGenerator::BeginPlay()
 	UWorld* World = GetWorld(); // 액터를 스폰하기 위해선 UWorld 객체가 필요하다.
 	UVoxelGrid* VoxelGrid = World->GetSubsystem<UVoxelGrid>(); VoxelGrid->VoxelGridSize = FIntVector(ChunkGridSize.X * (MaxRailCount + 2), ChunkGridSize.Y * (MaxRailCount + 2), ChunkGridSize.Z * (MaxRailCount + 2)); VoxelGrid->InitVoxelGrid();
     UChunkGrid* ChunkGrid = World->GetSubsystem<UChunkGrid>(); ChunkGrid->ChunkGridSize = this->ChunkGridSize; ChunkGrid->InitChunkGrid();
-	UGameInstance* GameInstance = GetGameInstance();
-	UBPActorPool* BPActorPool = GameInstance->GetSubsystem<UBPActorPool>();
-    UChunkGeneratorManager* ChunkGeneratorManager = GameInstance->GetSubsystem<UChunkGeneratorManager>();
-	UCreepWayGeneratorManager* CreepWayGeneratorManager = GameInstance->GetSubsystem<UCreepWayGeneratorManager>();
-    UCreepCheckPointGeneratorManager* CreepCheckPointGeneratorManager = GameInstance->GetSubsystem<UCreepCheckPointGeneratorManager>();
-    UCreepGeneratorGeneratorManager* CreepGeneratorGeneratorManager = GameInstance->GetSubsystem<UCreepGeneratorGeneratorManager>();
-    UCreepPatternGeneratorManager* CreepPatternGeneratorManager = GameInstance->GetSubsystem<UCreepPatternGeneratorManager>();
-    UPlayerBlockGeneratorManager* PlayerBlockGeneratorManager = GameInstance->GetSubsystem<UPlayerBlockGeneratorManager>();
-    UCreepEndGeneratorManager* CreepEndGeneratorManager = GameInstance->GetSubsystem<UCreepEndGeneratorManager>();
+	UBPActorPool* BPActorPool = World->GetSubsystem<UBPActorPool>();
+    UChunkGeneratorManager* ChunkGeneratorManager = World->GetSubsystem<UChunkGeneratorManager>();
+	UCreepWayGeneratorManager* CreepWayGeneratorManager = World->GetSubsystem<UCreepWayGeneratorManager>();
+    UCreepCheckPointGeneratorManager* CreepCheckPointGeneratorManager = World->GetSubsystem<UCreepCheckPointGeneratorManager>();
+    UCreepGeneratorGeneratorManager* CreepGeneratorGeneratorManager = World->GetSubsystem<UCreepGeneratorGeneratorManager>();
+    UCreepPatternGeneratorManager* CreepPatternGeneratorManager = World->GetSubsystem<UCreepPatternGeneratorManager>();
+    UPlayerBlockGeneratorManager* PlayerBlockGeneratorManager = World->GetSubsystem<UPlayerBlockGeneratorManager>();
+    UCreepEndGeneratorManager* CreepEndGeneratorManager = World->GetSubsystem<UCreepEndGeneratorManager>();
 
     // ------------------------------------ 로직 클래스 초기화 -----------------------------------//
     ChunkGeneratorManager->CreateChunkGenerator(ChunkGrid, NeighborRadius);

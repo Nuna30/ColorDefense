@@ -3,11 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Subsystems/GameInstanceSubsystem.h"
+#include "Subsystems/WorldSubsystem.h"
 #include "CreepPatternGeneratorManager.generated.h"
 
 UCLASS()
-class COLORDEFENSE_API UCreepPatternGeneratorManager : public UGameInstanceSubsystem
+class COLORDEFENSE_API UCreepPatternGeneratorManager : public UWorldSubsystem
 {
 	GENERATED_BODY()
 public:

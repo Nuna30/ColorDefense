@@ -4,11 +4,11 @@
 
 #include "Generators/CreepGeneratorGenerator.h" // 크립생성기생성기를 관리하기 위해
 #include "CoreMinimal.h"
-#include "Subsystems/GameInstanceSubsystem.h"
+#include "Subsystems/WorldSubsystem.h"
 #include "CreepGeneratorGeneratorManager.generated.h"
 
 UCLASS()
-class COLORDEFENSE_API UCreepGeneratorGeneratorManager : public UGameInstanceSubsystem
+class COLORDEFENSE_API UCreepGeneratorGeneratorManager : public UWorldSubsystem
 {
 	GENERATED_BODY()
 public:

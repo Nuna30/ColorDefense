@@ -127,8 +127,7 @@ APlayerBlock* APlayerBlock::GetHitPlayerBlock()
 
 UPlayerBlockGenerator* APlayerBlock::GetPlayerBlockGenerator()
 {
-	UGameInstance* GameInstance = GetGameInstance();
-	UPlayerBlockGeneratorManager* PlayerBlockGeneratorManager = GameInstance->GetSubsystem<UPlayerBlockGeneratorManager>();
+	UPlayerBlockGeneratorManager* PlayerBlockGeneratorManager = GetWorld()->GetSubsystem<UPlayerBlockGeneratorManager>();
 	return PlayerBlockGeneratorManager->PlayerBlockGenerator;
 }
 

@@ -12,9 +12,8 @@ UCreepWayHandler::UCreepWayHandler()
 void UCreepWayHandler::Initialize()
 {
 	// Get managers.
-	UGameInstance* GameInstance = GetWorld()->GetGameInstance();
-	UChunkGeneratorManager* ChunkGeneratorManager = GameInstance->GetSubsystem<UChunkGeneratorManager>();	
-	UCreepWayGeneratorManager* CreepWayGeneratorManager = GameInstance->GetSubsystem<UCreepWayGeneratorManager>();
+	UChunkGeneratorManager* ChunkGeneratorManager = GetWorld()->GetSubsystem<UChunkGeneratorManager>();	
+	UCreepWayGeneratorManager* CreepWayGeneratorManager = GetWorld()->GetSubsystem<UCreepWayGeneratorManager>();
 
 	// Get generators.
 	this->ChunkGenerator = ChunkGeneratorManager->ChunkGenerator;

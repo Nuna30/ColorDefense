@@ -4,11 +4,11 @@
 
 #include "Generators/PlayerBlockGenerator.h" // PlayerBlockGenerator를 관리하기 위해
 #include "CoreMinimal.h"
-#include "Subsystems/GameInstanceSubsystem.h"
+#include "Subsystems/WorldSubsystem.h"
 #include "PlayerBlockGeneratorManager.generated.h"
 
 UCLASS()
-class COLORDEFENSE_API UPlayerBlockGeneratorManager : public UGameInstanceSubsystem
+class COLORDEFENSE_API UPlayerBlockGeneratorManager : public UWorldSubsystem
 {
 	GENERATED_BODY()
 public:

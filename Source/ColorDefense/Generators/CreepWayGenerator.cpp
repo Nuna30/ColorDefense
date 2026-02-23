@@ -37,8 +37,7 @@ void UCreepWayGenerator::Initialize
 	this->CreepRail = NewObject<UCreepRail>(this, UCreepRail::StaticClass());
 	this->CreepRail->Initialize(InMaxRailCount, InRailLength, StartIndex, this->CurrentDirection);
 
-	UGameInstance* GameInstance = GetWorld()->GetGameInstance();
-	UPlayerBlockGeneratorManager* PlayerBlockGeneratorManager = GameInstance->GetSubsystem<UPlayerBlockGeneratorManager>();
+	UPlayerBlockGeneratorManager* PlayerBlockGeneratorManager = GetWorld()->GetSubsystem<UPlayerBlockGeneratorManager>();
 	this->PlayerBlockGenerator = PlayerBlockGeneratorManager->PlayerBlockGenerator;
 }
 

@@ -4,11 +4,11 @@
 
 #include "Generators/ChunkGenerator.h" // ChunkGenerator를 관리하기 위해
 #include "CoreMinimal.h"
-#include "Subsystems/GameInstanceSubsystem.h"
+#include "Subsystems/WorldSubsystem.h"
 #include "ChunkGeneratorManager.generated.h"
 
 UCLASS()
-class COLORDEFENSE_API UChunkGeneratorManager : public UGameInstanceSubsystem
+class COLORDEFENSE_API UChunkGeneratorManager : public UWorldSubsystem
 {
 	GENERATED_BODY()
 public:

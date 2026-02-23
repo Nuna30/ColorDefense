@@ -33,7 +33,7 @@ void UCreepGuide::GuideCreep(AAIController* InAIController, bool DontMove, int32
 		AIController->ReceiveMoveCompleted.AddDynamic(this, &UCreepGuide::OnMoveCompleted);
 
 		// Get CreepCheckPointGenerator
-		UCreepCheckPointGeneratorManager* CreepCheckPointGeneratorManager = GetWorld()->GetGameInstance()->GetSubsystem<UCreepCheckPointGeneratorManager>();
+		UCreepCheckPointGeneratorManager* CreepCheckPointGeneratorManager = GetWorld()->GetSubsystem<UCreepCheckPointGeneratorManager>();
 		TArray<UCreepCheckPointGenerator*> CreepCheckPointGenerators = CreepCheckPointGeneratorManager->CreepCheckPointGenerators;
 		this->CreepCheckPointGenerator = CreepCheckPointGenerators[this->RailNumber];
 

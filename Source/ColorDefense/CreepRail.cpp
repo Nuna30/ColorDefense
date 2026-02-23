@@ -22,8 +22,7 @@ void UCreepRail::Initialize(int32 InMaxRailCount, int32 InRailLength, FIntVector
 	}
 
 	// Get CreepEndGenerator manager.
-	UGameInstance* GameInstance = GetWorld()->GetGameInstance();
-	this->CreepEndGeneratorManager = GameInstance->GetSubsystem<UCreepEndGeneratorManager>();
+	this->CreepEndGeneratorManager = GetWorld()->GetSubsystem<UCreepEndGeneratorManager>();
 	this->CreepEndGeneratorManager->CreepEndGenerator->CreateCreepEnds(this->LastIndicesOfEachRail);
 }
 

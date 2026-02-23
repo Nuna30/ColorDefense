@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Subsystems/GameInstanceSubsystem.h"
+#include "Subsystems/WorldSubsystem.h"
 #include "BPActorPool.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class COLORDEFENSE_API UBPActorPool : public UGameInstanceSubsystem
+class COLORDEFENSE_API UBPActorPool : public UWorldSubsystem
 {
 	GENERATED_BODY()
 	
