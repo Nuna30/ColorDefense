@@ -2,8 +2,8 @@
 #pragma once
 
 #include "Tool.h" 
-#include "Creep.h" 
-#include "ColorDefenseGameState.h"
+#include "Data/Pawns/Creep.h" 
+#include "GameStates/ColorDefenseGameState.h"
 #include "Components/AudioComponent.h"
 #include "CoreMinimal.h"
 #include "NiagaraFunctionLibrary.h"

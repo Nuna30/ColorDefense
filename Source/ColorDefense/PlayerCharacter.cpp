@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "PlayerCharacter.h"
-#include "CreepWayHandler.h"
+#include "Handlers/CreepWayHandler.h"
 #include "Widgets/ColorDefenseHUD.h"
 
 // Sets default values
@@ -23,8 +23,8 @@ APlayerCharacter::APlayerCharacter()
     ColorGunComponent = CreateDefaultSubobject<UChildActorComponent>(TEXT("ColorGunComponent"));
     ColorGunComponent->SetupAttachment(InvisibleArm);
 
-    PlayerBlockComponent = CreateDefaultSubobject<UChildActorComponent>(TEXT("PlayerBlockComponent"));
-    PlayerBlockComponent->SetupAttachment(InvisibleArm);
+    // PlayerBlockComponent = CreateDefaultSubobject<UChildActorComponent>(TEXT("PlayerBlockComponent"));
+    // PlayerBlockComponent->SetupAttachment(InvisibleArm);
 }
 
 // Called when the game starts or when spawned
@@ -46,11 +46,11 @@ void APlayerCharacter::BeginPlay()
     // RETRIEVE the actors from the components
     // The components automatically spawned these actors before BeginPlay ran
     ColorGun = Cast<AColorGun>(ColorGunComponent->GetChildActor());
-    PlayerBlock = Cast<APlayerBlock>(PlayerBlockComponent->GetChildActor());
+    // PlayerBlock = Cast<APlayerBlock>(PlayerBlockComponent->GetChildActor());
 
     // All set hidden except color gun
     Tools.Add(ColorGun);
-    Tools.Add(PlayerBlock);
+    // Tools.Add(PlayerBlock);
 
     // Initialize Tools
     for (ATool* Tool : Tools)
@@ -73,12 +73,14 @@ void APlayerCharacter::BeginPlay()
     CurrentTool = ColorGun;
     CurrentTool->SwitchToolFrom(CurrentTool);
 
+    /*
     // Update 20 times per second (0.05s interval) instead of every frame
 	// Better than Tick
     FTimerHandle TimerHandle;
     FTimerDelegate TimerDelegate;
     TimerDelegate.BindLambda([this](){PlayerBlock->ShowPreview(this->CurrentState);});
     GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDelegate, 0.05f, true);
+    */
 
     // Dynamic Creep Path Generation Test
     this->CreepWayHandler = NewObject<UCreepWayHandler>(this, UCreepWayHandler::StaticClass());
@@ -190,18 +192,18 @@ void APlayerCharacter::HandleSwitchTool(const FInputActionValue& Value)
             CurrentState = EPlayerState::HoldingColorGun;
             break;
         }
-        case 8 : 
-        {
-            this->PlayerBlock->SwitchToolFrom(CurrentTool); 
-            CurrentState = EPlayerState::HoldingBlock;
-            break;   
-        }
-        case 9 :
-        {
-            this->PlayerBlock->SwitchToolFrom(CurrentTool); 
-            CurrentState = EPlayerState::HoldingTurret;
-            break;   
-        }
+        // case 8 : 
+        // {
+        //     this->PlayerBlock->SwitchToolFrom(CurrentTool); 
+        //     CurrentState = EPlayerState::HoldingBlock;
+        //     break;   
+        // }
+        // case 9 :
+        // {
+        //     this->PlayerBlock->SwitchToolFrom(CurrentTool); 
+        //     CurrentState = EPlayerState::HoldingTurret;
+        //     break;   
+        // }
      default : return;
     }
 

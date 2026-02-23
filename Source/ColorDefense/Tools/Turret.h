@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Creep.h"
+#include "Data/Pawns/Creep.h" 
 #include "Tool.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"

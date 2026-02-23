@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "CreepGuide.h" // 크립을 레일을 따라 이동시키기 위해
+#include "Data/ActorComponents/CreepGuide.h" // 크립을 레일을 따라 이동시키기 위해
 #include "AIController.h" // 크립의 제어권을 AI에게 넘기기 위해
 #include "NiagaraFunctionLibrary.h" // VFX를 크립이 죽을 때 스폰시키기 위해
 #include "NiagaraComponent.h" // VFX 색깔 바꾸기 위해

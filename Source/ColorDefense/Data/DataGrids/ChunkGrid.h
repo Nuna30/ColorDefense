@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "Data/Chunk.h" // Chunk을 청크 안에 저장하기 위해
+#include "Data/DataStructures/Chunk.h" // Chunk을 청크 안에 저장하기 위해
 #include "CoreMinimal.h"
 #include "Subsystems/WorldSubsystem.h"
 #include "ChunkGrid.generated.h"

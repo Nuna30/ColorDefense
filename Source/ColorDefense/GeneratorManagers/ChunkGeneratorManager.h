@@ -11,11 +11,13 @@ UCLASS()
 class COLORDEFENSE_API UChunkGeneratorManager : public UWorldSubsystem
 {
 	GENERATED_BODY()
+
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;
 	void CreateChunkGenerator(UChunkGrid* InChunkGrid, int32 InNeigborRadius);
 	void ClearChunkGenerator();
+	
 public:
 	UPROPERTY()
 	UChunkGenerator* ChunkGenerator;

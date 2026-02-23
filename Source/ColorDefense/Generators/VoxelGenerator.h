@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include "Data/DataGrid/VoxelGrid.h" // 청크 안에 복셀을 생성하기 위해
-#include "BPActorPool.h" // 복셀 속성에 해당하는 BPActor를 Pool에서 바로 가져오기 위해
+#include "Data/DataGrids/VoxelGrid.h" // 청크 안에 복셀을 생성하기 위해
+#include "Data/Pools/BPActorPool.h" // 복셀 속성에 해당하는 BPActor를 Pool에서 바로 가져오기 위해
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "VoxelGenerator.generated.h"

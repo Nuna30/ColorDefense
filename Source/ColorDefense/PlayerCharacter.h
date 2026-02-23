@@ -3,7 +3,7 @@
 #pragma once
 
 #include "Tools/ColorGun.h" // ColorGun에게 캐릭터가 총을 쐈다는 신호를 전달하기 위해
-#include "Tools/PlayerBlock.h" // Using PlayerBlock
+// #include "Tools/PlayerBlock.h" // Using PlayerBlock
 #include "Tools/Turret.h" // Using Turret
 #include "Camera/CameraComponent.h" // Adding the camera because the rest of the hierarchy is defined in C++.
 #include "InputActionValue.h" // Adding Enhance Input System.
@@ -30,8 +30,8 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
     UChildActorComponent* ColorGunComponent;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-    UChildActorComponent* PlayerBlockComponent;
+    // UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+    // UChildActorComponent* PlayerBlockComponent;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
     UChildActorComponent* TurretComponent;
@@ -70,8 +70,8 @@ protected:
     UPROPERTY()
     AColorGun* ColorGun; 
 
-    UPROPERTY()
-    APlayerBlock* PlayerBlock;
+    // UPROPERTY()
+    // APlayerBlock* PlayerBlock;
 
     UPROPERTY()
     ATurret* Turret;

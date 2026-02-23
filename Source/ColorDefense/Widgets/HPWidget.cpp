@@ -1,7 +1,7 @@
 #include "HPWidget.h"
 #include "TimerManager.h"
 #include "Components/TextBlock.h"
-#include "ColorDefenseGameState.h"
+#include "GameStates/ColorDefenseGameState.h"
 
 void UHPWidget::NativeConstruct()
 {

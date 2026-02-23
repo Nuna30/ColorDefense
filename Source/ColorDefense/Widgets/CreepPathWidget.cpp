@@ -1,7 +1,7 @@
 // CreepPathWidget.cpp
 #include "CreepPathWidget.h"
-#include "CreepWayHandler.h"
-#include "ColorDefenseGameState.h"
+#include "Handlers/CreepWayHandler.h"
+#include "GameStates/ColorDefenseGameState.h"
 #include "Components/Button.h"
 #include "Kismet/GameplayStatics.h"
 

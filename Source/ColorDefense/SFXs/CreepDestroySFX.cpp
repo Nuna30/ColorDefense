@@ -1,10 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "SFX.h"
+#include "CreepDestroySFX.h"
 
 // Sets default values for this component's properties
-USFX::USFX()
+UCreepDestroySFX::UCreepDestroySFX()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
@@ -15,27 +15,27 @@ USFX::USFX()
 
 
 // Called when the game starts
-void USFX::BeginPlay()
+void UCreepDestroySFX::BeginPlay()
 {
 	Super::BeginPlay();
 
 	if (AActor* Owner = GetOwner()) // 부착된 액터
     {
-        Owner->OnDestroyed.AddDynamic(this, &USFX::OnOwnerDestroyed);
+        Owner->OnDestroyed.AddDynamic(this, &UCreepDestroySFX::OnOwnerDestroyed);
     }
 	
 }
 
 
 // Called every frame
-void USFX::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UCreepDestroySFX::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
 }
 
-void USFX::OnOwnerDestroyed(AActor* DestroyedActor)
+void UCreepDestroySFX::OnOwnerDestroyed(AActor* DestroyedActor)
 {
     if (ACreep* Creep = Cast<ACreep>(DestroyedActor))
     {
@@ -48,7 +48,7 @@ void USFX::OnOwnerDestroyed(AActor* DestroyedActor)
     }
 }
 
-void USFX::PlayDestroySFX(EColor CreepColor, FVector ActorLocation)
+void UCreepDestroySFX::PlayDestroySFX(EColor CreepColor, FVector ActorLocation)
 {
 	UGameplayStatics::PlaySoundAtLocation(
 		this,                    // WorldContextObject
@@ -59,7 +59,7 @@ void USFX::PlayDestroySFX(EColor CreepColor, FVector ActorLocation)
 	);
 }
 
-float USFX::ColorToPitch(EColor CreepColor)
+float UCreepDestroySFX::ColorToPitch(EColor CreepColor)
 {
 	float Pitch = 1.f;
 

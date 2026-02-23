@@ -1,6 +1,6 @@
 #include "MoneyWidget.h"
 #include "TimerManager.h"
-#include "ColorDefenseGameState.h"
+#include "GameStates/ColorDefenseGameState.h"
 
 void UMoneyWidget::NativeConstruct()
 {

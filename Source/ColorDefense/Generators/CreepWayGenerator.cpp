@@ -3,7 +3,7 @@
 
 #include "Utils/Utils.h"
 #include "CreepWayGenerator.h"
-#include "CreepRail.h"
+#include "LogicHelpers/CreepRail.h"
 #include "GeneratorManagers/PlayerBlockGeneratorManager.h"
 
 #define DEBUGMODE 1

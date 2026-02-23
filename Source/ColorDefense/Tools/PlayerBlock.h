@@ -3,7 +3,7 @@
 #pragma once
     
 #include "Tool.h"
-#include "Data/Voxel.h"
+#include "Data/DataStructures/Voxel.h"
 #include "CoreMinimal.h"
 #include "PlayerBlock.generated.h"
 

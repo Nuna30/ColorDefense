@@ -7,6 +7,8 @@
 #include "UObject/NoExportTypes.h"
 #include "CreepRail.generated.h"
 
+// The CreepRail helps to generate the CreepWays and the CreepCheckPoints.
+
 UCLASS()
 class COLORDEFENSE_API UCreepRail : public UObject
 {

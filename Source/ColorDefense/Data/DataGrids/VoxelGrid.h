@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "Data/Voxel.h" // Voxel을 청크 안에 저장하기 위해
+#include "Data/DataStructures/Voxel.h" // Voxel을 청크 안에 저장하기 위해
 #include "CoreMinimal.h"
 #include "Subsystems/WorldSubsystem.h"
 #include "VoxelGrid.generated.h"

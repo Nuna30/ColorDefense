@@ -2,15 +2,15 @@
 
 #pragma once
 
-#include "Creep.h" // 죽은 크립의 색깔과 위치를 알아내기 위해
+#include "Data/Pawns/Creep.h"  // 죽은 크립의 색깔과 위치를 알아내기 위해
 #include "CoreMinimal.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/ActorComponent.h"
-#include "SFX.generated.h"
+#include "CreepDestroySFX.generated.h"
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class COLORDEFENSE_API USFX : public UActorComponent
+class COLORDEFENSE_API UCreepDestroySFX : public UActorComponent
 {
 	GENERATED_BODY()
 
@@ -20,7 +20,7 @@ public:
     TObjectPtr<USoundBase> DestroySFX; 
 	
 public:	
-	USFX();
+	UCreepDestroySFX();
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	float ColorToPitch(EColor CreepColor);	

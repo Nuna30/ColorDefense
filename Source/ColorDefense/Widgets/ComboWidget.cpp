@@ -1,6 +1,6 @@
 #include "ComboWidget.h"
 #include "TimerManager.h"
-#include "ColorDefenseGameState.h"
+#include "GameStates/ColorDefenseGameState.h"
 
 void UComboWidget::NativeConstruct()
 {
