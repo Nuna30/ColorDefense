@@ -89,6 +89,7 @@ public:
 public:
 	void UpdateTopRailIn();
 	void SpawnCheckPointsAtLastIndices();
+	void SpawnCheckPointFromRailBuffer(int32 RailNumber);
 public:
 	void SpawnActorWithFlushingMainBuffer();
 	void FlushRailBuffersToMainBuffer();

@@ -101,7 +101,6 @@ void UCreepWayGenerator::GenerateNextCreepWay()
     this->NextDirection = this->DirectionContainer.Last();
     if (this->NextDirection.Z == 0) GoStraightAndTurnLeftOrRightAndGoStraight();
     else GoStraightAndUpOrDownAndGoStraight();
-	SpawnCheckPointsAtLastIndices();
 
     // Spawn CreepWays.
     FlushRailBuffersToMainBuffer(); 
@@ -178,8 +177,12 @@ void UCreepWayGenerator::FlushRailBuffersToMainBuffer()
     for (int32 i = 0; i < this->CreepRail->RailBuffers.Num(); i++)
     {
         // Use Append without MoveTemp to keep the source data,
-        // Empty() them afterward for clarity.
         this->CreepRail->MainBuffer.Append(this->CreepRail->RailBuffers[i]);
+
+		// Spawn CreepCheckPoint
+		SpawnCheckPointFromRailBuffer(i);
+		
+        // Empty() them afterward for clarity.
         this->CreepRail->RailBuffers[i].Empty(); 
     }
 }
@@ -192,7 +195,6 @@ void UCreepWayGenerator::GoStraightAndTurnLeftOrRightAndGoStraight()
 	UpdateTopRailIn();
 	// 코너 구간 생성
 	this->CreepRail->InsertCreepWayDataTriangleIntoRailBuffers(this->bTopRailIn, CurrentDirection, 1);
-	SpawnCheckPointsAtLastIndices();
 	this->CreepRail->InsertCreepWayDataTriangleIntoRailBuffers(this->bTopRailIn, NextDirection, 0);
 	// 다시 직진
 	this->CurrentDirection = this->NextDirection;
@@ -205,9 +207,7 @@ void UCreepWayGenerator::GoStraightAndUpOrDownAndGoStraight()
 	this->CreepRail->InsertCreepWayDataRectangleIntoRailBuffers(this->CurrentDirection, 0, false);
 	// 위아래 이동 + 경사면 진입 전과 후에 CreepCheckPoint 심기
 	this->CurrentDirection.Z = this->NextDirection.Z;
-	SpawnCheckPointsAtLastIndices();
 	this->CreepRail->InsertCreepWayDataRectangleIntoRailBuffers(this->CurrentDirection, 1, true);
-	SpawnCheckPointsAtLastIndices();
 	// 위로 향하는 경사면이었으면 다음 평면 블록 설치 시 한칸 더 올려서 설치해야하기 때문에 로직에 LastIndices들을 한칸 올린다.
 	if (this->CurrentDirection.Z == 1)
 	{
@@ -240,6 +240,27 @@ void UCreepWayGenerator::SpawnCheckPointsAtLastIndices()
 		// Record CheckPoint Count.
 		CurrentCheckPointCounts[i]++;
 	}
+}
+
+void UCreepWayGenerator::SpawnCheckPointFromRailBuffer(int32 RailNumber)
+{
+	for (TTuple<FIntVector, int32, float, EVoxelProperty>& CreepSpawnInfo : this->CreepRail->RailBuffers[RailNumber])
+	{
+		FIntVector VoxelIndex = CreepSpawnInfo.Get<0>() + FIntVector(0, 0, 1);
+
+		// Spawn and capture the CheckPoint.
+		AActor* NewCP = this->CreepCheckPointGenerators[RailNumber]->CreateCreepCheckPointByVoxelIndex(VoxelIndex);
+		if (!NewCP) 
+		{
+			UE_LOG(LogTemp, Warning, TEXT("The new creep checkpoint is null in UCreepWayGenerator::SpawnCheckPointsAtLastIndices()"));
+			return;
+		}
+		CurrentCheckPoints.Add(NewCP);
+
+		// Record CheckPoint Count.
+		CurrentCheckPointCounts[RailNumber]++;
+	}
+
 }
 
 void UCreepWayGenerator::UpdateTopRailIn()

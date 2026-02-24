@@ -40,6 +40,7 @@ AActor* UCreepCheckPointGenerator::CreateCreepCheckPointByVoxelIndex(const FIntV
 void UCreepCheckPointGenerator::InsertLocation(const FIntVector& VoxelIndex)
 {   
     FVector Location = this->VoxelGrid->GetVoxel(VoxelIndex).Transform.GetLocation();
+    Location += FVector(0, 0, Super::VoxelHeight);
     this->CreepCheckPointLocations.Add(Location);
 }
 
