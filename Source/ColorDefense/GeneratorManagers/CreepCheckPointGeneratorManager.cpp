@@ -14,13 +14,13 @@ void UCreepCheckPointGeneratorManager::Deinitialize()
     Super::Deinitialize();
 }
 
-void UCreepCheckPointGeneratorManager::CreateCreepCheckPointGenerators(UWorld* InWorld, UBPActorPool* InBPActorPool, UVoxelGrid* InVoxelGrid, int32 InMaxRailCount, float InVoxelWidth, float InVoxelHeight)
+void UCreepCheckPointGeneratorManager::CreateCreepCheckPointGenerators(UWorld* InWorld, UBPActorPool* InBPActorPool, UVoxelGrid* InVoxelGrid, int32 InMaxRailCount, float InVoxelWidth, float InVoxelHeight, bool bShowCreepCheckPoints)
 {
     this->MaxRailCount = InMaxRailCount;
     for (int32 i = 0; i < this->MaxRailCount; i++)
     {
         UCreepCheckPointGenerator* NewCreepCheckPointGenerator = NewObject<UCreepCheckPointGenerator>(this, UCreepCheckPointGenerator::StaticClass());
-        NewCreepCheckPointGenerator->Initialize(InWorld, InBPActorPool, InVoxelGrid, InVoxelWidth, InVoxelHeight);
+        NewCreepCheckPointGenerator->Initialize(InWorld, InBPActorPool, InVoxelGrid, InVoxelWidth, InVoxelHeight, bShowCreepCheckPoints);
         CreepCheckPointGenerators.Add(NewCreepCheckPointGenerator);
     }
 }

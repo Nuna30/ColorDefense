@@ -6,9 +6,11 @@ UCreepCheckPointGenerator::UCreepCheckPointGenerator()
 {
 }
 
-void UCreepCheckPointGenerator::Initialize(UWorld* InWorld, UBPActorPool* InBPActorPool, UVoxelGrid* InVoxelGrid, float InVoxelWidth, float InVoxelHeight)
+void UCreepCheckPointGenerator::Initialize(UWorld* InWorld, UBPActorPool* InBPActorPool, UVoxelGrid* InVoxelGrid, float InVoxelWidth, float InVoxelHeight, bool InbShowCreepCheckPoints)
 {
     Super::Initialize(InWorld, InBPActorPool, InVoxelGrid, InVoxelWidth, InVoxelHeight);
+
+    this->bShowCreepCheckPoints = InbShowCreepCheckPoints;
 }
 
 AActor* UCreepCheckPointGenerator::CreateCreepCheckPointByVoxelIndex(const FIntVector& VoxelIndex)
@@ -23,8 +25,11 @@ AActor* UCreepCheckPointGenerator::CreateCreepCheckPointByVoxelIndex(const FIntV
     // Set CreepCheckPoint voxel.
     SetVoxelDataInVoxelGrid(VoxelIndex, 2, 0, EVoxelProperty::CreepCheckPoint);
 
-    // Capture and return the spawned actor
+    // Capture and return the spawned actor.
     AActor* SpawnedCP = SpawnActorFromVoxel(this->VoxelGrid->GetVoxel(VoxelIndex));
+
+    // Make the CreepCheckPoints invisible.
+    if (!bShowCreepCheckPoints) SpawnedCP->SetActorHiddenInGame(true);
 
     // I've decided to add null checks to all actor spawning code.
     if (!SpawnedCP)
@@ -40,7 +45,6 @@ AActor* UCreepCheckPointGenerator::CreateCreepCheckPointByVoxelIndex(const FIntV
 void UCreepCheckPointGenerator::InsertLocation(const FIntVector& VoxelIndex)
 {   
     FVector Location = this->VoxelGrid->GetVoxel(VoxelIndex).Transform.GetLocation();
-    Location += FVector(0, 0, Super::VoxelHeight);
     this->CreepCheckPointLocations.Add(Location);
 }
 

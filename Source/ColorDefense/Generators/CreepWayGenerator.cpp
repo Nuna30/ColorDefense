@@ -246,7 +246,7 @@ void UCreepWayGenerator::SpawnCheckPointFromRailBuffer(int32 RailNumber)
 {
 	for (TTuple<FIntVector, int32, float, EVoxelProperty>& CreepSpawnInfo : this->CreepRail->RailBuffers[RailNumber])
 	{
-		FIntVector VoxelIndex = CreepSpawnInfo.Get<0>() + FIntVector(0, 0, 1);
+		FIntVector VoxelIndex = CreepSpawnInfo.Get<0>() + FIntVector(0, 0, 2);
 
 		// Spawn and capture the CheckPoint.
 		AActor* NewCP = this->CreepCheckPointGenerators[RailNumber]->CreateCreepCheckPointByVoxelIndex(VoxelIndex);

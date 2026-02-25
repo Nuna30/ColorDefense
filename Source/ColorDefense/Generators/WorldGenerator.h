@@ -39,6 +39,8 @@ public:
 	float VoxelHeight = 125;
 	UPROPERTY(EditAnywhere, Category = "Setting")
 	float CreepGenerationPeriod = 1;
+	UPROPERTY(EditAnywhere, Category = "Setting")
+	bool bShowCreepCheckPoints = true;
 
 public:	
 	// Sets default values for this actor's properties

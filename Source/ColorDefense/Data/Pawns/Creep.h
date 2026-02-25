@@ -2,9 +2,9 @@
 
 #pragma once
 
+#include "Utils/GameEnums.h"
 #include "Data/ActorComponents/CreepGuide.h" // 크립을 레일을 따라 이동시키기 위해
 #include "Components/ChildActorComponent.h"
-#include "AIController.h" // 크립의 제어권을 AI에게 넘기기 위해
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 #include "Creep.generated.h"
@@ -31,15 +31,15 @@ public: // --- Creep Core --- //
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Setting") 
 	UChildActorComponent* CreepCoreComponent;
 
-public: // --- AI --- //
-	UPROPERTY()
-	AAIController* AIController;
-
+public: // --- Creep Guide --- //
 	UPROPERTY()
 	UCreepGuide* CreepGuide;
 
-	// After Possession, CreepGuide guides this creep.
-	virtual void PossessedBy(AController* NewController) override;
+	UPROPERTY(EditAnywhere, Category = "Setting")
+    float CreepMoveSpeed = 75;
+
+    UPROPERTY(EditAnywhere, Category = "Setting")
+    float CreepAcceptanceRadius = 40;
 
 public: // --- Utils --- //
 	// Other classes can destroy this creep via this function.

@@ -1,94 +1,101 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "CreepGuide.h"
+#include "GeneratorManagers/CreepCheckPointGeneratorManager.h"
 
-
-// Sets default values for this component's properties
 UCreepGuide::UCreepGuide()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
-// Called when the game starts
 void UCreepGuide::BeginPlay()
 {
 	Super::BeginPlay();
 }
 
-// Called every frame
 void UCreepGuide::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	if (!bIsMovingToCheckPoint) return;
+	if (!CreepCheckPointGenerator) return;
+
+	TickMoveCreep(DeltaTime);
 }
 
-// I will guide you.
-void UCreepGuide::GuideCreep(AAIController* InAIController, bool DontMove, int32 InRailNumber) {
+void UCreepGuide::GuideCreep(bool DontMove, int32 InRailNumber) {
+	// For Debugging
+	if (DontMove) return;
+
+	// Set the Creep's rail number.
 	this->RailNumber = InRailNumber;
-	this->AIController = InAIController;
 
-    if (AIController)
-    {
-		// 목적지에 도착했을 경우를 처리하는 OnMoveCompleted 콜백함수 연결
-		AIController->ReceiveMoveCompleted.AddDynamic(this, &UCreepGuide::OnMoveCompleted);
+	// Get CreepCheckPointGenerator.
+	UCreepCheckPointGeneratorManager* CreepCheckPointGeneratorManager = GetWorld()->GetSubsystem<UCreepCheckPointGeneratorManager>();
+	TArray<UCreepCheckPointGenerator*> CreepCheckPointGenerators = CreepCheckPointGeneratorManager->CreepCheckPointGenerators;
+	this->CreepCheckPointGenerator = CreepCheckPointGenerators[this->RailNumber];
 
-		// Get CreepCheckPointGenerator
-		UCreepCheckPointGeneratorManager* CreepCheckPointGeneratorManager = GetWorld()->GetSubsystem<UCreepCheckPointGeneratorManager>();
-		TArray<UCreepCheckPointGenerator*> CreepCheckPointGenerators = CreepCheckPointGeneratorManager->CreepCheckPointGenerators;
-		this->CreepCheckPointGenerator = CreepCheckPointGenerators[this->RailNumber];
+	// Initialize the properties.
+	CurrentCreepCheckPointIndex = 0;
+	bIsMovingToCheckPoint = false;
 
-		// 출발
-		if (DontMove == false)
-		{
-			FTimerHandle TimerHandle; // navmesh 계산 기다리기
-			GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UCreepGuide::MoveAlong, 0.1f, false);
-		}
-    }
+	// Start guiding the creep.
+	FVector StartLocation = this->CreepCheckPointGenerator->CreepCheckPointLocations[0];
+	UpdateNextCheckPoint(StartLocation.X, StartLocation.Y, StartLocation.Z);
 }
 
-// Waypoint 차례대로 이동
-void UCreepGuide::MoveAlong()
+void UCreepGuide::UpdateNextCheckPoint(float x, float y, float z)
 {
-    if (this->CreepCheckPointGenerator->CreepCheckPointLocations.Num() > 0)
+	// Change the target location.
+	CurrentTargetLocation = FVector(x, y, z);
+	bIsMovingToCheckPoint = true;
+}
+
+void UCreepGuide::TickMoveCreep(float DeltaTime)
+{
+	// Get Pawn.
+	APawn* OwnerPawn = Cast<APawn>(GetOwner());
+
+	// Calculate remaining distance.
+	FVector CurrentLocation = OwnerPawn->GetActorLocation();
+	float DistanceToTarget = FVector::Dist(CurrentLocation, CurrentTargetLocation);
+
+	// Handle the case that Creep arrives at next checkpoint.
+	if (DistanceToTarget <= AcceptanceRadius)
 	{
-		FVector StartLocation = this->CreepCheckPointGenerator->CreepCheckPointLocations[0];
-		MoveTo(StartLocation.X, StartLocation.Y, StartLocation.Z);
+		bIsMovingToCheckPoint = false;
+		OnCheckPointReached();
+	}
+	// Handle the case that Creep is moving to the next checkpoint.
+	else
+	{
+		// Calculate travel distance.
+		float MoveDistance = MoveSpeed * DeltaTime;
+		
+		// Prevent overshooting.
+		if (MoveDistance > DistanceToTarget) MoveDistance = DistanceToTarget;
+		
+		// Calculate Creep's new location.
+		FVector Direction = (CurrentTargetLocation - CurrentLocation).GetSafeNormal();
+		FVector NewLocation = CurrentLocation + Direction * MoveDistance;
+
+		// Apply the new location.
+		FHitResult HitResult;
+		OwnerPawn->SetActorLocation(NewLocation, true, &HitResult);
 	}
 }
 
-// 해당 좌표로 이동
-void UCreepGuide::MoveTo(float x, float y, float z)
+void UCreepGuide::OnCheckPointReached()
 {
-	if (AIController)
-	{
-		FVector Destination = FVector(x, y, z);
-		float AcceptanceRadius = 1;
-		bool bStopOnOverlap = false;
-		bool bUsePathfinding = true;
-		bool bProjectDestinationToNavigation = false;
-		bool bCanStrafe = false;
-		TSubclassOf<UNavigationQueryFilter> FilterClass = nullptr;
-		bool bAllowPartialPath = false;
-
-		EPathFollowingRequestResult::Type Result = AIController->MoveToLocation(
-			Destination,
-			AcceptanceRadius,
-			bStopOnOverlap,
-			bUsePathfinding,
-			bProjectDestinationToNavigation,
-			bCanStrafe,
-			FilterClass,
-			bAllowPartialPath
-		);
-	}
-}
-
-void UCreepGuide::OnMoveCompleted(FAIRequestID RequestID, EPathFollowingResult::Type Result)
-{
+	// If the creep reached the current check point, move to the next check point.
     CurrentCreepCheckPointIndex++;
     if (this->CreepCheckPointGenerator->CreepCheckPointLocations.IsValidIndex(CurrentCreepCheckPointIndex))
     {
         FVector NextLocation = this->CreepCheckPointGenerator->CreepCheckPointLocations[CurrentCreepCheckPointIndex];
-        MoveTo(NextLocation.X, NextLocation.Y, NextLocation.Z);
+        UpdateNextCheckPoint(NextLocation.X, NextLocation.Y, NextLocation.Z);
+    }
+	// If the creep has reached the end,
+    else
+    {
+        UE_LOG(LogTemp, Log, TEXT("Creep reached the end of the path on rail %d"), RailNumber);
+		//I can add some final arrival logics here.
     }
 }

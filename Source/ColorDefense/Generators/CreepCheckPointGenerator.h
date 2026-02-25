@@ -11,14 +11,17 @@ UCLASS()
 class COLORDEFENSE_API UCreepCheckPointGenerator : public UVoxelGenerator
 {
 	GENERATED_BODY()
+	UCreepCheckPointGenerator();
 
 public:
-	UCreepCheckPointGenerator();
-	void Initialize (UWorld* InWorld, UBPActorPool* InBPActorPool, UVoxelGrid* InVoxelGrid, float InVoxelWidth, float InVoxelHeight);
+	void Initialize (UWorld* InWorld, UBPActorPool* InBPActorPool, UVoxelGrid* InVoxelGrid, float InVoxelWidth, float InVoxelHeight, bool InbShowCreepCheckPoints);
 	AActor* CreateCreepCheckPointByVoxelIndex(const FIntVector& Voxel);
 	void InsertLocation(const FIntVector& VoxelIndex);
 	void PopLocations(int32 Count);
 
 public:
 	TArray<FVector> CreepCheckPointLocations;
+
+public: // --- Properties --- //
+	bool bShowCreepCheckPoints;
 };

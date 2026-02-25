@@ -22,15 +22,11 @@ void ACreep::Tick(float DeltaTime)
 void ACreep::BeginPlay()
 {
 	Super::BeginPlay();
-}
 
-void ACreep::PossessedBy(AController* NewController)
-{
-    Super::PossessedBy(NewController);
+    CreepGuide->GuideCreep(DontMove, RailNumber);
 
-    // After Possession, CreepGuide guides this creep.
-	AIController = Cast<AAIController>(GetController());
-	CreepGuide->GuideCreep(AIController, DontMove, RailNumber);
+    CreepGuide->MoveSpeed         = CreepMoveSpeed;
+    CreepGuide->AcceptanceRadius  = CreepAcceptanceRadius;
 }
 
 void ACreep::HandleDestruction()

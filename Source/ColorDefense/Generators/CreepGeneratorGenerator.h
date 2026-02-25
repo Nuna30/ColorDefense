@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "VoxelGenerator.h"
 #include "CreepGenerator.h" // 크립생성기를 생성하기 위해
 #include "CoreMinimal.h"
 #include "CreepGeneratorGenerator.generated.h"

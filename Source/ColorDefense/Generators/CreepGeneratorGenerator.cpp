@@ -13,8 +13,9 @@ void UCreepGeneratorGenerator::Initialize(UWorld* InWorld, UBPActorPool* InBPAct
 
 void UCreepGeneratorGenerator::CreateCreepGenerator(const FIntVector& VoxelIndex, int32 RailNumber)
 {
-    SetVoxelDataInVoxelGrid(VoxelIndex, 3, 0, EVoxelProperty::CreepGenerator);
-    AActor* NewActor = SpawnActorFromVoxel(this->VoxelGrid->GetVoxel(VoxelIndex));
+    FIntVector Offset = FIntVector(0, 0, 1);
+    SetVoxelDataInVoxelGrid(VoxelIndex + Offset, 3, 0, EVoxelProperty::CreepGenerator);
+    AActor* NewActor = SpawnActorFromVoxel(this->VoxelGrid->GetVoxel(VoxelIndex + Offset));
 
     // I've decided to add null checks to all actor spawning code.
     if (!NewActor)

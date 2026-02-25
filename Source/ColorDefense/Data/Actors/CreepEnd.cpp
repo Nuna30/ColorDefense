@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "CreepEnd.h"
-#include "Data/Pawns/Creep.h" 
+#include "Data/Actors/CreepCore.h" 
 #include "GameStates/ColorDefenseGameState.h"
 #include "Components/StaticMeshComponent.h"
 
@@ -43,11 +43,11 @@ void ACreepEnd::OnOverlapBegin
 {
     if (OtherActor && (OtherActor != this))
     {
-        ACreep* IncomingCreep = Cast<ACreep>(OtherActor);
-        if (IncomingCreep)
+        ACreepCore* IncomingCreepCore = Cast<ACreepCore>(OtherActor);
+        if (IncomingCreepCore)
         {
-            // Destroy the collided creep.
-            IncomingCreep->HandleDestruction();
+            // Destroy the collided CreepCore.
+            IncomingCreepCore->HandleDestruction();
 
             // Decrease the HP.
             if (AColorDefenseGameState* GS = GetWorld()->GetGameState<AColorDefenseGameState>()) GS->AddHP(-1);
