@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Kismet/GameplayStatics.h"
 #include "GameEnums.h"
 #include "CoreMinimal.h"
 
@@ -54,21 +55,34 @@ namespace Utils
         return Pitch;
     }
 
+    inline EColor IndexToColor(int32 ColorIndex)
+    {
+        switch (ColorIndex) 
+        {
+            case 1 : return EColor::Red; 
+            case 2 : return EColor::Orange; 
+            case 3 : return EColor::Yellow; 
+            case 4 : return EColor::Green; 
+            case 5 : return EColor::Blue; 
+            case 6 : return EColor::Indigo; 
+            case 7 : return EColor::Purple; 
+            default : return EColor::Red; 
+        }
+    }
+
     inline bool GetHit(AActor* CallingActor, float InMaxRange, FHitResult& Hit, ECollisionChannel CollisionChannel)
     {
-        if (!CallingActor) return false;  // Null check
-
-        // Get Player's ViewPoint from the calling actor's owner.
-        AController* Controller = CallingActor->GetOwner() ? Cast<APawn>(CallingActor->GetOwner())->GetController() : nullptr;
-        if (!Controller) return false;
-
+        // Find Controller.
+        AController* Controller = UGameplayStatics::GetPlayerController(CallingActor->GetWorld(), 0);
+        
+        // Calculate End.
         FVector Location;
         FRotator Rotation;
         Controller->GetPlayerViewPoint(Location, Rotation);
         FVector End = Location + Rotation.Vector() * InMaxRange;
 
         // Using the calling actor's world
-        if (CallingActor->GetWorld()->LineTraceSingleByChannel(Hit, Location, End, CollisionChannel)) return true;
-        else return false;
+        if (Controller->GetWorld()->LineTraceSingleByChannel(Hit, Location, End, CollisionChannel)) return true;
+        else {UE_LOG(LogTemp, Warning, TEXT("False line trace")); return false;}
     }
 }

@@ -31,6 +31,8 @@ void ACreepShield::ChangeColor(EColor Color)
 	FLinearColor TargetColor = Utils::GetLinearColor(Color);
 
 	// Get first MI and change the color.
+	if (!CreepShield) return;
 	UMaterialInstanceDynamic* DynMaterial = CreepShield->CreateAndSetMaterialInstanceDynamic(0);
+	if (!DynMaterial) return;
 	DynMaterial->SetVectorParameterValue(FName("BaseColor"), TargetColor);
 }

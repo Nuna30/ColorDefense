@@ -1,41 +1,27 @@
-// ColorGun.h
+// CoreRemover.h
 #pragma once
 
 #include "Tool.h" 
 #include "Data/Actors/CreepCore.h"
 #include "GameStates/ColorDefenseGameState.h"
-#include "NiagaraFunctionLibrary.h"
-#include "NiagaraComponent.h"
 #include "CoreMinimal.h"
 #include "Kismet/GameplayStatics.h"
-#include "ColorGun.generated.h"
+#include "CoreRemover.generated.h"
 
 UCLASS()
-class COLORDEFENSE_API AColorGun : public ATool
+class COLORDEFENSE_API ACoreRemover : public ATool
 {
     GENERATED_BODY()
-    AColorGun();
+    ACoreRemover();
     virtual void BeginPlay() override;
     virtual void Tick(float DeltaTime);
 
-public: // --- Mesh --- //
-    UPROPERTY(VisibleAnywhere, Category = "Mesh")
-    USceneComponent* DefaultRoot;
-
-    UPROPERTY(VisibleAnywhere, Category = "Mesh")
-    UStaticMeshComponent* GunMeshComponent;
-
-public: // --- Color Gun Specifics --- //
+public: // --- Properties --- //
     UPROPERTY(EditAnywhere, Category = "Setting")
     float MaxRange = 5000.0f;
 
-public: // --- Gun's Color Swap --- //
-    EColor CurrentColor = EColor::Red;
-
-    UPROPERTY(EditDefaultsOnly, Category = "Setting")
-    TObjectPtr<UNiagaraSystem> SwapVFX;
-
-    void ChangeGunColor(EColor NewColor);
+public: // --- Color Swap --- //
+    virtual void ChangeColor(EColor NewColor) override;
 
 public: // --- Combo --- //
     int32 ComboCount = 0;
@@ -65,4 +51,8 @@ public: // --- Chain Kill --- //
 public: // --- Click --- //
     virtual void LeftClick() override;
     virtual void LeftClickReleased() override;
+
+public: // --- Shoot Animation --- //
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnShoot(); // No code here. See CoreRemover blueprint.
 };

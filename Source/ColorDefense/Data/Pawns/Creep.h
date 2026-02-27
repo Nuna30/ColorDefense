@@ -28,8 +28,12 @@ public: // --- Creep Property --- //
 	bool DontMove = false;
 
 public: // --- Creep Core --- //
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Setting") 
+	UPROPERTY(EditAnywhere, Category = "Setting") 
 	UChildActorComponent* CreepCoreComponent;
+
+public: // --- Creep Shield --- //
+	UPROPERTY(EditAnywhere, Category = "Setting")
+	UChildActorComponent* CreepShieldComponent;
 
 public: // --- Creep Guide --- //
 	UPROPERTY()

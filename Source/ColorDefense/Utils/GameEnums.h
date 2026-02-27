@@ -36,7 +36,7 @@ enum class EChunkProperty
 UENUM()
 enum class EPlayerState
 {
-    HoldingColorGun,
+    HoldingCoreRemover,
     HoldingBlock,
     HoldingTurret
 };

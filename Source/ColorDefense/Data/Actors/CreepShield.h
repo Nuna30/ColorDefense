@@ -13,14 +13,14 @@ class COLORDEFENSE_API ACreepShield : public AActor
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
-public: // Property
+public: // --- Property --- //
 	EColor CreepShieldColor;
 
-public: // Mesh
+public: // --- Mesh --- //
 	UPROPERTY(EditAnywhere, Category = "Setting")
     UStaticMeshComponent* CreepShield;
 
-public: // Utils
+public: // --- Utils --- //
 	// Change the CreepSheld Color dynamically
 	void ChangeColor(EColor Color);
 };

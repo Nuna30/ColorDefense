@@ -34,7 +34,7 @@ public: // --- Destroy --- //
 
 	void HandleDestruction();
 
-public: // Utils
+public: // --- Utils --- //
 	// Change the CreepSheld Color dynamically
 	void ChangeColor(EColor Color);
 

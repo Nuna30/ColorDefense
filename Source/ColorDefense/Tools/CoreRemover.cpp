@@ -1,24 +1,17 @@
-#include "ColorGun.h"
+#include "CoreRemover.h"
 #include "Utils/Utils.h"
 
-AColorGun::AColorGun()
+ACoreRemover::ACoreRemover()
 {
 	PrimaryActorTick.bCanEverTick = true;
-
-	// Create Components for the Actor
-    DefaultRoot = CreateDefaultSubobject<USceneComponent>(TEXT("DefaultRoot"));
-    RootComponent = DefaultRoot;
-
-    GunMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("GunMesh"));
-    GunMeshComponent->SetupAttachment(RootComponent);
 }
 
-void AColorGun::BeginPlay()
+void ACoreRemover::BeginPlay()
 {
 	Super::BeginPlay();
 }
 
-void AColorGun::Tick(float DeltaTime)
+void ACoreRemover::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
@@ -28,21 +21,29 @@ void AColorGun::Tick(float DeltaTime)
     }
 }
 
-void AColorGun::LeftClick()
+void ACoreRemover::LeftClick()
 {
 	bIsConnecting = true;
     ConnectedCreepCores.Empty(); // Clear any previous chain
     UpdateChain(); // Try to catch the first creep immediately
+
+	// Simple Animation.
+	OnShoot();
 }
 
-void AColorGun::UpdateChain()
+void ACoreRemover::UpdateChain()
 {	
 	// Get Hit actor.
     FHitResult Hit;
-	if (!Utils::GetHit(this, MaxRange, Hit, ECollisionChannel::ECC_GameTraceChannel1)) return;
+	if (!Utils::GetHit(this, MaxRange, Hit, ECollisionChannel::ECC_GameTraceChannel1)) 
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Nothing hit"));
+		return;
+	}
 
 	// Check if the core is same color.
 	ACreepCore* HitCreepCore = Cast<ACreepCore>(Hit.GetActor());
+	if (!HitCreepCore) return;
 	if (HitCreepCore->CreepCoreColor != CurrentColor) return;
 
 	// Check if the core is already selected.
@@ -58,7 +59,7 @@ void AColorGun::UpdateChain()
 	if (AColorDefenseGameState* GS = GetWorld()->GetGameState<AColorDefenseGameState>()) GS->AddCombo(1);
 }
 
-void AColorGun::LeftClickReleased()
+void ACoreRemover::LeftClickReleased()
 {
 	// Get GameState.
 	AColorDefenseGameState* GS = GetWorld()->GetGameState<AColorDefenseGameState>();
@@ -79,30 +80,17 @@ void AColorGun::LeftClickReleased()
 	ComboCount = 0;
 }
 
-void AColorGun::ChangeGunColor(EColor NewColor)
+void ACoreRemover::ChangeColor(EColor NewColor)
 {
-	// Update the Color.
-	CurrentColor = NewColor;
-	FLinearColor TargetColor = Utils::GetLinearColor(CurrentColor);
+	Super::ChangeColor(NewColor);
 
-	// Change the ColorGun's Color.
-	UMaterialInstanceDynamic* DynMaterial = GunMeshComponent->CreateAndSetMaterialInstanceDynamic(4);
-	DynMaterial->SetVectorParameterValue(FName("BaseColor"), TargetColor);
-
-	// Play SwapVFX.
-	UNiagaraComponent* SpawnedEffect = UNiagaraFunctionLibrary::SpawnSystemAtLocation(
-		GetWorld(),
-		SwapVFX,
-		GunMeshComponent->GetComponentLocation(),
-		GunMeshComponent->GetComponentRotation(),
-		FVector(1.0f),            
-		true                      
-	);
-	SpawnedEffect->SetVariableLinearColor(FName("User.Linear Color"), TargetColor);
+	// Change the CoreRemover's Color.
+	UMaterialInstanceDynamic* DynMaterial = ToolMeshComponent->CreateAndSetMaterialInstanceDynamic(4);
+	DynMaterial->SetVectorParameterValue(FName("BaseColor"), Utils::GetLinearColor(NewColor));
 }
 
 // --- Combo --- //
-void AColorGun::PlayComboSound()
+void ACoreRemover::PlayComboSound()
 {
 	float NewPitch = 1.0f + (ComboCount * PitchMultiplier);
 
