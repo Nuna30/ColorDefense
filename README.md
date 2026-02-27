@@ -33,4 +33,8 @@
   <summary> Dynamic CreepWay spawning and deletion </summary>
   <p><img src="images/DynamicSpawningAndDeletion.gif"></p>
 </details>
+<details>
+  <summary> Creep Shield </summary>
+  <p><img src="images/DamageCreepShield.gif"></p>
+</details>
 
