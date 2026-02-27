@@ -2,6 +2,7 @@
 
 // --- Tools --- //
 #include "Tools/CoreRemover.h"
+#include "Tools/Rifle.h"
 #include "Tools/PlayerBlock.h"
 #include "Tools/Turret.h"
 
@@ -34,6 +35,9 @@ public:  // --- Tools --- //
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Setting")
     UChildActorComponent* CoreRemoverComponent;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Setting")
+    UChildActorComponent* RifleComponent;
+
     // UPROPERTY(EditAnywhere, Category = "Setting")
     // UChildActorComponent* PlayerBlockComponent;
 
@@ -42,6 +46,9 @@ public:  // --- Tools --- //
 
 	UPROPERTY()
 	ACoreRemover* CoreRemover;
+
+	UPROPERTY()
+	ARifle* Rifle;
 
 	// UPROPERTY()
 	// APlayerBlock* PlayerBlock;

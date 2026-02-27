@@ -47,7 +47,7 @@ public: // --- Combo --- //
 
 public: // --- HP --- //
     UPROPERTY(EditAnywhere, Category = "Setting")
-    int32 CurrentHP = 10;
+    int32 CurrentHP = 10000;
 
     UPROPERTY()
     FOnHPChanged OnHPChanged;

@@ -37,6 +37,7 @@ UENUM()
 enum class EPlayerState
 {
     HoldingCoreRemover,
+    HoldingRifle,
     HoldingBlock,
     HoldingTurret
 };

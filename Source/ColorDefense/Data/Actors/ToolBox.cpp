@@ -13,6 +13,10 @@ AToolBox::AToolBox()
     CoreRemoverComponent = CreateDefaultSubobject<UChildActorComponent>(TEXT("CoreRemoverComponent"));
     CoreRemoverComponent->SetupAttachment(RootComponent);
 
+	// Core Remover
+    RifleComponent = CreateDefaultSubobject<UChildActorComponent>(TEXT("RifleComponent"));
+    RifleComponent->SetupAttachment(RootComponent);
+
 	// Player Block
     // PlayerBlockComponent = CreateDefaultSubobject<UChildActorComponent>(TEXT("PlayerBlockComponent"));
     // PlayerBlockComponent->SetupAttachment(RootComponent);
@@ -28,11 +32,13 @@ void AToolBox::BeginPlay()
 
 	// Initialize the tools.
     CoreRemover = Cast<ACoreRemover>(CoreRemoverComponent->GetChildActor());
+    Rifle       = Cast<ARifle>(RifleComponent->GetChildActor());
 	// PlayerBlock = Cast<APlayerBlock>(PlayerBlockComponent->GetChildActor());
 	// Turret = Cast<ATurret>(TurretComponent->GetChildActor());
 
     // Put the tools in the box.
     ToolBox.Add(CoreRemover);
+    ToolBox.Add(Rifle);
 	// ToolBox.Add(PlayerBlock);
 	// ToolBox.Add(Turret);
 
@@ -68,8 +74,8 @@ void AToolBox::BindCoreRemoverActionsEnhanced(APlayerCharacter* OwnerCharacter)
 	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(OwnerCharacter->InputComponent);
 
 	// Core Remover Enhanced Input
-	EnhancedInputComponent->BindAction(ChangeColorAction, ETriggerEvent::Triggered, this, &AToolBox::HandleChangeColor);
-	EnhancedInputComponent->BindAction(SwitchToolAction, ETriggerEvent::Triggered, this, &AToolBox::HandleSwitchTool);
+	EnhancedInputComponent->BindAction(ChangeColorAction, ETriggerEvent::Started, this, &AToolBox::HandleChangeColor);
+	EnhancedInputComponent->BindAction(SwitchToolAction, ETriggerEvent::Started, this, &AToolBox::HandleSwitchTool);
 }
 
 void AToolBox::HandleLeftClick()
@@ -91,6 +97,7 @@ void AToolBox::HandleChangeColor(const FInputActionValue& Value)
 {
     // We get a float from the input (1.0 for Key 1, 2.0 for Key 2, etc.)
     float InputValue = Value.Get<float>();
+    UE_LOG(LogTemp, Warning, TEXT("InputValue : %.5f"), InputValue);
     int32 ColorIndex = InputValue;
     EColor NewColor = Utils::IndexToColor(ColorIndex);
 
@@ -100,34 +107,41 @@ void AToolBox::HandleChangeColor(const FInputActionValue& Value)
 void AToolBox::HandleSwitchTool(const FInputActionValue& Value)
 {
     float InputValue = Value.Get<float>();
-    int32 ToolIndex = InputValue;
+    int32 ToolIndex = FMath::FloorToInt(InputValue);
 
-    switch (ToolIndex) 
+    ATool* NewTool = nullptr;
+    EPlayerState NewState = CurrentState;
+
+    switch (ToolIndex)
     {
-        case 1 : 
-        case 2 : 
-        case 3 : 
-        case 4 : 
-        case 5 : 
-        case 6 : 
-        case 7 : 
-        {
-            this->CoreRemover->SwitchToolFrom(CurrentTool); 
-            CurrentState = EPlayerState::HoldingCoreRemover;
+        case 1:
+            NewTool = CoreRemover;
+            NewState = EPlayerState::HoldingCoreRemover;
             break;
-        }
-        // case 8 : 
-        // {
-        //     this->PlayerBlock->SwitchToolFrom(CurrentTool); 
-        //     CurrentState = EPlayerState::HoldingBlock;
-        //     break;   
-        // }
-        // case 9 :
-        // {
-        //     this->PlayerBlock->SwitchToolFrom(CurrentTool); 
-        //     CurrentState = EPlayerState::HoldingTurret;
-        //     break;   
-        // }
-     default : return;
+        case 2:
+            NewTool = Rifle;
+            NewState = EPlayerState::HoldingRifle;
+            break;
+        case 3:
+            // NewTool = PlayerBlock;
+            // NewState = EPlayerState::HoldingBlock;
+            break;
+        case 4:
+            // NewTool = Turret;
+            // NewState = EPlayerState::HoldingTurret;
+            break;
+
+        default:
+            return; // Invalid index
+    }
+
+    // Only switch if it's a different tool
+    if (NewTool && NewTool != CurrentTool)
+    {
+        NewTool->SwitchToolFrom(CurrentTool);
+        CurrentTool = NewTool;
+        CurrentState = NewState;
+
+        // Optional: play a nice "tool swapped" sound or VFX here later
     }
 }

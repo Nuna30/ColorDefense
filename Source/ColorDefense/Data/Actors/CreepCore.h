@@ -2,8 +2,8 @@
 
 #include "Utils/GameEnums.h"
 #include "CoreMinimal.h"
-#include "NiagaraFunctionLibrary.h" // VFX를 크립이 죽을 때 스폰시키기 위해
-#include "NiagaraComponent.h" // VFX 색깔 바꾸기 위해
+#include "NiagaraFunctionLibrary.h" 
+#include "NiagaraComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Actor.h"
 #include "CreepCore.generated.h"
@@ -31,7 +31,6 @@ public: // --- Destroy --- //
     UPROPERTY(EditAnywhere, Category = "Setting")
     TObjectPtr<USoundBase> CreepCoreDestroySFX; 
 	
-
 	void HandleDestruction();
 
 public: // --- Utils --- //
