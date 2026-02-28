@@ -11,8 +11,8 @@ ACreepShield::ACreepShield()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
-	// SM_CreepShield
-    CreepShield = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CreepShield"));
+	// SKM_CreepShield
+    CreepShield = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CreepShield"));
     RootComponent = CreepShield;
 }
 
@@ -29,6 +29,8 @@ void ACreepShield::Tick(float DeltaTime)
 // ==================== //
 // ===== Features ===== //
 // ==================== //
+
+// --- Hit --- //
 
 void ACreepShield::OnHit(int32 Damage)
 {
@@ -55,10 +57,21 @@ void ACreepShield::OnHit(int32 Damage)
 		Utils::ColorToPitch(CreepShieldColor) 
 	);
 
+	// Player Hit Animation.
+	PlayHitAnim();
+
 	// Hit the Shield!
 	CreepShieldHP -= Damage;
 	if (CreepShieldHP <= 0) HandleDestruction();
 }
+
+void ACreepShield::PlayHitAnim()
+{
+    UAnimInstance* AnimInstance = CreepShield->GetAnimInstance();
+	CreepShield->PlayAnimation(CreepShieldHitAnim, false); // false = play once, no loop
+}
+
+// --- Destroy --- //
 
 void ACreepShield::HandleDestruction()
 {
@@ -84,7 +97,7 @@ void ACreepShield::HandleDestruction()
 		1.0f,                
 		Utils::ColorToPitch(CreepShieldColor) 
 	);
-	
+
 	Destroy();
 }
 
@@ -105,4 +118,9 @@ void ACreepShield::ChangeColor(EColor Color)
 	UMaterialInstanceDynamic* DynMaterial = CreepShield->CreateAndSetMaterialInstanceDynamic(0);
 	if (!DynMaterial) return;
 	DynMaterial->SetVectorParameterValue(FName("BaseColor"), TargetColor);
+}
+
+void ACreepShield::SetOwnerCreep(ACreep* OwnerCreep)
+{
+	Owner = OwnerCreep;
 }

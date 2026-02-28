@@ -3,7 +3,8 @@
 #include "Utils/GameEnums.h"
 #include "NiagaraFunctionLibrary.h" 
 #include "NiagaraComponent.h" 
-
+#include "Animation/AnimSequence.h"
+#include "Data/Pawns/Creep.h"
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
@@ -18,6 +19,8 @@ class COLORDEFENSE_API ACreepShield : public AActor
 	virtual void Tick(float DeltaTime) override;
 
 public: // --- Property --- //
+	ACreep* Owner;
+
 	EColor CreepShieldColor;
 
 	UPROPERTY(EditAnywhere, Category = "Setting")
@@ -25,7 +28,7 @@ public: // --- Property --- //
 
 public: // --- Mesh --- //
 	UPROPERTY(EditAnywhere, Category = "Setting")
-    UStaticMeshComponent* CreepShield;
+    USkeletalMeshComponent* CreepShield;
 
 public: // --- Features --- //
 
@@ -36,8 +39,13 @@ public: // --- Features --- //
     UPROPERTY(EditAnywhere, Category = "Setting")
     TObjectPtr<USoundBase> CreepShieldHitSFX; 
 
+	UPROPERTY(EditAnywhere, Category = "Setting")
+	UAnimSequence* CreepShieldHitAnim;
+
 	UFUNCTION()
 	void OnHit(int32 Damage);
+
+	void PlayHitAnim();
 
 	// --- Destroy --- //
 	UPROPERTY(EditAnywhere, Category = "Setting")
@@ -51,4 +59,6 @@ public: // --- Features --- //
 public: // --- Utils --- //
 	// Change the CreepSheld Color dynamically
 	void ChangeColor(EColor Color);
+
+	void SetOwnerCreep(ACreep* OwnerCreep);
 };

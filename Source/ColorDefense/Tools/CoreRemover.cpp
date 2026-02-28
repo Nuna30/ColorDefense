@@ -39,7 +39,9 @@ void ACoreRemover::UpdateChain()
     FHitResult Hit;
 	if (!Utils::GetHit(this, MaxRange, Hit, ECollisionChannel::ECC_GameTraceChannel1)) return;
 
-	// Check if the core is same color.
+	// Check :
+	// if it is Creep core (ignore the Creep shield!)
+	// if the core is same color.
 	ACreepCore* HitCreepCore = Cast<ACreepCore>(Hit.GetActor());
 	if (!HitCreepCore) return;
 	if (HitCreepCore->CreepCoreColor != CurrentColor) return;

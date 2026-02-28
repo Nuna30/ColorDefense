@@ -25,6 +25,10 @@ void ACreepCore::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+// ================= //
+// ===== Utils ===== //
+// ================= //
+
 void ACreepCore::ChangeColor(EColor Color)
 {
 	// Update the member.
@@ -74,6 +78,14 @@ void ACreepCore::HandleDestruction()
 		Utils::ColorToPitch(CreepCoreColor) 
 	);
 
+	// Destroy Creep.
+	Owner->HandleDestruction();
+
 	// Destroy CreepCore.
 	Destroy();
+}
+
+void ACreepCore::SetOwnerCreep(ACreep* OwnerCreep)
+{
+	Owner = OwnerCreep;
 }

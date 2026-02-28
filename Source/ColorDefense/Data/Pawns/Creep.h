@@ -17,7 +17,7 @@ class COLORDEFENSE_API ACreep : public APawn
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
-public: // --- Creep Property --- //
+public: // --- Properties --- //
 	UPROPERTY()
 	EColor CreepColor;
 
@@ -27,15 +27,12 @@ public: // --- Creep Property --- //
 	UPROPERTY(EditAnywhere, Category = "Setting")
 	bool DontMove = false;
 
-public: // --- Creep Core --- //
-	UPROPERTY(EditAnywhere, Category = "Setting") 
-	UChildActorComponent* CreepCoreComponent;
+public: // --- Features --- //
 
-public: // --- Creep Shield --- //
-	UPROPERTY(EditAnywhere, Category = "Setting")
-	UChildActorComponent* CreepShieldComponent;
+	// --- Destroy --- //
+	void HandleDestruction();
 
-public: // --- Creep Guide --- //
+	// --- Creep Guide --- //
 	UPROPERTY()
 	UCreepGuide* CreepGuide;
 
@@ -45,9 +42,16 @@ public: // --- Creep Guide --- //
     UPROPERTY(EditAnywhere, Category = "Setting")
     float CreepAcceptanceRadius = 40;
 
+
+public: // --- Creep Core --- //
+	UPROPERTY(EditAnywhere, Category = "Setting") 
+	UChildActorComponent* CreepCoreComponent;
+
+public: // --- Creep Shield --- //
+	UPROPERTY(EditAnywhere, Category = "Setting")
+	UChildActorComponent* CreepShieldComponent;
+
 public: // --- Utils --- //
-	// Other classes can destroy this creep via this function.
-	void HandleDestruction();
 
 	// Primarily Used by Creep Pattern Generator.
 	void ChangeColor(EColor Color);

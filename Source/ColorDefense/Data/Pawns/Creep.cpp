@@ -33,19 +33,18 @@ void ACreep::BeginPlay()
 {
 	Super::BeginPlay();
 
+    // Creep is guided by creep guide.
     CreepGuide->GuideCreep(DontMove, RailNumber);
-
     CreepGuide->MoveSpeed         = CreepMoveSpeed;
     CreepGuide->AcceptanceRadius  = CreepAcceptanceRadius;
+
+    // Set this creep to creep shield and creep core's owner.
+    Cast<ACreepShield>(CreepShieldComponent->GetChildActor())->SetOwnerCreep(this);
+    Cast<ACreepCore>(CreepCoreComponent->GetChildActor())->SetOwnerCreep(this);
 }
 
 void ACreep::HandleDestruction()
 {
-    if (ACreepCore* CreepCore = Cast<ACreepCore>(CreepCoreComponent->GetChildActor()))
-    {
-        CreepCore->HandleDestruction();
-    }
-
 	Destroy();
 }
 

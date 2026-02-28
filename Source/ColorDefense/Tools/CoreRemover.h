@@ -3,7 +3,9 @@
 
 #include "Tool.h" 
 #include "Data/Actors/CreepCore.h"
+#include "Data/Pawns/Creep.h"
 #include "GameStates/ColorDefenseGameState.h"
+
 #include "CoreMinimal.h"
 #include "Kismet/GameplayStatics.h"
 #include "CoreRemover.generated.h"

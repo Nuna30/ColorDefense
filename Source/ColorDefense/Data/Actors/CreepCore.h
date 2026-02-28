@@ -1,10 +1,12 @@
 #pragma once
 
 #include "Utils/GameEnums.h"
-#include "CoreMinimal.h"
+#include "Kismet/GameplayStatics.h"
 #include "NiagaraFunctionLibrary.h" 
 #include "NiagaraComponent.h"
-#include "Kismet/GameplayStatics.h"
+#include "Data/Pawns/Creep.h"
+
+#include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "CreepCore.generated.h"
 
@@ -16,7 +18,8 @@ class COLORDEFENSE_API ACreepCore : public AActor
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
-public: // --- Property --- //
+public: // --- Properties --- //
+	ACreep* Owner;
 	EColor CreepCoreColor;
 	FVector OriginalScale; // Used in SetHighlighted
 
@@ -39,4 +42,7 @@ public: // --- Utils --- //
 
 	// Set core highlighted when the creepCore is being dragged using ColorGun.
 	void SetHighlighted(bool bHighlight);
+
+	// Sync the creep with creep core.
+	void SetOwnerCreep(ACreep* OwnerCreep);
 };
