@@ -14,11 +14,20 @@ ACreepShield::ACreepShield()
 	// SKM_CreepShield
     CreepShield = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CreepShield"));
     RootComponent = CreepShield;
+
+	// HP BAR COMPONENT
+    HPBarComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("HPBarComponent"));
+    HPBarComponent->SetupAttachment(RootComponent);
+    HPBarComponent->SetWidgetSpace(EWidgetSpace::Screen);        // Always stares at camera.
+	HPBarComponent->SetWidgetClass(UHPBarWidget::StaticClass()); 
 }
 
 void ACreepShield::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// Initialize HP Bar safely.
+	GetWorldTimerManager().SetTimerForNextTick(this, &ACreepShield::InitializeHPBarWidget);
 }
 
 void ACreepShield::Tick(float DeltaTime)
@@ -59,10 +68,15 @@ void ACreepShield::OnHit(int32 Damage)
 
 	// Player Hit Animation.
 	PlayHitAnim();
-
+	
 	// Hit the Shield!
-	CreepShieldHP -= Damage;
-	if (CreepShieldHP <= 0) HandleDestruction();
+	CurrentShieldHP -= Damage;
+
+	// Update HP Bar.
+	HPBarWidgetInstance->UpdateHealth(CurrentShieldHP, 10);
+
+	// Destroy if HP zero.
+	if (CurrentShieldHP <= 0) HandleDestruction();
 }
 
 void ACreepShield::PlayHitAnim()
@@ -104,6 +118,18 @@ void ACreepShield::HandleDestruction()
 // ================= //
 // ===== Utils ===== //
 // ================= //
+void ACreepShield::InitializeHPBarWidget()
+{
+    HPBarComponent->SetDrawSize(FVector2D(280.f, 36.f));
+    HPBarComponent->SetRelativeLocation(FVector(0.f, 0.f, 2.f)); // 120cm above Shield
+    HPBarComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	HPBarWidgetInstance = Cast<UHPBarWidget>(HPBarComponent->GetUserWidgetObject());
+	HPBarWidgetInstance->UpdateHealth(CurrentShieldHP, MaxHP);  
+	FLinearColor BarColor = Utils::GetLinearColor(CreepShieldColor);
+	HPBarWidgetInstance->SetBarColor(BarColor);
+}
+
 
 void ACreepShield::ChangeColor(EColor Color)
 {

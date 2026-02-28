@@ -5,6 +5,8 @@
 #include "NiagaraComponent.h" 
 #include "Animation/AnimSequence.h"
 #include "Data/Pawns/Creep.h"
+#include "Widgets/HPBarWidget.h"
+#include "Components/WidgetComponent.h"
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
@@ -24,7 +26,8 @@ public: // --- Property --- //
 	EColor CreepShieldColor;
 
 	UPROPERTY(EditAnywhere, Category = "Setting")
-	int32 CreepShieldHP = 10;
+	int32 MaxHP = 10;
+	int32 CurrentShieldHP = MaxHP;
 
 public: // --- Mesh --- //
 	UPROPERTY(EditAnywhere, Category = "Setting")
@@ -56,9 +59,15 @@ public: // --- Features --- //
 	
 	void HandleDestruction();
 
-public: // --- Utils --- //
-	// Change the CreepSheld Color dynamically
-	void ChangeColor(EColor Color);
+public: // --- HP Bar --- //
+	UPROPERTY(EditAnywhere, Category = "Setting")
+    UWidgetComponent* HPBarComponent;
 
+    UPROPERTY()
+    UHPBarWidget* HPBarWidgetInstance;
+
+public: // --- Utils --- //
+	void InitializeHPBarWidget();
+	void ChangeColor(EColor Color);
 	void SetOwnerCreep(ACreep* OwnerCreep);
 };
