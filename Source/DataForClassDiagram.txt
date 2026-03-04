@@ -1,0 +1,1191 @@
+=== ~/APlayerCharacter === Parent Class: ACharacter Category: Character / Player Pawn
+
+Key Attributes: - + UPROPERTY(EditAnywhere, Category = "Setting") UCameraComponent* FPSCamera - + UPROPERTY(EditAnywhere, Category = "Setting") USceneComponent* InvisibleArm - + UPROPERTY(EditAnywhere, Category = "Setting") UChildActorComponent* ToolBoxComponent - + UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input") UInputMappingContext* DefaultMappingContext - + UPROPERTY(EditAnywhere, Category = "Input") UInputAction* ToggleShopAction
+
+Key Methods: + APlayerCharacter() // Constructor - sets up FPS camera + invisible arm + ToolBoxComponent + virtual void BeginPlay() // Sets GameOnly input mode, hides mouse, adds mapping context + virtual void Tick(float DeltaTime) + virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) // Legacy + Enhanced Input binding + void ToggleShop() // Delegates to AColorDefenseHUD->ToggleMainHUD() + void MoveForward(float AxisValue) + void MoveRight(float AxisValue) + void LookUp(float AxisValue) + void LookRight(float AxisValue) + void Jump()
+
+Notes: - FPS-style first-person character - ToolBox is attached as ChildActorComponent on InvisibleArm - Delegates all ToolBox input binding to AToolBox instance - Uses Enhanced Input System (DefaultMappingContext + ToggleShopAction) - Calls APlayerController->GetHUD() for shop UI
+
+=== ~/Data/ActorComponent/UCreepGuide ===
+Parent Class: UActorComponent
+Category: Component / Movement
+
+Key Attributes:
+- + float MoveSpeed
+- + float AcceptanceRadius                  // (cm) — used to detect checkpoint arrival
+- + int CurrentCreepCheckPointIndex = 0
+- + int32 RailNumber
+- + class UCreepCheckPointGenerator* CreepCheckPointGenerator
+- + FVector CurrentTargetLocation
+- + bool bIsMovingToCheckPoint = false
+
+Key Methods:
++ UCreepGuide()                             // Constructor — enables component tick
++ virtual void BeginPlay() override
++ virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override
++ void GuideCreep(bool DontMove, int32 InRailNumber)          // Starts path following on a specific rail
++ void UpdateNextCheckPoint(float x, float y, float z)        // Sets new target checkpoint
++ void TickMoveCreep(float DeltaTime)                         // Moves owner pawn toward CurrentTargetLocation
++ void OnCheckPointReached()                                  // Advances index or logs end-of-path
+
+Notes:
+- Attached to APawn (creeps) — moves the owner using SetActorLocation
+- Gets UCreepCheckPointGenerator via UCreepCheckPointGeneratorManager subsystem (per RailNumber)
+- Simple linear movement with overshoot prevention
+- When AcceptanceRadius reached → calls OnCheckPointReached() to advance
+- No UPROPERTY macros (values set from outside, e.g. in Creep blueprint)
+
+=== ~/Data/ActorComponent/UInventory ===
+Parent Class: UActorComponent
+Category: Component / Inventory
+
+Key Attributes:
+- + UPROPERTY() TArray<FInventoryItem> Items                  // 5 hotbar slots by default
+- + UPROPERTY() int32 HotbarSelectedIndex = 0
+- + UPROPERTY(BlueprintAssignable) FOnInventoryChanged OnInventoryChanged
+
+Key Methods:
++ UInventory()                                                // Constructor — enables tick
++ virtual void BeginPlay() override                           // Initializes Items to 5 empty slots if empty
++ virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override
++ bool AddItem(FInventoryItem NewItem)                        // Finds first empty slot, assigns item, broadcasts change
++ void RemoveItem(int32 SlotIndex, int32 Amount)              // TODO: full implementation
++ void SwapSlots(int32 SlotA, int32 SlotB)                    // Swaps two slots + broadcasts change
++ FInventoryItem& GetItemRef(int32 Index)                     // Returns direct reference to item in slot
+
+Notes:
+- Simple hotbar-style inventory (fixed 5 slots)
+- Uses FInventoryItem struct (from Data/DataStructures/InventoryItem.h)
+- AddItem currently uses basic "first empty slot" logic (no stacking yet)
+- OnInventoryChanged delegate is BlueprintAssignable → perfect for UI updates
+- All main functions are UFUNCTION() → callable from Blueprints
+- Most likely attached to ToolBox or PlayerCharacter
+
+=== ~/Data/Actor/ACreepEnd ===
+Parent Class: AActor
+Category: Actor / Trigger / Goal
+
+Key Attributes:
+- + UPROPERTY(EditAnywhere, Category = "Components") UStaticMeshComponent* MeshComponent
+
+Key Methods:
++ ACreepEnd()                                    // Sets RootComponent = MeshComponent + enables overlap events
++ virtual void BeginPlay() override              // Binds OnComponentBeginOverlap dynamically
++ virtual void Tick(float DeltaTime) override
++ UFUNCTION() void OnOverlapBegin(...)           // Casts OtherActor to ACreepCore → HandleDestruction() + GameState->AddHP(-1)
+
+Notes:
+- End-of-path goal for creeps
+- Triggers when ACreepCore overlaps → destroys the core and damages player base HP
+- References AColorDefenseGameState and ACreepCore
+
+=== ~/Data/Actor/AToolBox ===
+Parent Class: AActor
+Category: Actor / Tool Manager
+
+Key Attributes:
+- + UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Setting") UChildActorComponent* CoreRemoverComponent
+- + UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Setting") UChildActorComponent* RifleComponent
+- + UPROPERTY() ACoreRemover* CoreRemover
+- + UPROPERTY() ARifle* Rifle
+- + UPROPERTY() TArray<ATool*> ToolBox
+- + UPROPERTY() ATool* CurrentTool
+- + UPROPERTY() EPlayerState CurrentState
+- + UPROPERTY(EditAnywhere, Category = "Setting") UInputAction* ChangeColorAction
+- + UPROPERTY(EditAnywhere, Category = "Setting") UInputAction* SwitchToolAction
+
+Key Methods:
++ AToolBox()                                     // Creates Root + two ChildActorComponents
++ virtual void BeginPlay() override              // Casts children, builds ToolBox array, sets default tool & state
++ virtual void Tick(float DeltaTime) override
++ void BindActions(UInputComponent*, APlayerCharacter*)                 // Legacy input (Left/Right Click)
++ void BindCoreRemoverActionsEnhanced(APlayerCharacter*)                // Enhanced Input (color change + switch)
++ void HandleLeftClick() / HandleLeftClickReleased() / HandleRightClick()
++ void HandleChangeColor(const FInputActionValue& Value)
++ void HandleSwitchTool(const FInputActionValue& Value)
+
+Notes:
+- Central hub for all player tools (currently only CoreRemover + Rifle active)
+- Delegates every mouse action to CurrentTool
+- Attached as ChildActorComponent to APlayerCharacter's InvisibleArm
+- Other tools (PlayerBlock, Turret) are commented out
+
+=== ~/Data/Actor/ACreepCore ===
+Parent Class: AActor
+Category: Actor / Creep Part
+
+Key Attributes:
+- + ACreep* Owner
+- + EColor CreepCoreColor
+- + FVector OriginalScale
+- + UPROPERTY(EditAnywhere, Category = "Setting") UStaticMeshComponent* CreepCore
+- + UPROPERTY(EditAnywhere, Category = "Setting") TObjectPtr<UNiagaraSystem> CreepCoreDestroyVFX
+- + UPROPERTY(EditAnywhere, Category = "Setting") TObjectPtr<USoundBase> CreepCoreDestroySFX
+
+Key Methods:
++ ACreepCore()                                   // Sets Root = CreepCore mesh
++ virtual void BeginPlay() override              // Captures OriginalScale
++ virtual void Tick(float DeltaTime) override
++ void HandleDestruction()                       // Spawns colored VFX + SFX, calls Owner->HandleDestruction(), Destroy()
++ void ChangeColor(EColor Color)                 // Creates dynamic material + sets BaseColor
++ void SetHighlighted(bool bHighlight)           // Changes opacity + scales up 1.2×
++ void SetOwnerCreep(ACreep* OwnerCreep)
+
+Notes:
+- Visual core of the creep (color changeable, highlightable when dragged)
+- Uses Utils::GetLinearColor + Niagara for destruction effects
+- Detected by ACreepEnd for path-end logic
+
+=== ~/Data/Actor/ACreepCheckPoint ===
+Parent Class: AActor
+Category: Actor / Pathfinding
+
+Key Attributes:
+- + UPROPERTY(EditAnywhere, Category = "Option") bool VisibleInGame = false
+
+Key Methods:
++ ACreepCheckPoint()                             // Tick disabled by default
++ virtual void BeginPlay() override              // Finds StaticMeshComponent and sets visibility
++ virtual void Tick(float DeltaTime) override
++ FVector GetLocation()                          // Simple wrapper for GetActorLocation()
+
+Notes:
+- Pure waypoint marker used by UCreepGuide
+- Visibility toggled in editor (invisible in game by default)
+- Used to build path arrays in CreepCheckPointGenerator
+
+=== ~/Data/Actor/ACreepShield ===
+Parent Class: AActor
+Category: Actor / Creep Part
+
+Key Attributes:
+- + ACreep* Owner
+- + EColor CreepShieldColor
+- + UPROPERTY(EditAnywhere, Category = "Setting") int32 MaxHP = 10
+- + int32 CurrentShieldHP
+- + UPROPERTY(EditAnywhere, Category = "Setting") USkeletalMeshComponent* CreepShield
+- + UPROPERTY(EditAnywhere, Category = "Setting") UWidgetComponent* HPBarWidgetComponent
+- + UPROPERTY() UHPBarWidget* HPBarWidget
+- + Multiple UPROPERTY(EditAnywhere) for VFX, SFX, AnimSequence
+
+Key Methods:
++ ACreepShield()                                 // Sets Root = SkeletalMesh + creates HPBarWidgetComponent
++ virtual void BeginPlay() override              // Delayed init of HPBarWidget
++ virtual void Tick(float DeltaTime) override
++ UFUNCTION() void OnHit(int32 Damage)           // VFX + SFX + hit anim + HP -= Damage + Update HPBar
++ void HandleDestruction()                       // Destroy VFX/SFX + Destroy()
++ void ChangeColor(EColor Color)
++ void SetOwnerCreep(ACreep* OwnerCreep)
++ void InitializeHPBarWidget() / void PlayHitAnim()
+
+Notes:
+- Has its own HP bar widget (always faces camera)
+- Plays skeletal hit animation on damage
+- Uses same Utils color system as CreepCore
+- Attached to main ACreep pawn
+
+=== ~/Data/DataGrid/UChunkGrid ===
+Parent Class: UWorldSubsystem
+Category: Subsystem / World / Grid
+
+Key Attributes:
+- + FIntVector ChunkGridSize                     // Set by WorldGenerator options
+- + TArray<TArray<TArray<FChunk>>> ChunkGrid
+
+Key Methods:
++ virtual void Initialize(FSubsystemCollectionBase& Collection) override
++ void InitChunkGrid()                           // Creates 3D TArray structure and assigns indices
++ bool IsInsideChunkGrid(const FIntVector& ChunkIndex)
++ bool IsEmptyIndex(const FIntVector& ChunkIndex)
++ void InsertChunk(const FIntVector& ChunkIndex, EChunkProperty Property)
+
+Notes:
+- 3D chunk-based world management system
+- Uses FChunk struct (Data/DataStructures/Chunk.h) + EChunkProperty enum
+- Mainly for procedural world generation and placement validation
+
+=== ~/Data/DataGrid/UVoxelGrid ===
+Parent Class: UWorldSubsystem
+Category: Subsystem / World / Grid
+
+Key Attributes:
+- + FIntVector VoxelGridSize                     // Set by WorldGenerator options
+- + TArray<TArray<TArray<FVoxel>>> VoxelGrid
+
+Key Methods:
++ virtual void Initialize(FSubsystemCollectionBase& Collection) override
++ void InitVoxelGrid()                           // Full 3D initialization + default FVoxel
++ bool IsInsideVoxelGrid(const FIntVector& VoxelIndex)
++ bool IsEmptyIndex(const FIntVector& VoxelIndex)
++ void SetRotation(const FIntVector& VoxelIndex, float Rotation)  // Sets Y-axis rotation
++ FVoxel& GetVoxel(const FIntVector& VoxelIndex)                  // Safe access with warning log
++ FIntVector GetCenterIndex()
+
+Notes:
+- Finer-grained 3D voxel grid (smaller resolution than chunks)
+- Supports per-voxel rotation and property checks
+- Uses FVoxel struct (Data/DataStructures/Voxel.h) + EVoxelProperty enum
+- Core system for voxel-based world building and tool placement
+  
+  === ~/Data/DataStructure/FChunk ===
+Parent Class: none (USTRUCT)
+Category: Data Structure / World
+
+Key Attributes:
+- + UPROPERTY() FIntVector Index
+- + UPROPERTY() EChunkProperty Property
+
+Key Methods:
++ FChunk()                                       // Default: Property = Empty, Index = Zero
++ FChunk(const FIntVector& InChunkIndex, EChunkProperty InProperty)
+
+Notes:
+- Used by UChunkGrid (3D TArray storage)
+- Represents a large block of the world (chunk level)
+- EChunkProperty from Utils/GameEnums.h
+
+=== FInventoryItem ===
+Parent Class: none (USTRUCT)
+Category: Data Structure / Inventory
+
+Key Attributes:
+- + UPROPERTY() EItemName ItemName
+- + UPROPERTY(EditAnywhere, Category = "Setting") int32 Quantity = 0
+- + UPROPERTY(EditAnywhere, Category = "Setting") int32 MaxStack = 64
+- + UPROPERTY(EditAnywhere, Category = "Setting") UTexture2D* Icon = nullptr
+- + UPROPERTY(EditAnywhere, Category = "Setting") int32 Durability = 0
+
+Key Methods:
+- (none — pure data struct)
+
+Notes:
+- Used directly by UInventory (TArray<FInventoryItem>)
+- Supports basic stacking (Quantity/MaxStack) and durability
+- EItemName enum from Data/Enums/Name.h
+- Icon for UI display
+
+=== ~/Data/DataStructure/FVoxel ===
+Parent Class: none (USTRUCT)
+Category: Data Structure / World
+
+Key Attributes:
+- + UPROPERTY() FIntVector Index
+- + UPROPERTY() FTransform Transform          // Note: 48 bytes each — performance heavy
+- + UPROPERTY() EVoxelProperty Property
+- + UPROPERTY() TSubclassOf<AActor> BPActor
+- + UPROPERTY() TWeakObjectPtr<AActor> SpawnedActor
+
+Key Methods:
++ FVoxel()                                       // Default: Identity transform, Empty property, nulls
+
+Notes:
+- Finer-grained than FChunk (used by UVoxelGrid)
+- Stores spawned actor reference + rotation + type
+- EVoxelProperty from Utils/GameEnums.h
+- Core of the voxel-based building/placement system
+  
+  === ~/Data/Pawns/ACreep ===
+Parent Class: APawn
+Category: Pawn / Creep
+
+Key Attributes:
+- + UPROPERTY() EColor CreepColor
+- + UPROPERTY() int32 RailNumber
+- + UPROPERTY(EditAnywhere, Category = "Setting") bool DontMove = false
+- + UPROPERTY() UCreepGuide* CreepGuide
+- + UPROPERTY(EditAnywhere, Category = "Setting") float CreepMoveSpeed = 75
+- + UPROPERTY(EditAnywhere, Category = "Setting") float CreepAcceptanceRadius = 40
+- + UPROPERTY(EditAnywhere, Category = "Setting") UChildActorComponent* CreepCoreComponent
+- + UPROPERTY(EditAnywhere, Category = "Setting") UChildActorComponent* CreepShieldComponent
+
+Key Methods:
++ ACreep()                                       // Sets explicit USceneComponent root + creates ChildActorComponents (Core/Shield) + CreepGuide component
++ virtual void BeginPlay() override              // Starts GuideCreep(), copies speed/radius to UCreepGuide, sets Owner on Core & Shield
++ virtual void Tick(float DeltaTime) override
++ void HandleDestruction()                       // Simple Destroy()
++ void ChangeColor(EColor Color)                 // Updates CreepColor + calls ChangeColor on both Core and Shield actors
+
+Notes:
+- Central creep entity (pawn) — owns Core + Shield as ChildActors + movement via UCreepGuide component
+- Color system fully synchronized across Core/Shield
+- DontMove flag for debugging (passed to GuideCreep)
+- Used by Creep pattern generators, CreepEnd (via Core), ToolBox (via Rifle/CoreRemover), and GameState
+- Root is explicitly a USceneComponent (important for child attachment stability)
+
+=== ~/Data/Pools/UBPActorPool ===
+Parent Class: UWorldSubsystem
+Category: Subsystem / Pooling / Preloader
+
+Key Attributes:
+- + TArray<TSubclassOf<AActor>> Pool
+- + TArray<FString> BPActorPathPool           // Hardcoded paths for 6 common Blueprints
+
+Key Methods:
++ virtual void Initialize(FSubsystemCollectionBase& Collection) override   // Loads every Blueprint from BPActorPathPool using LoadClass<AActor>()
+
+Notes:
+- Simple preloading system for frequently used Blueprint classes
+- Currently preloads: BP_Grass_Plain, BP_Grass_Slope, BP_CheckPoint, BP_CreepGenerator, BP_PlayerBlock, BP_CreepEnd
+- Helps reduce runtime hitches when spawning actors (especially in procedural/voxel world)
+- Includes DEBUGMODE error logging if any LoadClass fails
+  
+  === ~/GameModes/AColorDefenseGameMode ===
+Parent Class: AGameModeBase
+Category: GameMode / Core
+
+Key Attributes:
+- (none declared)
+
+Key Methods:
+- (none declared)
+
+Notes:
+- Empty C++ base class for the main gameplay mode
+- All logic is likely in Blueprints, GameState, or subsystems (WorldGenerator, ChunkGrid, VoxelGrid, etc.)
+- Used as the default GameMode for the ColorDefense map
+
+=== ~/GameModes/AMainMenuGameMode ===
+Parent Class: AGameModeBase
+Category: GameMode / Menu
+
+Key Attributes:
+- (none declared)
+
+Key Methods:
+- (none declared)
+
+Notes:
+- Empty C++ base class for the main menu
+- Probably only used to set up menu-specific HUD, input, or loading screen
+- Separate from AColorDefenseGameMode to keep menu and gameplay cleanly split
+  
+  === ~/GameStates/AColorDefenseGameState ===
+Parent Class: AGameStateBase
+Category: GameState / Core
+
+Key Attributes:
+- + UPROPERTY(EditAnywhere, Category = "Setting") int32 CurrentMoney = 100000
+- + UPROPERTY() FOnMoneyChanged OnMoneyChanged
+- + UPROPERTY(EditAnywhere, Category = "Setting") int32 CurrentCombo = 0
+- + UPROPERTY() FOnComboChanged OnComboChanged
+- + UPROPERTY(EditAnywhere, Category = "Setting") int32 CurrentHP = 10000
+- + UPROPERTY() FOnHPChanged OnHPChanged
+- + UPROPERTY() FOnHPZero OnHPZero
+
+Key Methods:
++ virtual void BeginPlay() override                          // Sets 0.1s timer to call BroadcastInitialMoney (ensures late widgets catch it)
++ void BroadcastInitialMoney()                               // Broadcasts starting money value
++ int32 GetCurrentMoney() const
++ void AddMoney(int32 Amount)                                // += Amount + broadcast
++ bool TrySpendMoney(int32 Cost)                             // Returns true if successful + broadcast
++ int32 GetCurrentCombo() const
++ void AddCombo(int32 Amount)
++ void SetCombo(int32 NewCombo)
++ int32 GetCurrentHP() const
++ void AddHP(int32 Amount)                                   // += Amount + broadcast + triggers OnHPZero if <= 0
++ void SetHP(int32 NewHP)
+
+Notes:
+- Central game state for Money / Combo / Base HP systems
+- All changes use Blueprint-assignable Dynamic Multicast Delegates → perfect for HUD/widgets
+- ACreepEnd calls AddHP(-1) when a creep reaches the end
+- TrySpendMoney used by shop/tool purchases
+- OnHPZero is the game-over trigger
+  
+  === ~/GeneratorManager/UChunkGeneratorManager ===
+Parent Class: UWorldSubsystem
+Category: Subsystem / Manager / Generator
+
+Key Attributes:
+- + UPROPERTY() UChunkGenerator* ChunkGenerator
+
+Key Methods:
++ virtual void Initialize(FSubsystemCollectionBase& Collection) override     // Sets ChunkGenerator = nullptr
++ virtual void Deinitialize() override                                       // Calls ClearChunkGenerator()
++ void CreateChunkGenerator(UChunkGrid* InChunkGrid, int32 InNeigborRadius)  // Clears old one, NewObject<UChunkGenerator>, calls Initialize()
++ void ClearChunkGenerator()                                                 // Releases reference (lets GC handle it)
+
+Notes:
+- Manages the lifetime of a single UChunkGenerator logic object
+- Owned by the subsystem (NewObject with 'this' as Outer)
+- Prevents memory leaks when regenerating the chunk system
+- References UChunkGrid (injected during creation)
+
+=== ~/GeneratorManager/UCreepCheckPointGeneratorManager ===
+Parent Class: UWorldSubsystem
+Category: Subsystem / Manager / Generator
+
+Key Attributes:
+- + int32 MaxRailCount
+- + UPROPERTY() TArray<UCreepCheckPointGenerator*> CreepCheckPointGenerators   // One per rail
+
+Key Methods:
++ virtual void Initialize(FSubsystemCollectionBase& Collection) override      // Sets MaxRailCount = 0
++ virtual void Deinitialize() override                                        // Calls ClearAllCreepCheckPointGenerators()
++ void CreateCreepCheckPointGenerators(UWorld*, UBPActorPool*, UVoxelGrid*, int32 InMaxRailCount, float InVoxelWidth, float InVoxelHeight, bool bShowCreepCheckPoints)  // Creates one generator per rail + Initialize()
++ void ClearAllCreepCheckPointGenerators()                                    // Nulls all references
+
+Notes:
+- Manages multiple UCreepCheckPointGenerator (one per rail)
+- Uses NewObject with subsystem as Outer
+- Heavily referenced by UCreepGuide (via GetWorld()->GetSubsystem)
+- Takes UBPActorPool and UVoxelGrid during creation (for spawning checkpoints)
+  
+  === ~/Generatormanager/UCreepGeneratorGeneratorManager ===
+Parent Class: UWorldSubsystem
+Category: Subsystem / Manager / Generator
+
+Key Attributes:
+- + UPROPERTY() UCreepGeneratorGenerator* CreepGeneratorGenerator
+
+Key Methods:
++ virtual void Initialize(FSubsystemCollectionBase& Collection) override
++ virtual void Deinitialize() override                          // Calls ClearCreepGeneratorGenerator()
++ void CreateCreepGeneratorGenerator(UWorld*, UBPActorPool*, UVoxelGrid*, float InVoxelWidth, float InVoxelHeight)  // NewObject + Initialize()
++ void ClearCreepGeneratorGenerator()                            // Nulls reference (GC)
+
+Notes:
+- Manages a single UCreepGeneratorGenerator logic object
+- Uses NewObject with subsystem as Outer for lifetime control
+- Pattern matches UChunkGeneratorManager / UCreepCheckPointGeneratorManager
+- Used in WorldGenerator pipeline for spawning creep generators
+
+=== ~/Generatormanager/UCreepEndGeneratorManager ===
+Parent Class: UWorldSubsystem
+Category: Subsystem / Manager / Generator
+
+Key Attributes:
+- + UPROPERTY() UCreepEndGenerator* CreepEndGenerator
+
+Key Methods:
++ virtual void Initialize(FSubsystemCollectionBase& Collection) override
++ virtual void Deinitialize() override
++ void CreateCreepEndGenerator(UWorld*, UBPActorPool*, UVoxelGrid*, int32 InMaxRailCount, float InVoxelWidth, float InVoxelHeight)  // NewObject + Initialize()
+
+Notes:
+- Manages a single UCreepEndGenerator (end-of-path goal spawner)
+- One instance for the entire world (unlike per-rail checkpoint manager)
+- Takes UBPActorPool + UVoxelGrid for spawning BP_CreepEnd actors
+- Called during procedural world generation
+  
+  === ~/GeneratorManager/UCreepPatternGeneratorManager ===
+Parent Class: UWorldSubsystem
+Category: Subsystem / Manager / Generator
+
+Key Attributes:
+- + UPROPERTY() class UCreepPatternGenerator* CreepPatternGenerator
+
+Key Methods:
++ virtual void Initialize(FSubsystemCollectionBase& Collection) override      // Sets CreepPatternGenerator = nullptr
++ virtual void Deinitialize() override                                        // Calls ClearCreepPatternGenerator()
++ void CreateCreepPatternGenerator(int32 InMaxRailCount)                      // Clears old one, NewObject<UCreepPatternGenerator>, calls Initialize()
++ void ClearCreepPatternGenerator()                                           // Nulls reference (lets GC handle it)
+
+Notes:
+- Manages a single UCreepPatternGenerator logic object
+- Uses the same NewObject + Outer = subsystem pattern as ChunkGeneratorManager
+- Called during procedural world generation (depends on MaxRailCount)
+- Prevents memory leaks when regenerating patterns
+
+=== ~/GeneratorManager/UCreepWayGeneratorManager ===
+Parent Class: UWorldSubsystem
+Category: Subsystem / Manager / Generator
+
+Key Attributes:
+- + UPROPERTY() UCreepWayGenerator* CreepWayGenerator
+
+Key Methods:
++ virtual void Initialize(FSubsystemCollectionBase& Collection) override      // Sets CreepWayGenerator = nullptr
++ virtual void Deinitialize() override                                        // Calls ClearCreepWayGenerator()
++ void CreateCreepWayGenerator(UWorld*, UBPActorPool*, UVoxelGrid*, TArray<UCreepCheckPointGenerator*>&, int32 InMaxRailCount, int32 InRailLength, TArray<FIntVector>& DirectionContainer, float InVoxelWidth, float InVoxelHeight)  // NewObject + full Initialize()
++ void ClearCreepWayGenerator()                                               // Nulls reference
+
+Notes:
+- Manages a single UCreepWayGenerator (responsible for building the actual paths/rails)
+- Takes many dependencies: world, BP pool, voxel grid, checkpoint generators, direction data
+- Uses the same safe creation/clear pattern as the other generator managers
+- Critical part of the procedural creep path system
+  
+  
+=== ~/Generator/UCreepCheckPointGenerator ===
+Parent Class: UVoxelGenerator
+Category: Generator / Voxel / Pathfinding
+
+Key Attributes:
+- + TArray<FVector> CreepCheckPointLocations
+- + bool bShowCreepCheckPoints
+
+Key Methods:
++ UCreepCheckPointGenerator()
++ void Initialize(UWorld*, UBPActorPool*, UVoxelGrid*, float InVoxelWidth, float InVoxelHeight, bool InbShowCreepCheckPoints)  // Calls super + stores visibility flag
++ AActor* CreateCreepCheckPointByVoxelIndex(const FIntVector& Voxel)      // Sets voxel data + spawns actor + hides if needed + InsertLocation()
++ void InsertLocation(const FIntVector& VoxelIndex)                       // Converts voxel transform to world location and adds to array
++ void PopLocations(int32 Count)                                          // Removes last N locations (used when regenerating)
+
+Notes:
+- One instance per rail (managed by UCreepCheckPointGeneratorManager)
+- Creates invisible checkpoint actors for creep pathfinding
+- Stores world locations used directly by UCreepGuide
+- Inherits spawning logic from UVoxelGenerator
+- Referenced by UCreepGuide and CreepWayGenerator
+
+=== ~/Generator/UChunkGenerator ===
+Parent Class: UObject
+Category: Generator / World / Procedural
+
+Key Attributes:
+- + int32 ChunkCount
+- + UChunkGrid* ChunkGrid
+- + TArray<FIntVector> DirectionContainer
+- - int32 NeighborRadius
+- - TArray<int32> Visited
+- - TArray<FIntVector> ChunkIndexContainer
+
+Key Methods:
++ UChunkGenerator()
++ void Initialize(UChunkGrid* InChunkGrid, int32 NeighborRadius)
++ bool GenerateNextChunk()                                                // Uses pattern system + safety checks to place next 3 chunks
++ void GenerateStartLocation()                                            // Sets up initial 2 chunks + starting direction
++ void DeleteCurrentChunk()                                               // Removes last 3 chunks (for regeneration)
++ private: TArray<TArray<FIntVector>> GetPatternsUsingDirection(FIntVector Forward)
++ private: FIntVector GetDirectionUsingPattern(TArray<FIntVector> Pattern)
++ private: int32 GetVisitedIndex(const FIntVector& VisitedIndex)
++ private: bool IsSafeToPlace(const FIntVector& TargetPos, int32 CurrentStep, int32 Radius)  // Core anti-overlap logic with "tail" tolerance
+
+Notes:
+- Pure logic object (managed by UChunkGeneratorManager)
+- Uses flood-fill-like pattern system with direction + safety radius to generate non-overlapping chunk paths
+- Heavy debug logging (DEBUGMODE)
+- Core of the procedural world shape generation
+- Feeds into VoxelGrid via ChunkGrid
+
+=== ~/Generator/UCreepEndGenerator ===
+Parent Class: UVoxelGenerator
+Category: Generator / Voxel / Goal
+
+Key Attributes:
+- + int32 MaxRailCount
+- + UPROPERTY() TArray<ACreepEnd*> CreepEnds
+- + UPROPERTY() TArray<FIntVector> CurrentCreepEndIndices
+
+Key Methods:
++ UCreepEndGenerator()
++ void Initialize(UWorld*, UBPActorPool*, UVoxelGrid*, int32 InMaxRailCount, float InVoxelWidth, float InVoxelHeight)  // Calls super + stores MaxRailCount
++ void CreateCreepEnds(TArray<FIntVector>& NewLastIndicesOfEachRail)     // Spawns BP_CreepEnd at rail ends (voxel +1 Z)
++ void MoveCreepEnds(TArray<FIntVector>& NewLastIndicesOfEachRail)       // Deletes old voxels, moves existing actors to new positions, updates SpawnedActor refs
+
+Notes:
+- One instance for the entire world (managed by UCreepEndGeneratorManager)
+- Handles dynamic repositioning of goal actors when world regenerates
+- Uses voxel index offset (+1 Z on create, +2 Z on move)
+- Called by WorldGenerator / CreepWayGenerator when paths change
+- Inherits all spawning/deletion logic from UVoxelGenerator
+  
+  === FSpawnInfo ===
+Parent Class: none (USTRUCT)
+Category: Data Structure / Spawn
+
+Key Attributes:
+- + UPROPERTY() int32 CreepColorNumber
+- + UPROPERTY() float SpawnDelay
+
+Key Methods:
+- (none — pure data struct)
+
+Notes:
+- Used by UCreepPatternGenerator (TArray<FSpawnInfo>)
+- Defines one spawn event: which color + how long until next spawn
+- Color numbers 1-7 map to EColor enum in SpawnCreep()
+
+=== ~/Generator/UCreepPatternGenerator ===
+Parent Class: UObject
+Category: Generator / Pattern / Logic
+
+Key Attributes:
+- + int32 MaxRailCount
+- + TArray<TArray<FSpawnInfo>> PatternArray
+- + float SpawnDelay = 3
+- + int32 PropagationProbability = 50
+
+Key Methods:
++ UCreepPatternGenerator()
++ void Initialize(int32 InMaxRailCount)                          // Sets size of PatternArray
++ bool IsEmpty(int32 RailNumber)
++ FSpawnInfo PopSpawnInfo(int32 RailNumber)                      // Removes and returns first spawn info
++ void GeneratePattern()                                         // Fills background + changes one area with DFS
++ void FillPatternArray(int32 Count, int32 CreepColorNumber)
++ void ChangeCreepColorNumberUsingDFS(...)                       // Flood-fill style change (used by default)
++ void ChangeCreepColorNumberUsingBFS(...)                       // Alternative BFS version (not currently used)
+
+Notes:
+- Pure logic object (managed by UCreepPatternGeneratorManager)
+- Generates per-rail spawn waves with random "special color" propagation
+- Default pattern is background color + DFS cluster of different color
+- Heavily used by ACreepGenerator for timed spawning
+
+=== ~/Generator/ACreepGenerator ===
+Parent Class: AActor
+Category: Actor / Generator / Spawner
+
+Key Attributes:
+- + UPROPERTY(EditAnywhere, Category="Setting") TSubclassOf<ACreep> CreepClass
+- + UPROPERTY() int32 RailNumber
+- + UPROPERTY() FTimerHandle CreepGenerationTimer
+- + UPROPERTY() class UCreepPatternGenerator* CreepPatternGenerator
+
+Key Methods:
++ ACreepGenerator()                                              // Tick disabled
++ virtual void BeginPlay() override                              // Grabs CreepPatternGenerator from subsystem
++ virtual void Tick(float DeltaTime) override
++ void SetRailNumber(int32 InRailNumber)
++ void SpawnCreep(int32 ColorNumber)                             // Deferred spawn + color sync + FinishSpawningActor
++ void GenerateCreeps()                                          // Pops pattern → SpawnCreep → sets next timer
+
+Notes:
+- One instance per rail (spawned by UCreepGeneratorGenerator)
+- Drives continuous creep waves using pattern system
+- Color numbers 1-7 mapped to EColor (Red/Orange/Yellow/Green/Blue/Purple/Indigo)
+- Timer-based spawning (non-repeating, re-set each time)
+
+=== ~/Generator/UCreepGeneratorGenerator ===
+Parent Class: UVoxelGenerator
+Category: Generator / Voxel / Manager
+
+Key Attributes:
+- + UPROPERTY() TArray<ACreepGenerator*> CreepGenerators
+
+Key Methods:
++ UCreepGeneratorGenerator()
++ void Initialize(UWorld*, UBPActorPool*, UVoxelGrid*, float InVoxelWidth, float InVoxelHeight)  // Calls super
++ void CreateCreepGenerator(const FIntVector& VoxelIndex, int32 RailNumber)  // Sets voxel data + spawns ACreepGenerator + sets rail number
++ void StartCreepGeneration(float PrepTime)                      // One-shot timer → OperateCreepGenerators()
++ void OperateCreepGenerators()                                  // Calls GenerateCreeps() on every rail generator
+
+Notes:
+- Manages all ACreepGenerator actors (one per rail)
+- Spawns them as voxel-based actors (offset +1 Z)
+- Starts the entire creep wave system after PrepTime
+- Inherits all voxel spawning/deletion logic from UVoxelGenerator
+- Called during world generation (one instance for whole map)
+  
+  === ~/Generator/FCreepWayStepHistory ===
+Parent Class: none (USTRUCT)
+Category: Data Structure / History
+
+Key Attributes:
+- + UPROPERTY() TArray<FIntVector> VoxelIndices
+- + UPROPERTY() TArray<FIntVector> PreviousRailLastIndices
+- + UPROPERTY() FIntVector PreviousDirection
+- + UPROPERTY() TArray<AActor*> SpawnedCheckPoints
+- + UPROPERTY() TArray<int32> CheckPointCountsPerGenerator
+
+Key Methods:
+- (none — pure data struct)
+
+Notes:
+- Used by UCreepWayGenerator for undo/regen system (StepHistoryStack)
+- Stores snapshot of one "segment" of the creep path so DeleteCurrentCreepWay() can rollback cleanly
+
+=== ~/Generator/UVoxelGenerator ===
+Parent Class: UObject
+Category: Generator / Base / Voxel
+
+Key Attributes:
+- + UWorld* World
+- + UBPActorPool* BPActorPool
+- + UVoxelGrid* VoxelGrid
+- + float VoxelWidth = 250
+- + float VoxelHeight = 125
+
+Key Methods:
++ UVoxelGenerator()
++ void Initialize(UWorld*, UBPActorPool*, UVoxelGrid*, float InVoxelWidth, float InVoxelHeight)
++ void SetVoxelDataInVoxelGrid(const FIntVector&, int32 BPActorPoolIndex, float Rotation, EVoxelProperty Property)  // Safety checks + sets Transform/BPActor/Property + rotation
++ void DeleteVoxelDataInVoxelGrid(const FIntVector&)
++ AActor* SpawnActorFromVoxel(FVoxel& Voxel)                          // Uses pooled BP class + FinishSpawning logic
++ void DestroyActorFromVoxel(FVoxel& Voxel)
++ FTransform GetWorldTransformFromVoxelIndex(const FIntVector&)       // Scales indices by VoxelWidth/Height + uniform 1/125 scale
+
+Notes:
+- Base class inherited by almost every voxel-based generator (CreepWay, CreepEnd, CreepCheckPoint, CreepGeneratorGenerator, etc.)
+- Central utility for voxel ↔ actor conversion + BPActorPool usage
+- Heavy DEBUGMODE logging for out-of-bounds / pool errors
+
+=== ~/Generator/AWorldGenerator ===
+Parent Class: AActor
+Category: Actor / Core / Orchestrator
+
+Key Attributes:
+- + UPROPERTY(EditAnywhere) int32 MaxRailCount = 5
+- + UPROPERTY(EditAnywhere) int32 RailLength = 5
+- + UPROPERTY(EditAnywhere) int32 GenerationStep = 10
+- + UPROPERTY(EditAnywhere) FIntVector VoxelGridSize = FIntVector(400,400,200)
+- + UPROPERTY(EditAnywhere) FIntVector ChunkGridSize = FIntVector(80,80,40)
+- + UPROPERTY(EditAnywhere) int32 ChunkCount = 30
+- + UPROPERTY(EditAnywhere) int32 NeighborRadius = 2
+- + UPROPERTY(EditAnywhere) float VoxelWidth = 250
+- + UPROPERTY(EditAnywhere) float VoxelHeight = 125
+- + UPROPERTY(EditAnywhere) float CreepGenerationPeriod = 1
+- + UPROPERTY(EditAnywhere) bool bShowCreepCheckPoints = true
+
+Key Methods:
++ AWorldGenerator()                                              // Tick enabled
++ virtual void BeginPlay() override                              // HUGE initialization: creates ALL grids, ALL managers, ChunkGenerator start, CreepWay start, CreepGenerators, teleports player
++ virtual void Tick(float DeltaTime) override
++ void TeleportPlayerToLocation(FVector TargetLocation)          // Uses GetFirstPlayerController + Pawn->TeleportTo (no collision check)
+
+Notes:
+- The single "God class" that boots the entire procedural world
+- Fetches every subsystem/manager and calls CreateXXX() in correct order
+- Spawns initial CreepGenerators on every rail
+- Starts the creep wave system
+- Teleports player to safe starting position above the map
+
+=== ~/Generator/UCreepWayGenerator ===
+Parent Class: UVoxelGenerator
+Category: Generator / Path / Rail
+
+Key Attributes:
+- + UPROPERTY() class UCreepRail* CreepRail
+- + UPROPERTY() class UPlayerBlockGenerator* PlayerBlockGenerator
+- + UPROPERTY() TArray<UCreepCheckPointGenerator*> CreepCheckPointGenerators
+- + UPROPERTY() TArray<FIntVector> DirectionContainer
+- + bool bTopRailIn
+- + FIntVector NextDirection / CurrentDirection
+- + UPROPERTY() TArray<FCreepWayStepHistory> StepHistoryStack
+- + UPROPERTY() TArray<FIntVector> CurrentCreepWayIndices
+- + UPROPERTY() TArray<AActor*> CurrentCheckPoints
+- + UPROPERTY() TArray<int32> CurrentCheckPointCounts
+
+Key Methods:
++ UCreepWayGenerator()
++ void Initialize(...)                                           // Takes CreepCheckPointGenerators + DirectionContainer + creates UCreepRail
++ void GenerateNextCreepWay() / void GenerateCreepWay()          // Main path building (straight + turn + slope logic)
++ bool DeleteCurrentCreepWay()                                   // Full rollback using history stack
++ void SpawnActorWithFlushingMainBuffer() / void FlushRailBuffersToMainBuffer()
++ void GoStraightAndTurnLeftOrRightAndGoStraight() / void GoStraightAndUpOrDownAndGoStraight()
++ void SpawnCheckPointsAtLastIndices() / void SpawnCheckPointFromRailBuffer(int32 RailNumber)
++ void UpdateTopRailIn()                                         // Decides which rail is "inside" corner for triangle placement
+
+Notes:
+- The most complex generator — builds the actual 3D creep rails using UCreepRail helper
+- Supports undo (DeleteCurrentCreepWay) for procedural regeneration
+- Spawns checkpoints, creep-way actors, and registers positions for PlayerBlockGenerator
+- Uses DirectionContainer from ChunkGenerator to decide turns/slopes
+  
+  === ~/Handlers/AGameOverHandler ===
+Parent Class: AActor
+Category: Actor / Handler / Game Over
+
+Key Attributes:
+- (none public)
+
+Key Methods:
++ AGameOverHandler()                                      // Tick disabled
++ virtual void BeginPlay() override                       // Gets GameState and binds OnHPZero → HandleGameOver
++ UFUNCTION() void HandleGameOver()                       // Gets HUD via PlayerController → calls MyHUD->HandleGameOver() + switches to UI-only input with mouse cursor
+
+Notes:
+- Listens to AColorDefenseGameState::OnHPZero (game-over trigger)
+- Shows game-over screen via AColorDefenseHUD
+- Forces UI input mode so player can click "Main Menu" button
+- References AColorDefenseGameState, AColorDefenseHUD, and MainHUDWidget
+
+=== ~/Handlers/UCreepWayHandler ===
+Parent Class: UObject
+Category: Handler / Logic / World
+
+Key Attributes:
+- - class UChunkGenerator* ChunkGenerator
+- - class UCreepWayGenerator* CreepWayGenerator
+
+Key Methods:
++ UCreepWayHandler()
++ void Initialize()                                       // Grabs ChunkGenerator & CreepWayGenerator from their managers
++ void BuildCreepWay()                                    // ChunkGenerator->GenerateNextChunk() → update DirectionContainer → CreepWayGenerator->GenerateNextCreepWay()
++ void DestructCreepWay()                                 // CreepWayGenerator->DeleteCurrentCreepWay() → ChunkGenerator->DeleteCurrentChunk()
+
+Notes:
+- Simple facade/helper that ties ChunkGenerator and CreepWayGenerator together
+- Used for runtime world regeneration (build/destruct one segment at a time)
+- Provides clean logging and safety checks around procedural path changes
+- References UChunkGeneratorManager and UCreepWayGeneratorManager subsystems
+  
+  === ~/LogicHelpers/UCreepRail ===
+Parent Class: UObject
+Category: Logic / Rail / Helper
+
+Key Attributes:
+- + int32 RailLength
+- + int32 MaxRailCount
+- + TArray<TTuple<FIntVector, int32, float, EVoxelProperty>> MainBuffer
+- + TArray<TArray<TTuple<FIntVector, int32, float, EVoxelProperty>>> RailBuffers
+- + UPROPERTY() TArray<FIntVector> LastIndicesOfEachRail
+- + UPROPERTY() class UCreepEndGeneratorManager* CreepEndGeneratorManager
+
+Key Methods:
++ UCreepRail()
++ void Initialize(int32 InMaxRailCount, int32 InRailLength, FIntVector StartIndex, FIntVector CurrentDirection)  // Sets up rails, buffers, LastIndices + creates initial CreepEnds
++ void PrintLastIndicesOfEachRail()                     // Debug logging
++ float GetSlopeCreepWayRotation(const FIntVector& CurrentDirection, const FIntVector& VoxelIndex)  // Returns 0/90/180/270 for slope blocks
++ void InsertCreepWayDataRectangleIntoRailBuffers(FIntVector CurrentDirection, int32 BPActorPoolIndex, bool bRotate)  // Fills straight/slope segments + updates LastIndices
++ void InsertCreepWayDataTriangleIntoRailBuffers(bool bTopRailIn, const FIntVector& Direction, int32 Offset)  // Builds corner triangles
++ void UpdateCreepEnds()                                // Calls CreepEndGenerator->MoveCreepEnds()
+
+Notes:
+- Core math/logic helper used exclusively by UCreepWayGenerator
+- Manages per-rail buffers + LastIndices for procedural path building (straight, slope, corner triangles)
+- Handles dynamic CreepEnd repositioning
+- Used in both initial generation and runtime Build/Destruct via UCreepWayHandler
+- Heavy use of TTuple for voxel data (index, BP index, rotation, property)
+  
+  === ~/Tools/ATool ===
+Parent Class: AActor
+Category: Actor / Tool / Base
+
+Key Attributes:
+- + UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Setting") UStaticMeshComponent* ToolMeshComponent
+- + EColor CurrentColor
+- + UPROPERTY(EditDefaultsOnly, Category = "Setting") TObjectPtr<UNiagaraSystem> SwapVFX
+
+Key Methods:
++ ATool()                                                // Creates ToolMeshComponent attached to Root
++ virtual void BeginPlay() override
++ virtual void Tick(float DeltaTime) override
++ virtual void LeftClick() / LeftClickReleased() / RightClick()  // Empty base implementations
++ virtual void SwitchToolFrom(ATool*& CurrentTool)       // Hides previous tool, shows this one
++ virtual void UnEquip()                                 // Hides the tool
++ virtual void ChangeColor(EColor NewColor)              // Updates CurrentColor + spawns colored SwapVFX
+
+Notes:
+- Abstract base class for all player tools
+- Used by AToolBox (ChildActorComponents)
+- Common color-swap VFX and tool-switching logic
+- ETools enum also defined here (CoreRemover, PlayerBlock, Turret)
+
+=== ~/Tools/ARifle ===
+Parent Class: ATool
+Category: Actor / Tool / Weapon
+
+Key Attributes:
+- + UPROPERTY(EditAnywhere, Category = "Setting") float TimeBetweenShots = 0.3f
+- + UPROPERTY(EditAnywhere, Category = "Setting") float MaxRange = 5000.0f
+- + UPROPERTY(EditAnywhere, Category = "Setting") float Damage = 1
+- + FTimerHandle AutoFireTimerHandle
+
+Key Methods:
++ ARifle()                                               // Tick enabled
++ virtual void BeginPlay() override
++ virtual void Tick(float DeltaTime) override
++ virtual void LeftClick() override                      // StartFiring()
++ virtual void LeftClickReleased() override              // StopFiring()
++ void StartFiring() / void StopFiring()                 // Auto-fire timer loop
++ virtual void UnEquip() override                        // Stops firing + calls Super
++ void Fire()                                            // Raycast (ECC_GameTraceChannel3) → if matching color shield → OnHit + OnShoot BP event
++ virtual void ChangeColor(EColor NewColor) override     // Calls super + logs
+
+Notes:
+- Primary shooting tool
+- Only damages CreepShield of matching color
+- Uses Utils::GetHit for raycast
+- Blueprint-implementable OnShoot() for muzzle flash/animation
+- Attached as ChildActor in ToolBox
+
+=== ~/Tools/ACoreRemover ===
+Parent Class: ATool
+Category: Actor / Tool / Special
+
+Key Attributes:
+- + UPROPERTY(EditAnywhere, Category = "Setting") float MaxRange = 5000.0f
+- + int32 ComboCount = 0
+- + UPROPERTY(EditAnywhere, Category = "Setting") float PitchMultiplier = 0.1f
+- + UPROPERTY(EditAnywhere, Category = "Setting") TObjectPtr<USoundBase> ComboSFX
+- + UPROPERTY() TArray<ACreepCore*> ConnectedCreepCores
+- + bool bIsConnecting = false
+
+Key Methods:
++ ACoreRemover()                                         // Tick enabled + starts with Red color
++ virtual void BeginPlay() override                     
+
+=== ~/Utils/GameEnums ===
+Parent Class: none (UENUM definitions)
+Category: Enums / Global
+
+Key Enums:
+- EColor
+  - Red, Orange, Yellow, Green, Blue, Purple, Indigo
+- EVoxelProperty
+  - NormalCreepWay, SlopeCreepWay, CreepStart, CreepCheckPoint, CreepEnd, CreepGenerator, Placeable, PlayerBlock, Empty
+- EChunkProperty
+  - CreepWay, Empty
+- EPlayerState
+  - HoldingCoreRemover, HoldingRifle, HoldingBlock, HoldingTurret
+
+Notes:
+- Used everywhere (color system, voxel world, chunk logic, player tool switching)
+- EColor is the core color-matching mechanic (tools vs shields/cores)
+- All enums are Blueprint-visible where needed
+
+=== ~/Utils/Utils (namespace) ===
+Parent Class: none (static inline namespace)
+Category: Utility / Helper
+
+Key Functions:
++ const TArray<FIntVector> CardinalDirections                  // Right, Left, Up, Down
++ FIntVector GetPerpendicularDirection(const FIntVector& Direction)
++ FLinearColor GetLinearColor(EColor Color)                    // Maps to Unreal colors (with custom Orange/Indigo)
++ float ColorToPitch(EColor CreepColor)                        // Musical pitch shift for SFX (semitone steps)
++ EColor IndexToColor(int32 ColorIndex)                        // 1-7 → EColor (used in rifle/tool input)
++ bool GetHit(AActor* CallingActor, float InMaxRange, FHitResult& Hit, ECollisionChannel CollisionChannel)  // Player-view raycast helper (used by Rifle & CoreRemover)
+
+Notes:
+- Global utility namespace (no class, defined in header)
+- Heavily used by tools (Rifle, CoreRemover), generators (CreepCore, CreepShield), and world building
+- GetHit() is the central raycast function (different channels for core vs shield)
+- CardinalDirections & GetPerpendicularDirection used by UCreepRail for path math
+  
+  === ~/Widgets/UCreepPathWidget ===
+Parent Class: UUserWidget
+Category: Widget / UI / Shop
+
+Key Attributes:
+- + UPROPERTY() FOnCreepPathBackRequest OnBackToShop
+- + UPROPERTY() FOnCreepPathQuitRequest OnQuitToGame
+- + UPROPERTY(meta = (BindWidget)) UButton* BuyButton
+- + UPROPERTY(meta = (BindWidget)) UButton* SellButton
+- + UPROPERTY(meta = (BindWidget)) UButton* GoBackButton
+- + UPROPERTY(meta = (BindWidget)) UButton* QuitButton
+- + UPROPERTY() UCreepWayHandler* CreepWayHandler
+
+Key Methods:
++ virtual void NativeConstruct() override                    // Creates CreepWayHandler + binds all 4 buttons
++ UFUNCTION() void OnBuyClicked()                            // TrySpendMoney(100) → CreepWayHandler->BuildCreepWay()
++ UFUNCTION() void OnSellClicked()                           // CreepWayHandler->DestructCreepWay() + AddMoney(25)
++ UFUNCTION() void OnGoBackClicked()                         // Broadcasts OnBackToShop
++ UFUNCTION() void OnQuitClicked()                           // Broadcasts OnQuitToGame
+
+Notes:
+- Shop sub-widget for buying/selling creep path segments
+- Uses dynamic multicast delegates to communicate with AColorDefenseHUD
+- References UCreepWayHandler for Build/Destruct logic
+- Buy costs 100, Sell refunds 25
+
+=== ~/Widgets/AColorDefenseHUD ===
+Parent Class: AHUD
+Category: HUD / UI Manager
+
+Key Attributes:
+- + UPROPERTY(EditAnywhere, Category = "Setting") TSubclassOf<UMainHUDWidget> MainHUDClass
+- + UPROPERTY() UMainHUDWidget* MainHUDInstance
+- + bool bIsUIVisible = false
+
+Key Methods:
++ virtual void BeginPlay() override                          // Creates MainHUDInstance + binds ShopWidget & CreepPathWidget delegates
++ void ToggleMainHUD()                                       // Switches between GameplayUI ↔ Shop (input mode + mouse cursor)
++ UFUNCTION() void HandleShopToCreepPath() / HandleBackToShop() / HandleQuitToGame() / HandleGameOver()
+
+Notes:
+- Central HUD controller (owns MainHUDWidget)
+- Handles shop ↔ game ↔ creep-path navigation
+- Delegates from ShopWidget and CreepPathWidget route through here
+- Calls MainHUDInstance->ShowXXX() for layer switching
+- References MainHUDWidget, ShopWidget, CreepPathWidget, GameOverWidget
+
+=== ~/Widgets/UComboWidget ===
+Parent Class: UUserWidget
+Category: Widget / UI / Overlay
+
+Key Attributes:
+- + UPROPERTY(meta = (BindWidget)) UTextBlock* ComboText
+
+Key Methods:
++ virtual void NativeConstruct() override                    // Delayed 0.1s timer → BindDelegate()
++ UFUNCTION(BlueprintCallable) void UpdateComboText(int32 NewCombo)  // Shows/hides text + sets number
++ void BindDelegate()                                        // Binds GameState->OnComboChanged + initial update
+
+Notes:
+- Simple overlay widget that shows current combo count
+- Hidden when combo ≤ 0
+- Uses delayed binding (timer) to ensure GameState exists
+- BlueprintCallable for easy designer access
+  
+  === ~/Widgets/UHotbarWidget ===
+Parent Class: UUserWidget
+Category: Widget / UI / Inventory
+
+Key Attributes:
+- + const int32 SlotCount = 5
+- + UPROPERTY() UInventory* PlayerInventory = nullptr
+- + UPROPERTY(meta = (BindWidget)) UHorizontalBox* SlotsContainer
+- + UPROPERTY() TArray<UHotbarSlotWidget*> SlotWidgets
+
+Key Methods:
++ virtual void NativeConstruct() override
++ virtual void NativeDestruct() override                        // Unbinds OnInventoryChanged
++ void Initialize(UInventory* InInventory)                      // Creates 5 HotbarSlotWidget instances + binds delegate + Refresh
++ void RefreshHotbar()                                          // Calls Refresh() on every slot + UpdateSelectedSlot()
++ void UpdateSelectedSlot()                                     // Highlights the current HotbarSelectedIndex
++ UFUNCTION() void OnInventoryChanged()                         // Simple refresh on inventory change
+
+Notes:
+- Manages the 5-slot hotbar UI
+- Uses UHotbarSlotWidget for individual slots
+- Listens to UInventory::OnInventoryChanged
+- Drag-and-drop support comes from child slots
+- Most logic delegated to slot widgets
+
+=== ~/Widgets/UHotbarSlotWidget ===
+Parent Class: UUserWidget
+Category: Widget / UI / Inventory
+
+Key Attributes:
+- + UPROPERTY(meta = (BindWidget)) UImage* ItemIcon
+- + UPROPERTY(meta = (BindWidget)) UBorder* HighlightBorder
+- + UPROPERTY() UInventory* OwningInventory = nullptr
+- + int32 SlotIndex = -1
+
+Key Methods:
++ void Initialize(UInventory* InInventory, int32 InIndex)       // Stores references + initial Refresh()
++ void Refresh()                                                // (Currently commented — would set icon/quantity visibility)
++ void SetIsSelected(bool bIsSelected)                          // Changes HighlightBorder color (white = selected)
++ virtual FReply NativeOnMouseButtonDown(...) override          // Starts drag on Left Mouse Button
++ virtual void NativeOnDragDetected(...) override               // Creates DragDropOperation with this slot as Payload
++ virtual bool NativeOnDrop(...) override                       // Handles drop from another slot → calls OwningInventory->SwapSlots()
+
+Notes:
+- Individual hotbar slot (drag & drop enabled)
+- DragDropOperation carries the source slot for swapping
+- Refresh() is placeholder (icon logic commented out)
+- HighlightBorder shows current selection
+- Works with UHotbarWidget and UInventory
+
+=== ~/Widgets/UGameOverWidget ===
+Parent Class: UUserWidget
+Category: Widget / UI / Game Over
+
+Key Attributes:
+- + UPROPERTY(meta = (BindWidget)) UButton* GoMainMenuButton
+- + UPROPERTY(meta = (BindWidget)) UTextBlock* GameOverText
+
+Key Methods:
++ virtual void NativeConstruct() override                       // Binds GoMainMenuButton → OnGoMainMenuClicked
++ UFUNCTION() void OnGoMainMenuClicked()                        // UGameplayStatics::OpenLevel("MainMenu")
+
+Notes:
+- Simple game-over screen widget
+- Only one button: "Go to Main Menu"
+- Called by AColorDefenseHUD::HandleGameOver()
+- Loaded as part of MainHUDWidget layers
+  
+  === ~/Widgets/UHPWidget ===
+Parent Class: UUserWidget
+Category: Widget / UI / Overlay
+
+Key Attributes:
+- + UPROPERTY(meta = (BindWidget)) UTextBlock* HPText
+
+Key Methods:
++ virtual void NativeConstruct() override                    // Delayed 0.1s timer → BindDelegate()
++ UFUNCTION(BlueprintCallable) void UpdateHPText(int32 NewHP)  // Simple SetText with number
++ void BindDelegate()                                        // Binds GameState->OnHPChanged + initial update
+
+Notes:
+- Overlay widget that shows current base HP
+- Uses delayed binding (timer) to ensure GameState exists
+- BlueprintCallable for easy designer access
+- Mirrors ComboWidget pattern (same delayed delegate binding)
+
+=== ~/Widgets/UMainHUDWidget ===
+Parent Class: UUserWidget
+Category: Widget / UI / Container
+
+Key Attributes:
+- + UPROPERTY(meta = (BindWidget)) UShopWidget* ShopWidget
+- + UPROPERTY(meta = (BindWidget)) UCreepPathWidget* CreepPathWidget
+- + UPROPERTY(meta = (BindWidget)) UGameOverWidget* GameOverWidget
+- + UPROPERTY(meta = (BindWidget)) UWidgetSwitcher* UISwitcher
+
+Key Methods:
++ void ShowGameplayUI()                                      // Switches to index 0 (money/combo overlay)
++ void ShowShop()                                            // Switches to ShopWidget
++ void ShowCreepPath()                                       // Switches to CreepPathWidget
++ void ShowGameOver()                                        // Switches to GameOverWidget
+
+Notes:
+- Central container widget managed by AColorDefenseHUD
+- Uses WidgetSwitcher to swap between gameplay/shop/creep-path/game-over layers
+- All child widgets are bound via meta=(BindWidget)
+- Called by AColorDefenseHUD navigation handlers
+
+=== ~/Widgets/UHPBarWidget ===
+Parent Class: UUserWidget
+Category: Widget / UI / Creep
+
+Key Attributes:
+- + UPROPERTY(meta = (BindWidget)) UProgressBar* ProgressBarHP
+
+Key Methods:
++ virtual void NativeConstruct() override                    // Starts hidden
++ UFUNCTION(BlueprintCallable) void UpdateHealth(int32 CurrentHP, int32 MaxHP)  // Sets percent + shows when damaged
++ UFUNCTION(BlueprintCallable) void SetBarColor(FLinearColor NewColor)  // Dynamic color for shield (per-creep)
+
+Notes:
+- Attached to every ACreepShield (WidgetComponent)
+- Progress bar always faces camera
+- Hidden until first damage (CurrentHP < MaxHP)
+- Color set dynamically via CreepShield->ChangeColor()
+- Used for visual HP on creeps
+  
+  === ~/Widgets/UShopWidget ===
+Parent Class: UUserWidget
+Category: Widget / UI / Shop
+
+Key Attributes:
+- + UPROPERTY() FOnShopRequestCreepPath OnRequestCreepPath
+- + UPROPERTY() FOnShopQuitRequest OnRequestQuit
+- + UPROPERTY(meta = (BindWidget)) UButton* CreepPathButton
+- + UPROPERTY(meta = (BindWidget)) UButton* QuitButton
+
+Key Methods:
++ virtual void NativeConstruct() override                    // Binds CreepPathButton and QuitButton
++ UFUNCTION() void OnCreepPathClicked()                      // Broadcasts OnRequestCreepPath
++ UFUNCTION() void OnQuitClicked()                           // Broadcasts OnRequestQuit
+
+Notes:
+- Shop main screen widget
+- Uses dynamic multicast delegates to tell AColorDefenseHUD to switch to CreepPath or quit to game
+- Bound by AColorDefenseHUD in BeginPlay
+
+=== ~/Widgets/UMainMenuWidget ===
+Parent Class: UUserWidget
+Category: Widget / UI / Menu
+
+Key Attributes:
+- + UPROPERTY(meta = (BindWidget)) UButton* PlayButton
+- + UPROPERTY(meta = (BindWidget)) UButton* QuitButton
+
+Key Methods:
++ virtual void NativeConstruct() override                    // Binds PlayButton and QuitButton
++ UFUNCTION() void OnPlayClicked()                           // Opens "Level1"
++ UFUNCTION() void OnQuitClicked()                           // Quits game via UKismetSystemLibrary::QuitGame
+
+Notes:
+- Used by MainMenuGameMode (likely as root widget)
+- Simple start menu with Play → Level1 and Quit
+
+=== ~/Widgets/UMoneyWidget ===
+Parent Class: UUserWidget
+Category: Widget / UI / Overlay
+
+Key Attributes:
+- + UPROPERTY(meta = (BindWidget)) UTextBlock* MoneyText
+
+Key Methods:
++ virtual void NativeConstruct() override                    // Delayed 0.1s timer → BindDelegate()
++ UFUNCTION() void UpdateMoneyText(int32 NewMoney)           // Simple SetText with number
++ void BindDelegate()                                        // Binds GameState->OnMoneyChanged + initial update
+
+Notes:
+- Overlay widget showing current player money
+- Uses delayed binding (timer) to ensure GameState exists
+- BlueprintCallable style (matches ComboWidget and HPWidget pattern)

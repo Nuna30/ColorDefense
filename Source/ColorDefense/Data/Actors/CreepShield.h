@@ -61,10 +61,10 @@ public: // --- Features --- //
 
 public: // --- HP Bar --- //
 	UPROPERTY(EditAnywhere, Category = "Setting")
-    UWidgetComponent* HPBarComponent;
+    UWidgetComponent* HPBarWidgetComponent;
 
     UPROPERTY()
-    UHPBarWidget* HPBarWidgetInstance;
+    UHPBarWidget* HPBarWidget;
 
 public: // --- Utils --- //
 	void InitializeHPBarWidget();

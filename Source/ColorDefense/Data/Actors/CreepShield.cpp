@@ -16,10 +16,13 @@ ACreepShield::ACreepShield()
     RootComponent = CreepShield;
 
 	// HP BAR COMPONENT
-    HPBarComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("HPBarComponent"));
-    HPBarComponent->SetupAttachment(RootComponent);
-    HPBarComponent->SetWidgetSpace(EWidgetSpace::Screen);        // Always stares at camera.
-	HPBarComponent->SetWidgetClass(UHPBarWidget::StaticClass()); 
+    HPBarWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("HPBarWidgetComponent"));
+    HPBarWidgetComponent->SetupAttachment(RootComponent);
+	HPBarWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen); // Always stares at camera. (Need to set up here)
+	HPBarWidgetComponent->SetWidgetClass(UHPBarWidget::StaticClass()); 
+	HPBarWidgetComponent->SetDrawSize(FVector2D(280.f, 36.f));
+    HPBarWidgetComponent->SetRelativeLocation(FVector(0.f, 0.f, 2.f)); // 120cm above Shield
+    HPBarWidgetComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void ACreepShield::BeginPlay()
@@ -73,7 +76,7 @@ void ACreepShield::OnHit(int32 Damage)
 	CurrentShieldHP -= Damage;
 
 	// Update HP Bar.
-	HPBarWidgetInstance->UpdateHealth(CurrentShieldHP, 10);
+	HPBarWidget->UpdateHealth(CurrentShieldHP, 10);
 
 	// Destroy if HP zero.
 	if (CurrentShieldHP <= 0) HandleDestruction();
@@ -120,14 +123,8 @@ void ACreepShield::HandleDestruction()
 // ================= //
 void ACreepShield::InitializeHPBarWidget()
 {
-    HPBarComponent->SetDrawSize(FVector2D(280.f, 36.f));
-    HPBarComponent->SetRelativeLocation(FVector(0.f, 0.f, 2.f)); // 120cm above Shield
-    HPBarComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-	HPBarWidgetInstance = Cast<UHPBarWidget>(HPBarComponent->GetUserWidgetObject());
-	HPBarWidgetInstance->UpdateHealth(CurrentShieldHP, MaxHP);  
-	FLinearColor BarColor = Utils::GetLinearColor(CreepShieldColor);
-	HPBarWidgetInstance->SetBarColor(BarColor);
+	HPBarWidget = Cast<UHPBarWidget>(HPBarWidgetComponent->GetUserWidgetObject());
+	HPBarWidget->UpdateHealth(CurrentShieldHP, MaxHP);  
 }
 
 

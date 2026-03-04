@@ -91,7 +91,9 @@ void APlayerCharacter::Jump()
 	ACharacter::Jump();
 }
 
-// --- Shopping --- //
+// ==================== //
+// ===== Shopping ===== //
+// ==================== //
 
 void APlayerCharacter::ToggleShop()
 {
@@ -105,4 +107,9 @@ void APlayerCharacter::ToggleShop()
             HUD->ToggleMainHUD(); 
         }
     }
+}
+
+void APlayerCharacter::ToggleInventory()
+{
+
 }
