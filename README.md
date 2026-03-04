@@ -1,7 +1,7 @@
 # [ Class Diagram ]
 <details>
   <summary> Class Diagram Image </summary>
-  <p><img src="images/ClassDiagram.png"></p>
+  <p><img src="images/ClassDiagramV3.png"></p>
 </details>
 
 # [ Demo gifs ]
@@ -36,5 +36,9 @@
 <details>
   <summary> Creep Shield </summary>
   <p><img src="images/DamageCreepShield.gif"></p>
+</details>
+<details>
+  <summary> HP Bar </summary>
+  <p><img src="images/HPBar.gif"></p>
 </details>
 
