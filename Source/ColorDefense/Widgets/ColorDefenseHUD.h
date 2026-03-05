@@ -16,9 +16,11 @@ public:
     UPROPERTY()
     class UMainHUDWidget* MainHUDInstance;
 
-public:
-    void ToggleMainHUD();
+public: // --- Toggle --- //
     bool bIsUIVisible = false;
+
+    void ToggleShopHUD();
+    void ToggleInventoryHUD();
 
 public:
     // Internal "Routing" functions for the buttons

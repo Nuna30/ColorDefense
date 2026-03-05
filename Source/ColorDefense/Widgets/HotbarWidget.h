@@ -1,11 +1,8 @@
 #pragma once
 
-#include "Widgets/HotbarSlotWidget.h"
-#include "Data/ActorComponents/Inventory.h"
-#include "Components/HorizontalBox.h"
-
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/Image.h"
 #include "HotbarWidget.generated.h"
 
 UCLASS()
@@ -13,33 +10,55 @@ class COLORDEFENSE_API UHotbarWidget : public UUserWidget
 {
     GENERATED_BODY()
     virtual void NativeConstruct() override;
-    virtual void NativeDestruct() override;
 
 public: // --- Properties --- //
-    const int32 SlotCount = 5;
-
-public: // --- Synchronization --- //
     UPROPERTY()
-    UInventory* PlayerInventory = nullptr;
+    class AToolBox* ToolBoxRef;
 
-public: // --- Features --- //
-    UFUNCTION()
-    void Initialize(UInventory* InInventory);
-
-    UFUNCTION()
-    void RefreshHotbar();
-
-    UFUNCTION()
-    void UpdateSelectedSlot();
-
-public: // --- Slot system --- //
+public: // --- Highlighting --- //
     UPROPERTY(meta = (BindWidget))
-    UHorizontalBox* SlotsContainer;
+    UImage* HighLight1;
+
+    UPROPERTY(meta = (BindWidget))
+    UImage* HighLight2;
+
+    UPROPERTY(meta = (BindWidget))
+    UImage* HighLight3;
+
+    UPROPERTY(meta = (BindWidget))
+    UImage* HighLight4;
+
+    UPROPERTY(meta = (BindWidget))
+    UImage* HighLight5;
 
     UPROPERTY()
-    TArray<UHotbarSlotWidget*> SlotWidgets;
+    TArray<UImage*> HighlightArray;
 
-public: // --- Events --- //
     UFUNCTION()
-    void OnInventoryChanged();
+    void OnToolChanged(int32 NewIndex);
+
+public: // --- Slot IconImages --- //
+    UPROPERTY(meta = (BindWidget))
+    UImage* IconImage1;
+
+    UPROPERTY(meta = (BindWidget))
+    UImage* IconImage2;
+
+    UPROPERTY(meta = (BindWidget))
+    UImage* IconImage3;
+
+    UPROPERTY(meta = (BindWidget))
+    UImage* IconImage4;
+
+    UPROPERTY(meta = (BindWidget))
+    UImage* IconImage5;
+
+    UPROPERTY()
+    TArray<UImage*> IconImageArray;
+
+    UFUNCTION()
+    void UpdateIconImages();
+
+public: // --- Utils --- //
+    void SetSelectedSlot(int32 Index);
 };

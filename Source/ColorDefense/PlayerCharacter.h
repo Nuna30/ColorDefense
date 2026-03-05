@@ -40,11 +40,15 @@ public: // --- Action --- //
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
     UInputMappingContext* DefaultMappingContext;
 
-public: // --- Shopping --- //
+public: // --- HUD --- //
     UPROPERTY(EditAnywhere, Category = "Input")
     class UInputAction* ToggleShopAction;
 
+    UPROPERTY(EditAnywhere, Category = "Input")
+    class UInputAction* ToggleInventoryAction;
+
     void ToggleShop();
+    void ToggleInventory();
 
 public:
 	// Called to bind functionality to input

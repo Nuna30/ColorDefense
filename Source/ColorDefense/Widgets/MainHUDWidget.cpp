@@ -1,6 +1,7 @@
 #include "MainHUDWidget.h"
 #include "Components/WidgetSwitcher.h"
-#include "ShopWidget.h"
+#include "Widgets/ShopWidget.h"
+#include "Widgets/InventoryWidget.h"
 #include "CreepPathWidget.h"
 #include "GameOverWidget.h"
 
@@ -19,6 +20,14 @@ void UMainHUDWidget::ShowShop()
     if (UISwitcher && ShopWidget)
     {
         UISwitcher->SetActiveWidget(ShopWidget);
+    }
+}
+
+void UMainHUDWidget::ShowInventory()
+{
+    if (UISwitcher && InventoryWidget)
+    {
+        UISwitcher->SetActiveWidget(InventoryWidget);
     }
 }
 

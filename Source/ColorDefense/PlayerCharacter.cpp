@@ -61,8 +61,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
     // Set up the enhanced input component.
     if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
     {
-        // Shopping
         EnhancedInputComponent->BindAction(ToggleShopAction, ETriggerEvent::Started, this, &APlayerCharacter::ToggleShop);
+        EnhancedInputComponent->BindAction(ToggleInventoryAction, ETriggerEvent::Started, this, &APlayerCharacter::ToggleInventory);
     }
 }
 
@@ -92,7 +92,7 @@ void APlayerCharacter::Jump()
 }
 
 // ==================== //
-// ===== Shopping ===== //
+// ===== HUD ===== //
 // ==================== //
 
 void APlayerCharacter::ToggleShop()
@@ -104,12 +104,19 @@ void APlayerCharacter::ToggleShop()
         if (AColorDefenseHUD* HUD = PC->GetHUD<AColorDefenseHUD>())
         {
             // We will create this function in the HUD next
-            HUD->ToggleMainHUD(); 
+            HUD->ToggleShopHUD(); 
         }
     }
 }
 
 void APlayerCharacter::ToggleInventory()
 {
-
+    if (APlayerController* PC = Cast<APlayerController>(GetController()))
+    {
+        if (AColorDefenseHUD* HUD = PC->GetHUD<AColorDefenseHUD>())
+        {
+            // We will create this function in the HUD next
+            HUD->ToggleInventoryHUD(); 
+        }
+    }
 }

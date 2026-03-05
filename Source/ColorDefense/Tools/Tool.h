@@ -31,6 +31,9 @@ public: // --- Mesh --- //
 public: // --- Properties --- //
     EColor CurrentColor;
 
+    UPROPERTY(EditAnywhere, Category="Setting")
+    UTexture2D* IconTexture2D;
+
 public: // --- Base functions --- //
     ATool(); 
     virtual void BeginPlay() override; 

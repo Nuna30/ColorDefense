@@ -23,23 +23,52 @@ void AColorDefenseHUD::BeginPlay()
     MainHUDInstance->CreepPathWidget->OnQuitToGame.AddDynamic(this, &AColorDefenseHUD::HandleQuitToGame);
 }
 
-void AColorDefenseHUD::ToggleMainHUD()
+// ====================== //
+// ===== Toggle HUD ===== //
+// ====================== //
+
+void AColorDefenseHUD::ToggleShopHUD()
 {
-    if (!MainHUDInstance) return;
-    APlayerController* PC = GetOwningPlayerController();
-
+    // Toggle
     bIsUIVisible = !bIsUIVisible;
-
+    
+    // Show Inventory
+    APlayerController* PC = GetOwningPlayerController();
     if (bIsUIVisible)
     {
-        MainHUDInstance->ShowShop(); // Show the shop layer
+        MainHUDInstance->ShowShop();
         PC->bShowMouseCursor = true;
         FInputModeGameAndUI InputMode;
         PC->SetInputMode(InputMode);
     }
+    // Or Show GamePlayUI
     else
     {
-        MainHUDInstance->ShowGameplayUI(); // Go back to money/combo layer
+        MainHUDInstance->ShowGameplayUI();
+        PC->bShowMouseCursor = false;
+        FInputModeGameOnly InputMode;
+        PC->SetInputMode(InputMode);
+    }
+}
+
+void AColorDefenseHUD::ToggleInventoryHUD()
+{
+    // Toggle
+    bIsUIVisible = !bIsUIVisible;
+    
+    // Show Inventory
+    APlayerController* PC = GetOwningPlayerController();
+    if (bIsUIVisible)
+    {
+        MainHUDInstance->ShowInventory();
+        PC->bShowMouseCursor = true;
+        FInputModeGameAndUI InputMode;
+        PC->SetInputMode(InputMode);
+    }
+    // Or Show GamePlayUI
+    else
+    {
+        MainHUDInstance->ShowGameplayUI();
         PC->bShowMouseCursor = false;
         FInputModeGameOnly InputMode;
         PC->SetInputMode(InputMode);

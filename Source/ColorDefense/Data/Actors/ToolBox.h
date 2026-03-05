@@ -20,7 +20,6 @@
 #include "GameFramework/Actor.h"
 #include "ToolBox.generated.h"
 
-
 UCLASS()
 class COLORDEFENSE_API AToolBox : public AActor
 {
@@ -30,6 +29,12 @@ public: // --- Base functions --- //
 	AToolBox();
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
+
+public: // --- //
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnToolChanged, int32, NewIndex); // Primarily used in PlayerCharacter.
+
+	UPROPERTY()
+	FOnToolChanged OnToolChanged;
 
 public:  // --- Tools --- //
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Setting")

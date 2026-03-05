@@ -112,6 +112,9 @@ void AToolBox::HandleSwitchTool(const FInputActionValue& Value)
     ATool* NewTool = nullptr;
     EPlayerState NewState = CurrentState;
 
+    // Broadcast new switched tool.
+    OnToolChanged.Broadcast(ToolIndex - 1);
+
     switch (ToolIndex)
     {
         case 1:

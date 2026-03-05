@@ -14,6 +14,9 @@ public:
     class UShopWidget* ShopWidget;
 
     UPROPERTY(meta = (BindWidget))
+    class UInventoryWidget* InventoryWidget;
+
+    UPROPERTY(meta = (BindWidget))
     class UCreepPathWidget* CreepPathWidget;
 
     UPROPERTY(meta = (BindWidget))
@@ -25,7 +28,8 @@ public:
 
 public:
     void ShowGameplayUI();
-    void ShowShop();
-    void ShowCreepPath();
+        void ShowShop();
+            void ShowCreepPath();
+        void ShowInventory();
     void ShowGameOver();
 };
