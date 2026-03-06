@@ -8,6 +8,8 @@
 ARifle::ARifle()
 {
 	PrimaryActorTick.bCanEverTick = true;
+
+    RecoilComponent = CreateDefaultSubobject<URecoil>(TEXT("RecoilComponent"));
 }
 
 void ARifle::BeginPlay()
@@ -54,6 +56,7 @@ void ARifle::StartFiring()
 
 void ARifle::StopFiring()
 {
+    RecoilComponent->ResetRecoil();
     GetWorldTimerManager().ClearTimer(AutoFireTimerHandle);
 }
 
@@ -69,6 +72,21 @@ void ARifle::UnEquip()
 
 void ARifle::Fire()
 {
+    // Animation (blueprint event)
+    OnShoot();
+
+    // Fire SFX
+    UGameplayStatics::PlaySoundAtLocation(
+		GetWorld(),                   
+		FireSFX,         
+		GetActorLocation(),      
+		1.0f,                
+		1.0f 
+	);
+
+    // Apply Recoil
+    RecoilComponent->ApplyRecoil();
+
 	// Hit the shield.
     FHitResult Hit;
     if (!Utils::GetHit(this, MaxRange, Hit, ECollisionChannel::ECC_GameTraceChannel3)) return;
@@ -79,9 +97,6 @@ void ARifle::Fire()
     if (HitCreepShield->CreepShieldColor != CurrentColor) return;
 
     HitCreepShield->OnHit(Damage);
-
-    // Animation (blueprint event)
-    OnShoot();
 }
 
 void ARifle::ChangeColor(EColor NewColor)

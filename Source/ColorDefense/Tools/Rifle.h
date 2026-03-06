@@ -5,6 +5,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Data/Actors/CreepShield.h"
 #include "TimerManager.h"
+#include "Data/ActorComponents/Recoil.h"
 
 #include "GameStates/ColorDefenseGameState.h"
 #include "CoreMinimal.h"
@@ -29,6 +30,12 @@ public: // --- Fire --- //
 
 	UPROPERTY(EditAnywhere, Category = "Setting")
 	float Damage = 1;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	URecoil* RecoilComponent;
+
+    UPROPERTY(EditAnywhere, Category = "Setting")
+    TObjectPtr<USoundBase> FireSFX; 
 
     // --- Timer --- //
     FTimerHandle AutoFireTimerHandle;
