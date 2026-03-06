@@ -45,7 +45,7 @@ public: // --- Handle Mouse Input --- //
     virtual void RightClick();
 
 public: // --- Utils --- //
-    virtual void SwitchToolFrom(ATool*& CurrentTool);
+    virtual void SwitchVisibleActorFrom(ATool*& CurrentTool);
     virtual void UnEquip();
 
 public: // --- Features --- //

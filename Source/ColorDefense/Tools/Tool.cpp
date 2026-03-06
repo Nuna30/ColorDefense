@@ -47,11 +47,10 @@ void ATool::RightClick()
 // ===== Utils ===== //
 // ================= //
 
-void ATool::SwitchToolFrom(ATool*& CurrentTool) 
+void ATool::SwitchVisibleActorFrom(ATool*& CurrentTool) 
 {
 	CurrentTool->SetActorHiddenInGame(true);
 	SetActorHiddenInGame(false);
-	CurrentTool = this;
 }
 
 void ATool::UnEquip()

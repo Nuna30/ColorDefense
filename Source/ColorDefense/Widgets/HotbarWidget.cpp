@@ -1,6 +1,4 @@
 #include "HotbarWidget.h"
-#include "PlayerCharacter.h"
-#include "Data/Actors/ToolBox.h"
 
 // ====================== //
 // ===== Base Class ===== //
@@ -18,13 +16,22 @@ void UHotbarWidget::NativeConstruct()
     if (HighLight4) HighlightArray.Add(HighLight4);
     if (HighLight5) HighlightArray.Add(HighLight5);
 
-    // Put IconImages into an array
-    IconImageArray.Empty();
-    if (IconImage1) IconImageArray.Add(IconImage1);
-    if (IconImage2) IconImageArray.Add(IconImage2);
-    if (IconImage3) IconImageArray.Add(IconImage3);
-    if (IconImage4) IconImageArray.Add(IconImage4);
-    if (IconImage5) IconImageArray.Add(IconImage5);
+    // Put SlotWidgets into an array
+    SlotWidgetArray.Empty();
+    if (SlotWidget1) SlotWidgetArray.Add(SlotWidget1);
+    if (SlotWidget2) SlotWidgetArray.Add(SlotWidget2);
+    if (SlotWidget3) SlotWidgetArray.Add(SlotWidget3);
+    if (SlotWidget4) SlotWidgetArray.Add(SlotWidget4);
+    if (SlotWidget5) SlotWidgetArray.Add(SlotWidget5);
+
+    for (int32 i = 0; i < SlotWidgetArray.Num(); i++)
+    {
+        if (SlotWidgetArray[i])
+        {
+            SlotWidgetArray[i]->SlotIndex = i;
+            SlotWidgetArray[i]->OwnerHotbar = this;   // Needed in the drag & drop system.
+        }
+    }
 
     // Get ToolBox and bind delegate.
     if (APlayerCharacter* Player = Cast<APlayerCharacter>(GetOwningPlayerPawn()))
@@ -33,12 +40,13 @@ void UHotbarWidget::NativeConstruct()
         {
             ToolBoxRef = ToolBox;
             ToolBoxRef->OnToolChanged.AddDynamic(this, &UHotbarWidget::OnToolChanged);
+            ToolBoxRef->OnToolHoldInfoUpdated.AddDynamic(this, &UHotbarWidget::UpdateAllSlots);
         }
     }
 
     SetSelectedSlot(0);
 
-    GetWorld()->GetTimerManager().SetTimerForNextTick(this, &UHotbarWidget::UpdateIconImages);   // ← Show icons immediately
+    GetWorld()->GetTimerManager().SetTimerForNextTick(this, &UHotbarWidget::UpdateAllSlots);   // ← Show icons immediately
 }
 
 void UHotbarWidget::OnToolChanged(int32 NewIndex)
@@ -46,37 +54,33 @@ void UHotbarWidget::OnToolChanged(int32 NewIndex)
     SetSelectedSlot(NewIndex);
 }
 
-// ============================ //
-// ===== Slot IconImages ====== //
-// ============================ //
+// ================== //
+// ===== Slots ====== //
+// ================== //
 
-void UHotbarWidget::UpdateIconImages()
+void UHotbarWidget::UpdateAllSlots()
 {
-    for (int32 i = 0; i < IconImageArray.Num(); i++)
+    for (int32 i = 0; i < SlotWidgetArray.Num(); i++)
     {
-        ATool* Tool = ToolBoxRef->ToolBox.IsValidIndex(i) ? ToolBoxRef->ToolBox[i] : nullptr;
-
-        if (!Tool) UE_LOG(LogTemp, Warning, TEXT("Tool nullptr"));
-
-        if (Tool && Tool->IconTexture2D)
+        if (ToolBoxRef->HoldInfoArray.IsValidIndex(i))
         {
-            UE_LOG(LogTemp, Warning, TEXT("Update Icon Images!"));
-            IconImageArray[i]->SetBrushFromTexture(Tool->IconTexture2D);
-            IconImageArray[i]->SetOpacity(1.0f);
-            IconImageArray[i]->SetVisibility(ESlateVisibility::Visible);
-        }
-        else
-        {
-            // Empty slot
-            UE_LOG(LogTemp, Warning, TEXT("Empty slot..."));
-            IconImageArray[i]->SetVisibility(ESlateVisibility::Hidden);
+            if (ATool* Tool = ToolBoxRef->HoldInfoArray[i].Tool)
+            {
+                SlotWidgetArray[i]->UpdateSlot(Tool);
+            }
         }
     }
 }
 
-// ================== //
-// ===== Utils ====== //
-// ================== //
+void UHotbarWidget::SwapSlots(int32 FromIndex, int32 ToIndex)
+{
+    ToolBoxRef->SwapTools(FromIndex, ToIndex);
+    UpdateAllSlots();
+}
+
+// ================= //
+// ===== Utils ===== //
+// ================= //
 
 void UHotbarWidget::SetSelectedSlot(int32 Index)
 {
@@ -88,3 +92,4 @@ void UHotbarWidget::SetSelectedSlot(int32 Index)
         }
     }
 }
+

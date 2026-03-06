@@ -20,6 +20,19 @@
 #include "GameFramework/Actor.h"
 #include "ToolBox.generated.h"
 
+USTRUCT()
+struct FHoldInfo
+{
+    GENERATED_BODY()
+
+    UPROPERTY()
+    ATool* Tool;
+
+    UPROPERTY()
+    EPlayerState PlayerState;
+};
+
+
 UCLASS()
 class COLORDEFENSE_API AToolBox : public AActor
 {
@@ -30,11 +43,21 @@ public: // --- Base functions --- //
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
-public: // --- //
+public: // --- Properties --- //
+    UPROPERTY()
+    TArray<FHoldInfo> HoldInfoArray;
+
+    UPROPERTY()
+    FHoldInfo CurrentHoldInfo;
+
+public: // --- Delegate --- //
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnToolChanged, int32, NewIndex); // Primarily used in PlayerCharacter.
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnToolHoldInfoUpdated);
 
 	UPROPERTY()
 	FOnToolChanged OnToolChanged;
+	UPROPERTY()
+	FOnToolHoldInfoUpdated OnToolHoldInfoUpdated;
 
 public:  // --- Tools --- //
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Setting")
@@ -61,17 +84,6 @@ public:  // --- Tools --- //
 	// UPROPERTY()
 	// ATurret* Turret;
 
-public: // --- Tool Box --- //
-    UPROPERTY()
-    TArray<ATool*> ToolBox;
-
-public: // --- Properties --- //
-    UPROPERTY()
-    ATool* CurrentTool; 
-
-    UPROPERTY()
-    EPlayerState CurrentState;
-
 public: // --- Bind Mapping --- //
 
 	// --- Input Actions --- //
@@ -83,7 +95,7 @@ public: // --- Bind Mapping --- //
 
 	// --- Input Binding --- //
 	void BindActions(UInputComponent* PlayerInputComponent, class APlayerCharacter* OwnerCharacter);
-	void BindCoreRemoverActionsEnhanced(class APlayerCharacter* OwnerCharacter);
+	void BindToolActionsEnhanced(class APlayerCharacter* OwnerCharacter);
 	    
 	// --- Handlers --- //
 	void HandleLeftClick();
@@ -91,4 +103,8 @@ public: // --- Bind Mapping --- //
 	void HandleRightClick();
     void HandleChangeColor(const FInputActionValue& Value);
     void HandleSwitchTool(const FInputActionValue& Value);
+
+public: // --- Utils --- //
+	void SwapTools(int32 IndexA, int32 IndexB);
+	void SwitchTools(int32 NewToolIndex);
 };

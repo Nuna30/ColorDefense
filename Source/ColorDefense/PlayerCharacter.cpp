@@ -56,7 +56,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
     // Set up the ToolBox Input Component.
     AToolBox* ToolBox = Cast<AToolBox>(ToolBoxComponent->GetChildActor());
     ToolBox->BindActions(PlayerInputComponent, this);
-    ToolBox->BindCoreRemoverActionsEnhanced(this);
+    ToolBox->BindToolActionsEnhanced(this);
 
     // Set up the enhanced input component.
     if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))

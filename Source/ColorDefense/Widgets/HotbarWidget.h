@@ -1,8 +1,12 @@
 #pragma once
 
+#include "Components/Image.h"
+#include "PlayerCharacter.h"
+#include "Data/Actors/ToolBox.h"
+#include "Widgets/ToolSlotWidget.h"
+
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "Components/Image.h"
 #include "HotbarWidget.generated.h"
 
 UCLASS()
@@ -37,27 +41,48 @@ public: // --- Highlighting --- //
     UFUNCTION()
     void OnToolChanged(int32 NewIndex);
 
-public: // --- Slot IconImages --- //
+public: // --- IconImages --- //
+    // UPROPERTY(meta = (BindWidget))
+    // UImage* IconImage1;
+
+    // UPROPERTY(meta = (BindWidget))
+    // UImage* IconImage2;
+
+    // UPROPERTY(meta = (BindWidget))
+    // UImage* IconImage3;
+
+    // UPROPERTY(meta = (BindWidget))
+    // UImage* IconImage4;
+
+    // UPROPERTY(meta = (BindWidget))
+    // UImage* IconImage5;
+
+    // UPROPERTY()
+    // TArray<UImage*> IconImageArray;
+
+public: // --- Slots --- //
     UPROPERTY(meta = (BindWidget))
-    UImage* IconImage1;
+    UToolSlotWidget* SlotWidget1;
 
     UPROPERTY(meta = (BindWidget))
-    UImage* IconImage2;
+    UToolSlotWidget* SlotWidget2;
 
     UPROPERTY(meta = (BindWidget))
-    UImage* IconImage3;
+    UToolSlotWidget* SlotWidget3;
 
     UPROPERTY(meta = (BindWidget))
-    UImage* IconImage4;
+    UToolSlotWidget* SlotWidget4;
 
     UPROPERTY(meta = (BindWidget))
-    UImage* IconImage5;
+    UToolSlotWidget* SlotWidget5;
 
     UPROPERTY()
-    TArray<UImage*> IconImageArray;
+    TArray<UToolSlotWidget*> SlotWidgetArray;
 
     UFUNCTION()
-    void UpdateIconImages();
+    void UpdateAllSlots();
+
+    void SwapSlots(int32 FromIndex, int32 ToIndex);
 
 public: // --- Utils --- //
     void SetSelectedSlot(int32 Index);

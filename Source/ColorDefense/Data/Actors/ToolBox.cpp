@@ -2,6 +2,10 @@
 #include "Utils/Utils.h"
 #include "PlayerCharacter.h"
 
+// ========================== //
+// ===== Base Functions ===== //
+// ========================== //
+
 AToolBox::AToolBox()
 {
 	PrimaryActorTick.bCanEverTick = false;
@@ -36,30 +40,35 @@ void AToolBox::BeginPlay()
 	// PlayerBlock = Cast<APlayerBlock>(PlayerBlockComponent->GetChildActor());
 	// Turret = Cast<ATurret>(TurretComponent->GetChildActor());
 
-    // Put the tools in the box.
-    ToolBox.Add(CoreRemover);
-    ToolBox.Add(Rifle);
+    // Make the HoldInfo.
+    FHoldInfo CoreRemoverHoldInfo = FHoldInfo(CoreRemover, EPlayerState::HoldingCoreRemover);
+    FHoldInfo RifleHoldInfo = FHoldInfo(Rifle, EPlayerState::HoldingRifle);
+
+    // Put the HoldInfos in the box.
+    HoldInfoArray.Add(CoreRemoverHoldInfo);
+    HoldInfoArray.Add(RifleHoldInfo);
 	// ToolBox.Add(PlayerBlock);
 	// ToolBox.Add(Turret);
 
     // Initialize Tools
-    for (ATool* Tool : ToolBox)
+    for (FHoldInfo& HoldInfo : HoldInfoArray)
     {
-        // Tool->SetOwner(this);
-        Tool->UnEquip();
+        HoldInfo.Tool->UnEquip();
     }
 
 	// Set up the States
-    CurrentState = EPlayerState::HoldingCoreRemover;
-    CurrentTool = CoreRemover;
-    CurrentTool->SwitchToolFrom(CurrentTool);
-
+    CurrentHoldInfo = CoreRemoverHoldInfo;
+    CurrentHoldInfo.Tool->SwitchVisibleActorFrom(CurrentHoldInfo.Tool);
 }
 
 void AToolBox::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
+
+// ========================= //
+// ===== Bind Mappings ===== //
+// ========================= //
 
 void AToolBox::BindActions(UInputComponent* PlayerInputComponent, APlayerCharacter* OwnerCharacter)
 {
@@ -68,7 +77,7 @@ void AToolBox::BindActions(UInputComponent* PlayerInputComponent, APlayerCharact
 	PlayerInputComponent->BindAction(TEXT("RightClick"),  EInputEvent::IE_Pressed,  this, &AToolBox::HandleRightClick);
 }
 
-void AToolBox::BindCoreRemoverActionsEnhanced(APlayerCharacter* OwnerCharacter)
+void AToolBox::BindToolActionsEnhanced(APlayerCharacter* OwnerCharacter)
 {
 	// Get the Enhanced Input Component from the owning PlayerCharacter
 	UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(OwnerCharacter->InputComponent);
@@ -80,71 +89,61 @@ void AToolBox::BindCoreRemoverActionsEnhanced(APlayerCharacter* OwnerCharacter)
 
 void AToolBox::HandleLeftClick()
 {
-    CurrentTool->LeftClick();
+    CurrentHoldInfo.Tool->LeftClick();
 }
 
 void AToolBox::HandleLeftClickReleased()
 {
-	CurrentTool->LeftClickReleased();
+	CurrentHoldInfo.Tool->LeftClickReleased();
 }
 
 void AToolBox::HandleRightClick()
 {
-    CurrentTool->RightClick(); 
+    CurrentHoldInfo.Tool->RightClick(); 
 }
 
 void AToolBox::HandleChangeColor(const FInputActionValue& Value)
 {
-    // We get a float from the input (1.0 for Key 1, 2.0 for Key 2, etc.)
+    // Get a float from the input (1.0 for Key 1, 2.0 for Key 2, etc.)
     float InputValue = Value.Get<float>();
-    UE_LOG(LogTemp, Warning, TEXT("InputValue : %.5f"), InputValue);
     int32 ColorIndex = InputValue;
     EColor NewColor = Utils::IndexToColor(ColorIndex);
 
-	CurrentTool->ChangeColor(NewColor);
+    // Change current color.
+	CurrentHoldInfo.Tool->ChangeColor(NewColor);
 }
 
 void AToolBox::HandleSwitchTool(const FInputActionValue& Value)
 {
     float InputValue = Value.Get<float>();
-    int32 ToolIndex = FMath::FloorToInt(InputValue);
+    int32 NewToolIndex = FMath::FloorToInt(InputValue);
+    NewToolIndex--;
 
-    ATool* NewTool = nullptr;
-    EPlayerState NewState = CurrentState;
+    SwitchTools(NewToolIndex);
+}
 
-    // Broadcast new switched tool.
-    OnToolChanged.Broadcast(ToolIndex - 1);
+// ================= //
+// ===== Utils ===== //
+// ================= //
 
-    switch (ToolIndex)
-    {
-        case 1:
-            NewTool = CoreRemover;
-            NewState = EPlayerState::HoldingCoreRemover;
-            break;
-        case 2:
-            NewTool = Rifle;
-            NewState = EPlayerState::HoldingRifle;
-            break;
-        case 3:
-            // NewTool = PlayerBlock;
-            // NewState = EPlayerState::HoldingBlock;
-            break;
-        case 4:
-            // NewTool = Turret;
-            // NewState = EPlayerState::HoldingTurret;
-            break;
+void AToolBox::SwapTools(int32 IndexA, int32 IndexB)
+{
+    HoldInfoArray.Swap(IndexA, IndexB);
+    SwitchTools(IndexB);
+    OnToolHoldInfoUpdated.Broadcast();
+}
 
-        default:
-            return; // Invalid index
-    }
+void AToolBox::SwitchTools(int32 NewToolIndex)
+{
+    if (!HoldInfoArray.IsValidIndex(NewToolIndex)) return;
 
-    // Only switch if it's a different tool
-    if (NewTool && NewTool != CurrentTool)
-    {
-        NewTool->SwitchToolFrom(CurrentTool);
-        CurrentTool = NewTool;
-        CurrentState = NewState;
+    // New Tool
+    FHoldInfo NewHoldInfo = HoldInfoArray[NewToolIndex];
 
-        // Optional: play a nice "tool swapped" sound or VFX here later
-    }
+    // Switch tools.
+    NewHoldInfo.Tool->SwitchVisibleActorFrom(CurrentHoldInfo.Tool);
+    CurrentHoldInfo = NewHoldInfo;
+
+    // Broadcast ToolChanged.
+    OnToolChanged.Broadcast(NewToolIndex);
 }
