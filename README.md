@@ -4,13 +4,13 @@
   <p><img src="images/ClassDiagramV3.png"></p>
 </details>
 
-# [ Demo gifs ]
+# [ Devlog gifs ]
 <details>
   <summary> Shoot Creeps </summary>
   <p><img src="images/ShootCreeps.gif"></p>
 </details>
 <details>
-  <summary> Generate CreepWay </summary>
+  <summary> Generate CreepPath </summary>
   <p><img src="images/CreepWay Generation.gif"></p>
 </details>
 <details>
@@ -40,5 +40,13 @@
 <details>
   <summary> HP Bar </summary>
   <p><img src="images/HPBar.gif"></p>
+</details>
+<details>
+  <summary> Gun Recoil </summary>
+  <p><img src="images/Recoil.gif"></p>
+</details>
+<details>
+  <summary> Flying </summary>
+  <p><img src="images/Flying.gif"></p>
 </details>
 
