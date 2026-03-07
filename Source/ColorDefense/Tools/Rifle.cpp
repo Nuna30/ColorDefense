@@ -91,6 +91,20 @@ void ARifle::Fire()
     FHitResult Hit;
     if (!Utils::GetHit(this, MaxRange, Hit, ECollisionChannel::ECC_GameTraceChannel3)) return;
 
+    // Spawn bullet hit VFX.
+	UNiagaraComponent* SpawnedEffect = UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+		GetWorld(),
+		BulletHitVFX,
+		Hit.ImpactPoint + Hit.ImpactNormal * 3.0f, // Tiny offset so the effect doesn't sink into the shield
+		Hit.ImpactNormal.Rotation(), // Rotate the effect to face the surface (makes sparks/dust look correct)
+		FVector(1.0f),              
+		true                                 
+	);
+
+    // Change bullet hit vfx color.
+    FLinearColor TargetColor = Utils::GetLinearColor(Super::CurrentColor);
+	SpawnedEffect->SetVariableLinearColor(FName("User.Linear Color"), TargetColor);
+
 	// Check the color.
     ACreepShield* HitCreepShield = Cast<ACreepShield>(Hit.GetActor());
     if (!HitCreepShield) return;

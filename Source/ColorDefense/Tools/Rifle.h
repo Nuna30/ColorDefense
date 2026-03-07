@@ -6,6 +6,7 @@
 #include "Data/Actors/CreepShield.h"
 #include "TimerManager.h"
 #include "Data/ActorComponents/Recoil.h"
+#include "NiagaraFunctionLibrary.h" 
 
 #include "GameStates/ColorDefenseGameState.h"
 #include "CoreMinimal.h"
@@ -36,6 +37,9 @@ public: // --- Fire --- //
 
     UPROPERTY(EditAnywhere, Category = "Setting")
     TObjectPtr<USoundBase> FireSFX; 
+
+    UPROPERTY(EditAnywhere, Category = "Setting")
+    TObjectPtr<UNiagaraSystem> BulletHitVFX;
 
     // --- Timer --- //
     FTimerHandle AutoFireTimerHandle;
