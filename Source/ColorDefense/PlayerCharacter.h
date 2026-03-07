@@ -8,6 +8,7 @@
 
 // --- Components --- //
 #include "Camera/CameraComponent.h" // Adding the camera because the rest of the hierarchy is defined in C++.
+#include "Data/ActorComponents/Flying.h"
 
 // --- ETC --- //
 #include "Utils/GameEnums.h"
@@ -34,6 +35,9 @@ public: // --- Components --- //
 
     UPROPERTY(EditAnywhere, Category = "Setting")
     UChildActorComponent* ToolBoxComponent;
+
+    UPROPERTY(EditAnywhere, Category = "Setting")
+    UFlying* FlyingComponent;
 
 public: // --- Action --- //
     /** MappingContext for player input */

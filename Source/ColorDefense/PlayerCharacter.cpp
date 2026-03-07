@@ -18,6 +18,9 @@ APlayerCharacter::APlayerCharacter()
     // Tool Box
     ToolBoxComponent = CreateDefaultSubobject<UChildActorComponent>(TEXT("ToolBoxComponent"));
     ToolBoxComponent->SetupAttachment(InvisibleArm);
+
+    // Flying 
+    FlyingComponent = CreateDefaultSubobject<UFlying>(TEXT("FlyingComponent"));
 }
 
 void APlayerCharacter::BeginPlay()
@@ -63,12 +66,21 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
     {
         EnhancedInputComponent->BindAction(ToggleShopAction, ETriggerEvent::Started, this, &APlayerCharacter::ToggleShop);
         EnhancedInputComponent->BindAction(ToggleInventoryAction, ETriggerEvent::Started, this, &APlayerCharacter::ToggleInventory);
+
+        FlyingComponent->SetupFlyingInput(EnhancedInputComponent);
     }
 }
 
 void APlayerCharacter::MoveForward(float AxisValue)
 {
-	AddMovementInput(GetActorForwardVector(), AxisValue);
+    if (FlyingComponent && FlyingComponent->bIsFlying)
+	{
+		FlyingComponent->SetForwardInput(AxisValue);
+	}
+	else
+	{
+		AddMovementInput(GetActorForwardVector(), AxisValue);
+	}
 }
 
 void APlayerCharacter::LookUp(float AxisValue)
@@ -78,7 +90,14 @@ void APlayerCharacter::LookUp(float AxisValue)
 
 void APlayerCharacter::MoveRight(float AxisValue)
 {
-	AddMovementInput(GetActorRightVector(), AxisValue);
+    if (FlyingComponent && FlyingComponent->bIsFlying)
+	{
+		FlyingComponent->SetRightInput(AxisValue);
+	}
+	else
+	{
+		AddMovementInput(GetActorRightVector(), AxisValue);
+	}
 }
 
 void APlayerCharacter::LookRight(float AxisValue)
