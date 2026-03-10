@@ -28,9 +28,6 @@ void AWorldGenerator::BeginPlay()
 
     // ------------------------------------ 로직 클래스 초기화 -----------------------------------//
     ChunkGeneratorManager->CreateChunkGenerator(ChunkGrid, NeighborRadius);
-    // ChunkGeneratorManager->ChunkGenerator->GenerateCreepWayChunk(this->ChunkCount, NeighborRadius);
-    ChunkGeneratorManager->ChunkGenerator->GenerateStartLocation();
-
     CreepCheckPointGeneratorManager->CreateCreepCheckPointGenerators(World, BPActorPool, VoxelGrid, MaxRailCount, VoxelWidth, VoxelHeight, bShowCreepCheckPoints);
     TArray<UCreepCheckPointGenerator*>& CreepCheckPointGenerators = CreepCheckPointGeneratorManager->CreepCheckPointGenerators;
     PlayerBlockGeneratorManager->CreatePlayerBlockGenerator(World, BPActorPool, VoxelGrid, VoxelWidth, VoxelHeight);

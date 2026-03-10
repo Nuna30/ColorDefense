@@ -1,5 +1,5 @@
-// CreepPathWidget.cpp
 #include "CreepPathWidget.h"
+#include "WorldOverviewWidget.h"
 #include "Handlers/CreepWayHandler.h"
 #include "GameStates/ColorDefenseGameState.h"
 #include "Components/Button.h"

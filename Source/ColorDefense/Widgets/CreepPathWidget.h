@@ -48,4 +48,8 @@ public:
 
     UFUNCTION()
     void OnQuitClicked();
+
+public: // --- WorldOverview --- //
+    UPROPERTY(meta = (BindWidget))
+    class UWorldOverviewWidget* WorldOverviewWidget;
 };
