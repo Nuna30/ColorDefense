@@ -11,16 +11,15 @@ void UWorldOverviewWidget::NativeConstruct()
 	RenderTarget->UpdateResourceImmediate(true);
 
     // Create a ChunkVisualizer.
+    FIntVector StartingLocation = FIntVector(0, 0, 0);
     ChunkVisualizer = GetWorld()->SpawnActor<AChunkVisualizer>();
-    ChunkVisualizer->SetStartingLocation(FIntVector(0, 0, 0));
+    ChunkVisualizer->SetStartingLocation(StartingLocation);
 
     // Create a capture camera.
     CaptureCamera = GetWorld()->SpawnActor<ACaptureCamera>();
     CaptureCamera->WorldOverviewCaptureCamera->TextureTarget = RenderTarget;
+    CaptureCamera->SetCenterLocation(FVector(StartingLocation));
     CaptureCamera->SetActorLocation(FVector(3043, 3176, 5936));
-
-    내일 컨트롤 부분 만들면 될 듯 ㅇㅇ
-
 
     // Wire the RenderTarget to the image.
     FSlateBrush Brush;
