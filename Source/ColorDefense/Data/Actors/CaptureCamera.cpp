@@ -36,27 +36,45 @@ void ACaptureCamera::UpdateWorldOverviewCapture()
 
 void ACaptureCamera::UpdateSphericalTrajectory(float DeltaTime)
 {
-    if (Radius <= 0.0f) return;
+	if (Radius <= 0.0f) return;
 
-    // 1. 방위각 회전 (360도 순환)
-    CurrentAzimuth += OrbitSpeed * DeltaTime;
-    CurrentAzimuth = FMath::Fmod(CurrentAzimuth, 360.0f);
+	ApplySphericalPosition();
+}
 
-    // 2. 구면 좌표 → 카테시안 좌표 변환
-    float AzRad = FMath::DegreesToRadians(CurrentAzimuth);
-    float ElRad = FMath::DegreesToRadians(ElevationAngle);
+void ACaptureCamera::ApplySphericalPosition()
+{
+	if (Radius <= 0.0f) return;
 
-    FVector Offset(
-        Radius * FMath::Cos(AzRad) * FMath::Cos(ElRad),   // X
-        Radius * FMath::Sin(AzRad) * FMath::Cos(ElRad),   // Y
-        Radius * FMath::Sin(ElRad)                        // Z (위로)
-    );
+	float AzRad = FMath::DegreesToRadians(CurrentAzimuth);
+	float ElRad = FMath::DegreesToRadians(ElevationAngle);
 
-    FVector NewLocation = CenterLocation + Offset;
+	FVector Offset(
+		Radius * FMath::Cos(AzRad) * FMath::Cos(ElRad),
+		Radius * FMath::Sin(AzRad) * FMath::Cos(ElRad),
+		Radius * FMath::Sin(ElRad)
+	);
 
-    // 3. 위치 이동 + 항상 중심을 바라보게 회전
-    SetActorLocation(NewLocation);
-    SetActorRotation((CenterLocation - NewLocation).Rotation());
+	FVector NewLocation = CenterLocation + Offset;
+
+	SetActorLocation(NewLocation);
+	SetActorRotation((CenterLocation - NewLocation).Rotation());
+}
+
+// ========================== //
+// ===== Manual Control ===== //
+// ========================== //
+
+void ACaptureCamera::AddAzimuth(float Delta)
+{
+	CurrentAzimuth += Delta;
+	CurrentAzimuth = FMath::Fmod(CurrentAzimuth, 360.0f);
+	ApplySphericalPosition();
+}
+
+void ACaptureCamera::AddElevation(float Delta)
+{
+	ElevationAngle = FMath::Clamp(ElevationAngle + Delta, 15.0f, 85.0f);
+	ApplySphericalPosition();
 }
 
 void ACaptureCamera::SetCenterLocation(FVector NewCenterLocation)

@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "Components/SceneCaptureComponent2D.h"
@@ -45,4 +43,12 @@ public: // --- Features --- //
 	void UpdateWorldOverviewCapture();
 	void SetCenterLocation(FVector NewCenterLocation);
 	void UpdateSphericalTrajectory(float DeltaTime);
+	void ApplySphericalPosition();
+
+public: // --- Manual Control --- //
+	UFUNCTION()
+	void AddAzimuth(float Delta);
+
+	UFUNCTION()
+	void AddElevation(float Delta);
 };
