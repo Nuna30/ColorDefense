@@ -49,4 +49,8 @@
   <summary> Flying </summary>
   <p><img src="images/Flying.gif"></p>
 </details>
+<details>
+  <summary> World Overview </summary>
+  <p><img src="images/WorldOverview.gif"></p>
+</details>
 
