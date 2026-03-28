@@ -35,35 +35,40 @@ void UWorldOverviewWidget::NativeConstruct()
 void UWorldOverviewWidget::NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
 	Super::NativeOnMouseEnter(InGeometry, InMouseEvent);
-	// 필요시 hover 효과 추가 가능
 }
 
 void UWorldOverviewWidget::NativeOnMouseLeave(const FPointerEvent& InMouseEvent)
 {
 	Super::NativeOnMouseLeave(InMouseEvent);
-	if (bIsDragging) EndDrag();
 }
 
 FReply UWorldOverviewWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
-	if (InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton && CaptureCamera)
+	if (InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
 	{
 		bIsDragging = true;
+		bIsPanning = false;
 		DragStartScreenPosition = InMouseEvent.GetScreenSpacePosition();
-
-		if (APlayerController* PC = GetOwningPlayer())
-		{
-			PC->SetShowMouseCursor(false);
-		}
-
+		HideMouseCursor();
 		return FReply::Handled().CaptureMouse(TakeWidget());
 	}
+	else if (InMouseEvent.GetEffectingButton() == EKeys::RightMouseButton)
+	{
+		bIsDragging = true;
+		bIsPanning = true;
+		DragStartScreenPosition = InMouseEvent.GetScreenSpacePosition();
+		HideMouseCursor();
+		return FReply::Handled().CaptureMouse(TakeWidget());
+	}
+
 	return Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
 }
 
 FReply UWorldOverviewWidget::NativeOnMouseButtonUp(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
 {
-	if (InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton && bIsDragging)
+	if (bIsDragging &&
+		(InMouseEvent.GetEffectingButton() == EKeys::LeftMouseButton ||
+		 InMouseEvent.GetEffectingButton() == EKeys::RightMouseButton))
 	{
 		EndDrag();
 		return FReply::Handled().ReleaseMouseCapture();
@@ -77,21 +82,59 @@ FReply UWorldOverviewWidget::NativeOnMouseMove(const FGeometry& InGeometry, cons
 	{
 		FVector2D Delta = InMouseEvent.GetScreenSpacePosition() - InMouseEvent.GetLastScreenSpacePosition();
 
-		CaptureCamera->AddAzimuth(-Delta.X * MouseSensitivity);   // 좌우 반전
-		CaptureCamera->AddElevation(Delta.Y * MouseSensitivity);  // 상하 (필요시 - 붙여서 반전)
+		if (bIsPanning)
+		{
+			// 우클릭 드래그 → CenterLocation 이동 (팬)
+			CaptureCamera->Pan(-Delta.X, Delta.Y);
+		}
+		else
+		{
+			// 좌클릭 드래그 → 회전 (기존)
+			CaptureCamera->AddAzimuth(-Delta.X * MouseSensitivity);
+			CaptureCamera->AddElevation(-Delta.Y * MouseSensitivity);
+		}
 
 		return FReply::Handled();
 	}
 	return Super::NativeOnMouseMove(InGeometry, InMouseEvent);
 }
 
+FReply UWorldOverviewWidget::NativeOnMouseWheel(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+{
+	if (CaptureCamera)
+	{
+		float WheelDelta = InMouseEvent.GetWheelDelta(); // +1 = wheel up, -1 = wheel down
+
+		// wheel up → Zoom In 
+		// wheel down → Zoom Out
+		CaptureCamera->AddRadius(-WheelDelta * ZoomSensitivity);
+
+		return FReply::Handled();
+	}
+
+	return Super::NativeOnMouseWheel(InGeometry, InMouseEvent);
+}
+
 void UWorldOverviewWidget::EndDrag()
 {
 	bIsDragging = false;
+	bIsPanning = false;
 
 	if (APlayerController* PC = GetOwningPlayer())
 	{
 		PC->SetShowMouseCursor(true);
 		PC->SetMouseLocation(DragStartScreenPosition.X, DragStartScreenPosition.Y);
+	}
+}
+
+// ================= //
+// ===== Utils ===== //
+// ================= //
+
+void UWorldOverviewWidget::HideMouseCursor() 
+{
+	if (APlayerController* PC = GetOwningPlayer())
+	{
+		PC->SetShowMouseCursor(false);
 	}
 }

@@ -21,13 +21,18 @@ protected: // --- UE mouse event --- //
 	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	virtual FReply NativeOnMouseButtonUp(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	virtual FReply NativeOnMouseMove(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
+	virtual FReply NativeOnMouseWheel(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 
 public: // --- mouse control --- //
 	bool bIsDragging = false;
+	bool bIsPanning = false;
 	FVector2D DragStartScreenPosition;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction|Mouse")
-	float MouseSensitivity = 0.25f;   // ← Blueprint에서 조정 가능
+	UPROPERTY(EditAnywhere, Category = "Setting")
+	float MouseSensitivity = 0.25f;
+
+	UPROPERTY(EditAnywhere, Category = "Setting")
+	float ZoomSensitivity = 120.0f;
 
 	void EndDrag();
 
@@ -43,4 +48,8 @@ public: // --- Components --- //
 
 	UPROPERTY()
 	ACaptureCamera* CaptureCamera;
+
+public: // --- Utils --- //
+	void HideMouseCursor();
+
 };

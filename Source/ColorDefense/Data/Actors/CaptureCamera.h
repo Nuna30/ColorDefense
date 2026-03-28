@@ -28,6 +28,9 @@ public:	// --- Properties --- //
 	UPROPERTY(EditAnywhere, Category = "Settings")
 	float ElevationAngle = 65.0f;         // 고도 각도 (65°가 월드 오버뷰에 가장 자연스러움)
 
+	UPROPERTY(EditAnywhere, Category = "Settings")
+	float PanSensitivity = 1.0f;          // ← 우클릭 팬 속도
+
 	FVector CenterLocation;
 	float CurrentAzimuth = 0.0f;
 
@@ -51,4 +54,10 @@ public: // --- Manual Control --- //
 
 	UFUNCTION()
 	void AddElevation(float Delta);
+
+	UFUNCTION()
+	void AddRadius(float Delta);
+
+	UFUNCTION()
+	void Pan(float DeltaX, float DeltaY);
 };
